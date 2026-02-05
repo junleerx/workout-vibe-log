@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      custom_exercises: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       exercise_sets: {
         Row: {
           completed: boolean
@@ -51,6 +75,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      members: {
+        Row: {
+          avatar_color: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -120,6 +171,7 @@ export type Database = {
           date: string
           duration: number
           id: string
+          member_id: string | null
           total_sets: number
           total_volume: number
           user_id: string
@@ -129,6 +181,7 @@ export type Database = {
           date: string
           duration?: number
           id?: string
+          member_id?: string | null
           total_sets?: number
           total_volume?: number
           user_id: string
@@ -138,11 +191,20 @@ export type Database = {
           date?: string
           duration?: number
           id?: string
+          member_id?: string | null
           total_sets?: number
           total_volume?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workouts_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

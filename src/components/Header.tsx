@@ -1,4 +1,4 @@
-import { Dumbbell, History, LogOut, User } from 'lucide-react';
+import { Dumbbell, History, LogOut, User, Calendar, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,14 +7,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+type TabType = 'workout' | 'history' | 'calendar' | 'progress';
+
 interface HeaderProps {
-  activeTab: 'workout' | 'history';
-  onTabChange: (tab: 'workout' | 'history') => void;
+  activeTab: TabType;
+  onTabChange: (tab: TabType) => void;
   userEmail?: string;
   onSignOut?: () => void;
 }
 
 export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderProps) {
+  const tabs = [
+    { id: 'workout' as TabType, label: '운동', icon: Dumbbell },
+    { id: 'history' as TabType, label: '기록', icon: History },
+    { id: 'calendar' as TabType, label: '캘린더', icon: Calendar },
+    { id: 'progress' as TabType, label: '진행', icon: TrendingUp },
+  ];
+
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container py-4">
@@ -46,29 +55,21 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
           )}
         </div>
         
-        <nav className="flex gap-2">
-          <button
-            onClick={() => onTabChange('workout')}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-              activeTab === 'workout'
-                ? 'bg-primary text-primary-foreground glow-effect'
-                : 'bg-secondary text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Dumbbell className="w-4 h-4" />
-            운동
-          </button>
-          <button
-            onClick={() => onTabChange('history')}
-            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
-              activeTab === 'history'
-                ? 'bg-primary text-primary-foreground glow-effect'
-                : 'bg-secondary text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <History className="w-4 h-4" />
-            기록
-          </button>
+        <nav className="flex gap-1 overflow-x-auto scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 text-sm whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-primary text-primary-foreground glow-effect'
+                  : 'bg-secondary text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
         </nav>
       </div>
     </header>

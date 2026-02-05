@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Workout, Exercise, WorkoutSet, ExerciseCategory } from '@/types/workout';
+import { CustomExercise } from '@/types/member';
 import { ExerciseCard } from './ExerciseCard';
 import { ExerciseSelector } from './ExerciseSelector';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,8 @@ interface WorkoutViewProps {
   onUpdateSet: (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => void;
   onFinishWorkout: () => void;
   onCancelWorkout: () => void;
+  customExercises?: CustomExercise[];
+  onAddCustomExercise?: (name: string, category: string) => Promise<CustomExercise | undefined>;
 }
 
 export function WorkoutView({
@@ -27,6 +30,8 @@ export function WorkoutView({
   onUpdateSet,
   onFinishWorkout,
   onCancelWorkout,
+  customExercises = [],
+  onAddCustomExercise,
 }: WorkoutViewProps) {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
 
@@ -123,6 +128,8 @@ export function WorkoutView({
         <ExerciseSelector
           onSelect={onAddExercise}
           onClose={() => setShowExerciseSelector(false)}
+          customExercises={customExercises}
+          onAddCustomExercise={onAddCustomExercise}
         />
       )}
     </div>

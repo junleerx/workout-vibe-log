@@ -4,7 +4,11 @@ import { Workout, Exercise, WorkoutSet } from '@/types/workout';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-export function useWorkoutCloud() {
+interface UseWorkoutCloudOptions {
+  memberId?: string | null;
+}
+
+export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,10 +24,16 @@ export function useWorkoutCloud() {
     }
 
     try {
-      const { data: workoutsData, error: workoutsError } = await supabase
+      let query = supabase
         .from('workouts')
         .select('*')
         .order('date', { ascending: false });
+      
+      if (memberId) {
+        query = query.eq('member_id', memberId);
+      }
+
+      const { data: workoutsData, error: workoutsError } = await query;
 
       if (workoutsError) throw workoutsError;
 
@@ -76,17 +86,18 @@ export function useWorkoutCloud() {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, memberId]);
 
   useEffect(() => {
     fetchWorkouts();
   }, [fetchWorkouts]);
 
-  const startWorkout = () => {
+  const startWorkout = (selectedMemberId?: string) => {
     const newWorkout: Workout = {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
       exercises: [],
+      memberId: selectedMemberId,
     };
     setCurrentWorkout(newWorkout);
   };
@@ -208,6 +219,7 @@ export function useWorkoutCloud() {
           duration,
           total_volume: totalVolume,
           total_sets: totalSets,
+          member_id: currentWorkout.memberId || null,
         })
         .select()
         .single();
