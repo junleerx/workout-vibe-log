@@ -18,6 +18,7 @@ export interface Workout {
   exercises: Exercise[];
   duration?: number;
   notes?: string;
+  memberId?: string;
 }
 
 export type ExerciseCategory = 
