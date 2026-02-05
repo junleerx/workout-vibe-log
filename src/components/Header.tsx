@@ -32,7 +32,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
             <div className="p-2 rounded-xl bg-primary/20 glow-effect">
               <Dumbbell className="w-6 h-6 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-gradient">GymLog</h1>
+            <h1 className="text-2xl font-bold text-gradient">Juni's Gym</h1>
           </div>
           
           {userEmail && (
