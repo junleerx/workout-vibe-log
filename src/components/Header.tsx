@@ -1,11 +1,20 @@
-import { Dumbbell, History } from 'lucide-react';
+import { Dumbbell, History, LogOut, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   activeTab: 'workout' | 'history';
   onTabChange: (tab: 'workout' | 'history') => void;
+  userEmail?: string;
+  onSignOut?: () => void;
 }
 
-export function Header({ activeTab, onTabChange }: HeaderProps) {
+export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container py-4">
@@ -16,6 +25,25 @@ export function Header({ activeTab, onTabChange }: HeaderProps) {
             </div>
             <h1 className="text-2xl font-bold text-gradient">GymLog</h1>
           </div>
+          
+          {userEmail && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                  {userEmail}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onSignOut} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  로그아웃
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         
         <nav className="flex gap-2">

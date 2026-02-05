@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { WorkoutView } from '@/components/WorkoutView';
 import { HistoryView } from '@/components/HistoryView';
-import { useWorkout } from '@/hooks/useWorkout';
+import { useWorkoutCloud } from '@/hooks/useWorkoutCloud';
+import { useAuth } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<'workout' | 'history'>('workout');
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  
   const {
     workouts,
     currentWorkout,
+    loading: workoutsLoading,
     startWorkout,
     addExercise,
     removeExercise,
@@ -18,11 +25,34 @@ const Index = () => {
     finishWorkout,
     cancelWorkout,
     deleteWorkout,
-  } = useWorkout();
+  } = useWorkoutCloud();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading || workoutsLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
+      <Header 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        userEmail={user.email}
+        onSignOut={signOut}
+      />
       
       <main className="container py-6">
         {activeTab === 'workout' ? (
