@@ -59,6 +59,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
         <nav className="flex gap-1 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
+              type="button"
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 text-sm whitespace-nowrap ${

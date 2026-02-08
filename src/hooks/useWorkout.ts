@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Workout, Exercise, WorkoutSet } from '@/types/workout';
+import { Workout, Exercise, WorkoutSet, ExerciseCategory } from '@/types/workout';
 
 const STORAGE_KEY = 'gym-workouts';
 
@@ -10,7 +10,11 @@ export function useWorkout() {
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      setWorkouts(JSON.parse(saved));
+      try {
+        setWorkouts(JSON.parse(saved));
+      } catch {
+        // ignore invalid saved data
+      }
     }
   }, []);
 
@@ -19,46 +23,61 @@ export function useWorkout() {
   }, [workouts]);
 
   const startWorkout = () => {
-    const newWorkout: Workout = {
+    setCurrentWorkout({
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
       exercises: [],
-    };
-    setCurrentWorkout(newWorkout);
+    });
+  };
+
+  /** 프로그램에서 시작할 때 운동 목록을 한 번에 넣을 때 사용 */
+  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string }[]) => {
+    const newExercises: Exercise[] = exercises.map((ex) => ({
+      id: crypto.randomUUID(),
+      name: ex.exerciseName,
+      category: ex.muscleGroup as ExerciseCategory,
+      sets: [{ id: crypto.randomUUID(), reps: 0, weight: 0, completed: false }],
+    }));
+    setCurrentWorkout({
+      id: crypto.randomUUID(),
+      date: new Date().toISOString(),
+      exercises: newExercises,
+    });
   };
 
   const addExercise = (name: string, category: Exercise['category']) => {
-    if (!currentWorkout) return;
-
-    const newExercise: Exercise = {
-      id: crypto.randomUUID(),
-      name,
-      category,
-      sets: [{ id: crypto.randomUUID(), reps: 0, weight: 0, completed: false }],
-    };
-
-    setCurrentWorkout({
-      ...currentWorkout,
-      exercises: [...currentWorkout.exercises, newExercise],
+    setCurrentWorkout((prev) => {
+      if (!prev) return prev;
+      const newExercise: Exercise = {
+        id: crypto.randomUUID(),
+        name,
+        category,
+        sets: [{ id: crypto.randomUUID(), reps: 0, weight: 0, completed: false }],
+      };
+      return {
+        ...prev,
+        exercises: [...prev.exercises, newExercise],
+      };
     });
   };
 
   const removeExercise = (exerciseId: string) => {
-    if (!currentWorkout) return;
-
-    setCurrentWorkout({
-      ...currentWorkout,
-      exercises: currentWorkout.exercises.filter((e) => e.id !== exerciseId),
+    setCurrentWorkout((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.filter((e) => e.id !== exerciseId),
+      };
     });
   };
 
   const addSet = (exerciseId: string) => {
-    if (!currentWorkout) return;
-
-    setCurrentWorkout({
-      ...currentWorkout,
-      exercises: currentWorkout.exercises.map((exercise) => {
-        if (exercise.id === exerciseId) {
+    setCurrentWorkout((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
           const lastSet = exercise.sets[exercise.sets.length - 1];
           return {
             ...exercise,
@@ -66,67 +85,61 @@ export function useWorkout() {
               ...exercise.sets,
               {
                 id: crypto.randomUUID(),
-                reps: lastSet?.reps || 0,
-                weight: lastSet?.weight || 0,
+                reps: lastSet?.reps ?? 0,
+                weight: lastSet?.weight ?? 0,
                 completed: false,
               },
             ],
           };
-        }
-        return exercise;
-      }),
+        }),
+      };
     });
   };
 
   const removeSet = (exerciseId: string, setId: string) => {
-    if (!currentWorkout) return;
-
-    setCurrentWorkout({
-      ...currentWorkout,
-      exercises: currentWorkout.exercises.map((exercise) => {
-        if (exercise.id === exerciseId) {
+    setCurrentWorkout((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
           return {
             ...exercise,
             sets: exercise.sets.filter((s) => s.id !== setId),
           };
-        }
-        return exercise;
-      }),
+        }),
+      };
     });
   };
 
   const updateSet = (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => {
-    if (!currentWorkout) return;
-
-    setCurrentWorkout({
-      ...currentWorkout,
-      exercises: currentWorkout.exercises.map((exercise) => {
-        if (exercise.id === exerciseId) {
+    setCurrentWorkout((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.map((exercise) => {
+          if (exercise.id !== exerciseId) return exercise;
           return {
             ...exercise,
-            sets: exercise.sets.map((set) => {
-              if (set.id === setId) {
-                return { ...set, ...updates };
-              }
-              return set;
-            }),
+            sets: exercise.sets.map((set) =>
+              set.id === setId ? { ...set, ...updates } : set
+            ),
           };
-        }
-        return exercise;
-      }),
+        }),
+      };
     });
   };
 
   const finishWorkout = () => {
-    if (!currentWorkout) return;
-
-    const finishedWorkout = {
-      ...currentWorkout,
-      duration: Math.floor((Date.now() - new Date(currentWorkout.date).getTime()) / 1000),
-    };
-
-    setWorkouts([finishedWorkout, ...workouts]);
-    setCurrentWorkout(null);
+    setCurrentWorkout((prev) => {
+      if (!prev) return null;
+      const finishedWorkout: Workout = {
+        ...prev,
+        duration: Math.floor((Date.now() - new Date(prev.date).getTime()) / 1000),
+      };
+      setWorkouts((w) => [finishedWorkout, ...w]);
+      return null;
+    });
   };
 
   const cancelWorkout = () => {
@@ -134,13 +147,14 @@ export function useWorkout() {
   };
 
   const deleteWorkout = (workoutId: string) => {
-    setWorkouts(workouts.filter((w) => w.id !== workoutId));
+    setWorkouts((w) => w.filter((workout) => workout.id !== workoutId));
   };
 
   return {
     workouts,
     currentWorkout,
     startWorkout,
+    startWorkoutWithExercises,
     addExercise,
     removeExercise,
     addSet,

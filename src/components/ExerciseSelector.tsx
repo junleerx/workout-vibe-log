@@ -146,6 +146,7 @@ export function ExerciseSelector({
 
         <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
           <button
+            type="button"
             onClick={() => setSelectedCategory(null)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               !selectedCategory
@@ -157,6 +158,7 @@ export function ExerciseSelector({
           </button>
           {categories.map((category) => (
             <button
+              type="button"
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
@@ -173,6 +175,7 @@ export function ExerciseSelector({
         <div className="flex-1 overflow-y-auto space-y-2">
           {filteredExercises.map((exercise, index) => (
             <button
+              type="button"
               key={`${exercise.name}-${index}`}
               onClick={() => {
                 onSelect(exercise.name, exercise.category);
