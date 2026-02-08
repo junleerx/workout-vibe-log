@@ -82,8 +82,12 @@ export function ExerciseCard({
               />
             </div>
             <div className="col-span-2 flex gap-1">
+              {/* 체크 버튼 클릭 시 completed 상태를 반전시켜 부모에게 전달합니다 */}
               <button
-                onClick={() => onUpdateSet(set.id, { completed: !set.completed })}
+                onClick={() => {
+                  const newStatus = !set.completed;
+                  onUpdateSet(set.id, { completed: newStatus });
+                }}
                 className={`p-1.5 rounded-lg transition-all ${
                   set.completed
                     ? 'bg-primary text-primary-foreground'
@@ -116,4 +120,3 @@ export function ExerciseCard({
       </Button>
     </div>
   );
-}
