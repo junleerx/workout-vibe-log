@@ -1,4 +1,4 @@
-import { Dumbbell, History, LogOut, User, Calendar, TrendingUp } from 'lucide-react';
+import { Dumbbell, History, LogOut, User, Calendar, TrendingUp, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-type TabType = 'workout' | 'history' | 'calendar' | 'progress';
+type TabType = 'workout' | 'programs' | 'history' | 'calendar' | 'progress';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -19,6 +19,7 @@ interface HeaderProps {
 export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderProps) {
   const tabs = [
     { id: 'workout' as TabType, label: '운동', icon: Dumbbell },
+    { id: 'programs' as TabType, label: '프로그램', icon: ClipboardList },
     { id: 'history' as TabType, label: '기록', icon: History },
     { id: 'calendar' as TabType, label: '캘린더', icon: Calendar },
     { id: 'progress' as TabType, label: '진행', icon: TrendingUp },
