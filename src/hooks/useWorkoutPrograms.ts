@@ -126,6 +126,69 @@ export function useWorkoutPrograms() {
     }
   };
 
+  const updateProgram = async (
+    programId: string,
+    name: string,
+    description: string,
+    daysOfWeek: string[],
+    exercises: Omit<ProgramExercise, 'id'>[]
+  ) => {
+    if (!user) return;
+
+    try {
+      const { error: programError } = await supabase
+        .from('workout_programs')
+        .update({
+          name,
+          description: description || null,
+          days_of_week: daysOfWeek,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', programId);
+
+      if (programError) throw programError;
+
+      const { error: deleteError } = await supabase
+        .from('program_exercises')
+        .delete()
+        .eq('program_id', programId);
+
+      if (deleteError) throw deleteError;
+
+      if (exercises.length > 0) {
+        const exercisesToInsert = exercises.map((ex, index) => ({
+          program_id: programId,
+          exercise_name: ex.exerciseName,
+          muscle_group: ex.muscleGroup,
+          target_sets: ex.targetSets,
+          target_reps: ex.targetReps,
+          target_weight: ex.targetWeight,
+          order_index: index,
+        }));
+
+        const { error: exercisesError } = await supabase
+          .from('program_exercises')
+          .insert(exercisesToInsert);
+
+        if (exercisesError) throw exercisesError;
+      }
+
+      toast({
+        title: '완료!',
+        description: '프로그램이 수정되었습니다.',
+      });
+
+      fetchPrograms();
+    } catch (error) {
+      console.error('Error updating program:', error);
+      toast({
+        title: '오류',
+        description: '프로그램 수정에 실패했습니다.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const deleteProgram = async (programId: string) => {
     try {
       const { error } = await supabase
@@ -155,6 +218,7 @@ export function useWorkoutPrograms() {
     programs,
     loading,
     createProgram,
+    updateProgram,
     deleteProgram,
     refetch: fetchPrograms,
   };
