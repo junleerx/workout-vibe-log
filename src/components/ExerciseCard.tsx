@@ -84,6 +84,7 @@ export function ExerciseCard({
             <div className="col-span-2 flex gap-1">
               {/* 체크 버튼 클릭 시 completed 상태를 반전시켜 부모에게 전달합니다 */}
               <button
+                type="button"
                 onClick={() => {
                   const newStatus = !set.completed;
                   onUpdateSet(set.id, { completed: newStatus });
@@ -98,6 +99,7 @@ export function ExerciseCard({
               </button>
               {exercise.sets.length > 1 && (
                 <button
+                  type="button"
                   onClick={() => onRemoveSet(set.id)}
                   className="p-1.5 rounded-lg bg-muted/50 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
                 >
@@ -110,6 +112,7 @@ export function ExerciseCard({
       </div>
 
       <Button
+        type="button"
         variant="outline"
         size="sm"
         onClick={onAddSet}
