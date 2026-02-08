@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Workout, Exercise, WorkoutSet } from '@/types/workout';
+import { ProgramExercise } from '@/types/program';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
@@ -97,6 +98,28 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
       exercises: [],
+      memberId: selectedMemberId,
+    };
+    setCurrentWorkout(newWorkout);
+  };
+
+  const startWorkoutFromProgram = (selectedMemberId: string, programExercises: ProgramExercise[]) => {
+    const exercises: Exercise[] = programExercises.map((pe) => ({
+      id: crypto.randomUUID(),
+      name: pe.exerciseName,
+      category: pe.muscleGroup as Exercise['category'],
+      sets: Array.from({ length: pe.targetSets }, () => ({
+        id: crypto.randomUUID(),
+        reps: pe.targetReps,
+        weight: pe.targetWeight,
+        completed: false,
+      })),
+    }));
+
+    const newWorkout: Workout = {
+      id: crypto.randomUUID(),
+      date: new Date().toISOString(),
+      exercises,
       memberId: selectedMemberId,
     };
     setCurrentWorkout(newWorkout);
@@ -308,6 +331,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     currentWorkout,
     loading,
     startWorkout,
+    startWorkoutFromProgram,
     addExercise,
     removeExercise,
     addSet,

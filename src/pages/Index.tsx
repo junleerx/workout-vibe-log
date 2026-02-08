@@ -5,14 +5,17 @@ import { WorkoutView } from '@/components/WorkoutView';
 import { HistoryView } from '@/components/HistoryView';
 import { CalendarView } from '@/components/CalendarView';
 import { ProgressView } from '@/components/ProgressView';
+import { ProgramsView } from '@/components/ProgramsView';
 import { MemberSelector } from '@/components/MemberSelector';
 import { useWorkoutCloud } from '@/hooks/useWorkoutCloud';
 import { useMembers } from '@/hooks/useMembers';
 import { useCustomExercises } from '@/hooks/useCustomExercises';
+import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
 import { useAuth } from '@/hooks/useAuth';
+import { ProgramExercise } from '@/types/program';
 import { Loader2 } from 'lucide-react';
 
-type TabType = 'workout' | 'history' | 'calendar' | 'progress';
+type TabType = 'workout' | 'programs' | 'history' | 'calendar' | 'progress';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabType>('workout');
@@ -35,6 +38,13 @@ const Index = () => {
   } = useCustomExercises();
 
   const {
+    programs,
+    loading: programsLoading,
+    createProgram,
+    deleteProgram,
+  } = useWorkoutPrograms();
+
+  const {
     workouts,
     currentWorkout,
     loading: workoutsLoading,
@@ -47,6 +57,7 @@ const Index = () => {
     finishWorkout,
     cancelWorkout,
     deleteWorkout,
+    startWorkoutFromProgram,
   } = useWorkoutCloud({ memberId: selectedMember?.id });
 
   useEffect(() => {
@@ -55,7 +66,7 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
-  if (authLoading || workoutsLoading || membersLoading) {
+  if (authLoading || workoutsLoading || membersLoading || programsLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -72,6 +83,14 @@ const Index = () => {
       return;
     }
     startWorkout(selectedMember.id);
+  };
+
+  const handleStartFromProgram = (exercises: ProgramExercise[]) => {
+    if (!selectedMember) {
+      return;
+    }
+    startWorkoutFromProgram(selectedMember.id, exercises);
+    setActiveTab('workout');
   };
 
   return (
@@ -117,6 +136,15 @@ const Index = () => {
                 onCancelWorkout={cancelWorkout}
                 customExercises={customExercises}
                 onAddCustomExercise={addCustomExercise}
+              />
+            )}
+            {activeTab === 'programs' && (
+              <ProgramsView
+                programs={programs}
+                onCreateProgram={createProgram}
+                onDeleteProgram={deleteProgram}
+                onStartFromProgram={handleStartFromProgram}
+                customExercises={customExercises}
               />
             )}
             {activeTab === 'history' && (

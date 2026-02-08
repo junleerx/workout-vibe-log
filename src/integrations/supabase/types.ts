@@ -130,6 +130,50 @@ export type Database = {
         }
         Relationships: []
       }
+      program_exercises: {
+        Row: {
+          created_at: string
+          exercise_name: string
+          id: string
+          muscle_group: string
+          order_index: number
+          program_id: string
+          target_reps: number
+          target_sets: number
+          target_weight: number
+        }
+        Insert: {
+          created_at?: string
+          exercise_name: string
+          id?: string
+          muscle_group: string
+          order_index?: number
+          program_id: string
+          target_reps?: number
+          target_sets?: number
+          target_weight?: number
+        }
+        Update: {
+          created_at?: string
+          exercise_name?: string
+          id?: string
+          muscle_group?: string
+          order_index?: number
+          program_id?: string
+          target_reps?: number
+          target_sets?: number
+          target_weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_exercises_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "workout_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workout_exercises: {
         Row: {
           created_at: string
@@ -164,6 +208,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      workout_programs: {
+        Row: {
+          created_at: string
+          days_of_week: string[] | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: string[] | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: string[] | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       workouts: {
         Row: {
