@@ -31,7 +31,7 @@ const Index = () => {
           <TabsContent value="history"><HistoryView /></TabsContent>
           <TabsContent value="progress"><ProgressView /></TabsContent>
           <TabsContent value="calendar"><CalendarView /></TabsContent>
-          <TabsList className="fixed bottom-0 left-0 right-0 h-16 bg-background border-t grid grid-cols-5 px-2">
+          <TabsList className="fixed bottom-0 left-0 right-0 h-16 bg-background border-t grid grid-cols-5 px-2 z-40">
             <TabsTrigger value="workout" className="flex flex-col gap-1"><Dumbbell className="w-5 h-5" /><span className="text-[10px]">운동</span></TabsTrigger>
             <TabsTrigger value="programs" className="flex flex-col gap-1"><ClipboardList className="w-5 h-5" /><span className="text-[10px]">프로그램</span></TabsTrigger>
             <TabsTrigger value="history" className="flex flex-col gap-1"><History className="w-5 h-5" /><span className="text-[10px]">기록</span></TabsTrigger>

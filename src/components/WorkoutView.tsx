@@ -48,7 +48,7 @@ export function WorkoutView({
           <h2 className="text-2xl font-bold mb-2">오늘의 운동</h2>
           <p className="text-muted-foreground">새로운 운동을 시작해보세요!</p>
         </div>
-        <Button variant="glow" size="lg" onClick={onStartWorkout}>
+        <Button type="button" variant="glow" size="lg" onClick={onStartWorkout}>
           <Play className="w-5 h-5" />
           운동 시작
         </Button>
@@ -109,6 +109,7 @@ export function WorkoutView({
       </div>
 
       <Button
+        type="button"
         variant="outline"
         size="lg"
         className="w-full mb-4"
@@ -118,12 +119,14 @@ export function WorkoutView({
         운동 추가
       </Button>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-40">
+      {/* 탭 바(h-16) 위에 배치해 겹치지 않도록 bottom-20 */}
+      <div className="fixed bottom-20 left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t border-border z-50">
         <div className="container flex gap-3">
-          <Button variant="outline" className="flex-1" onClick={onCancelWorkout}>
+          <Button type="button" variant="outline" className="flex-1" onClick={onCancelWorkout}>
             취소
           </Button>
           <Button
+            type="button"
             variant="glow"
             className="flex-1"
             onClick={onFinishWorkout}
