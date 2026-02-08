@@ -12,21 +12,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dumbbell, History, LineChart, Calendar, ClipboardList } from 'lucide-react';
 
 const Index = () => {
-  const { workout, exercises, startWorkout, updateExercise, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, isFinishing } = useWorkout();
+  const { currentWorkout, startWorkout, updateExercise, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout } = useWorkout();
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms();
   const { customExercises } = useCustomExercises();
   const [activeTab, setActiveTab] = useState('workout');
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <Header />
+      <Header activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="container max-w-2xl mx-auto px-4 pt-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsContent value="workout" className="mt-0">
-            <WorkoutView workout={workout} exercises={exercises} onUpdateExercise={updateExercise} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} isFinishing={isFinishing} customExercises={customExercises} />
+            <WorkoutView currentWorkout={currentWorkout} onUpdateExercise={updateExercise} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
           </TabsContent>
           <TabsContent value="programs">
-            <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkout(); exs.forEach(ex => addExercise(ex.exerciseName, ex.muscleGroup)); setActiveTab('workout'); }} customExercises={customExercises} />
+            <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkout(); exs.forEach((ex) => addExercise(ex.exerciseName, ex.muscleGroup)); setActiveTab('workout'); }} customExercises={customExercises} />
           </TabsContent>
           <TabsContent value="history"><HistoryView /></TabsContent>
           <TabsContent value="progress"><ProgressView /></TabsContent>
