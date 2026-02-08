@@ -7,9 +7,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dumbbell, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// 간단한 ID를 이메일 형식으로 변환
+const formatAsEmail = (id: string) => {
+  if (id.includes('@')) return id;
+  return `${id}@junisgym.local`;
+};
+
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, loading, signUp, signIn } = useAuth();
@@ -25,10 +31,10 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!userId || !password) {
       toast({
         title: '입력 오류',
-        description: '이메일과 비밀번호를 모두 입력해주세요.',
+        description: 'ID와 비밀번호를 모두 입력해주세요.',
         variant: 'destructive',
       });
       return;
@@ -44,6 +50,7 @@ const Auth = () => {
     }
 
     setIsSubmitting(true);
+    const email = formatAsEmail(userId);
 
     try {
       if (isSignUp) {
@@ -52,7 +59,7 @@ const Auth = () => {
           if (error.message.includes('already registered')) {
             toast({
               title: '가입 오류',
-              description: '이미 가입된 이메일입니다. 로그인해주세요.',
+              description: '이미 가입된 ID입니다. 로그인해주세요.',
               variant: 'destructive',
             });
           } else {
@@ -65,7 +72,7 @@ const Auth = () => {
         } else {
           toast({
             title: '가입 완료!',
-            description: '이메일 확인 후 로그인해주세요.',
+            description: '이제 로그인할 수 있습니다.',
           });
           setIsSignUp(false);
         }
@@ -75,7 +82,7 @@ const Auth = () => {
           if (error.message.includes('Invalid login credentials')) {
             toast({
               title: '로그인 오류',
-              description: '이메일 또는 비밀번호가 올바르지 않습니다.',
+              description: 'ID 또는 비밀번호가 올바르지 않습니다.',
               variant: 'destructive',
             });
           } else {
@@ -110,9 +117,9 @@ const Auth = () => {
             </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">GymLog</CardTitle>
+            <CardTitle className="text-2xl font-bold">Juni's Gym</CardTitle>
             <CardDescription className="text-muted-foreground">
-              {isSignUp ? '계정을 만들어 운동을 기록하세요' : '로그인하여 운동을 시작하세요'}
+              {isSignUp ? '계정을 만들어 운동을 기록하세요' : '간단한 ID로 로그인하세요'}
             </CardDescription>
           </div>
         </CardHeader>
@@ -120,10 +127,10 @@ const Auth = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
-                type="email"
-                placeholder="이메일"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="ID (예: qwer)"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
                 className="bg-background/50 border-border/50"
                 disabled={isSubmitting}
               />
