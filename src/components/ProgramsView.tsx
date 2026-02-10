@@ -125,7 +125,7 @@ export function ProgramsView({
           <h2 className="text-xl font-bold">운동 프로그램</h2>
           <p className="text-sm text-muted-foreground mt-0.5">루틴을 만들고 요일별로 관리하세요</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { if (open) { setIsDialogOpen(true); } else { closeDialog(); } }}>
           <DialogTrigger asChild>
             <Button className="gap-2 rounded-xl" onClick={() => setEditingId(null)}>
               <Plus className="w-4 h-4" />
