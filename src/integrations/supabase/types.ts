@@ -215,6 +215,7 @@ export type Database = {
           days_of_week: string[] | null
           description: string | null
           id: string
+          member_id: string | null
           name: string
           updated_at: string
           user_id: string
@@ -224,6 +225,7 @@ export type Database = {
           days_of_week?: string[] | null
           description?: string | null
           id?: string
+          member_id?: string | null
           name: string
           updated_at?: string
           user_id: string
@@ -233,11 +235,20 @@ export type Database = {
           days_of_week?: string[] | null
           description?: string | null
           id?: string
+          member_id?: string | null
           name?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workout_programs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workouts: {
         Row: {

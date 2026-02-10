@@ -4,7 +4,11 @@ import { WorkoutProgram, ProgramExercise } from '@/types/program';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-export function useWorkoutPrograms() {
+interface UseWorkoutProgramsOptions {
+  memberId?: string | null;
+}
+
+export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {}) {
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -18,10 +22,18 @@ export function useWorkoutPrograms() {
     }
 
     try {
-      const { data: programsData, error: programsError } = await supabase
+      let query = supabase
         .from('workout_programs')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (memberId) {
+        query = query.eq('member_id', memberId);
+      } else {
+        query = query.is('member_id', null);
+      }
+
+      const { data: programsData, error: programsError } = await query;
 
       if (programsError) throw programsError;
 
@@ -64,7 +76,7 @@ export function useWorkoutPrograms() {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, memberId]);
 
   useEffect(() => {
     fetchPrograms();
@@ -86,6 +98,7 @@ export function useWorkoutPrograms() {
           name,
           description: description || null,
           days_of_week: daysOfWeek,
+          member_id: memberId || null,
         })
         .select()
         .single();
