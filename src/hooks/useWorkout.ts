@@ -31,12 +31,17 @@ export function useWorkout() {
   };
 
   /** 프로그램에서 시작할 때 운동 목록을 한 번에 넣을 때 사용 */
-  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string }[]) => {
+  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number }[]) => {
     const newExercises: Exercise[] = exercises.map((ex) => ({
       id: crypto.randomUUID(),
       name: ex.exerciseName,
       category: ex.muscleGroup as ExerciseCategory,
-      sets: [{ id: crypto.randomUUID(), reps: 0, weight: 0, completed: false }],
+      sets: Array.from({ length: ex.targetSets || 1 }, () => ({
+        id: crypto.randomUUID(),
+        reps: ex.targetReps || 0,
+        weight: ex.targetWeight || 0,
+        completed: false,
+      })),
     }));
     setCurrentWorkout({
       id: crypto.randomUUID(),

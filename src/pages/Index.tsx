@@ -15,15 +15,15 @@ const Index = () => {
   const { workouts, currentWorkout, startWorkout, startWorkoutWithExercises, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkout();
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms();
   const { customExercises } = useCustomExercises();
-  const [activeTab, setActiveTab] = useState('workout');
+  const [activeTab, setActiveTab] = useState<'workout' | 'programs' | 'history' | 'progress' | 'calendar'>('workout');
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="container max-w-2xl mx-auto px-4 pt-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="space-y-6">
           <TabsContent value="workout" className="mt-0">
-            <WorkoutView currentWorkout={currentWorkout} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
+            <WorkoutView currentWorkout={currentWorkout} onStartWorkout={startWorkout} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
           </TabsContent>
           <TabsContent value="programs">
             <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkoutWithExercises(exs); setActiveTab('workout'); }} customExercises={customExercises} />
