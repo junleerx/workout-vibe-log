@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { WorkoutView } from '@/components/WorkoutView';
 import { HistoryView } from '@/components/HistoryView';
@@ -11,21 +12,40 @@ import { useWorkout } from '@/hooks/useWorkout';
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
 import { useCustomExercises } from '@/hooks/useCustomExercises';
 import { useMembers } from '@/hooks/useMembers';
+import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dumbbell, History, LineChart, Calendar, ClipboardList, Sparkles } from 'lucide-react';
 
 type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'progress' | 'calendar';
 
 const Index = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
   const { workouts, currentWorkout, startWorkout, startWorkoutWithExercises, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkout();
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('workout');
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-background pb-20">
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
+      <Header activeTab={activeTab} onTabChange={setActiveTab} userEmail={user.email} onSignOut={signOut} />
       <main className="container max-w-2xl mx-auto px-4 pt-4">
         {/* Member Selector */}
         <MemberSelector
