@@ -2,3 +2,6 @@ project_id = "nhdawwtkixcgwcfdbzot"
 
 [functions.generate-workout]
 verify_jwt = false
+
+[functions.generate-overload]
+verify_jwt = false
