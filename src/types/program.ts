@@ -1,21 +1,21 @@
 export interface ProgramExercise {
-  id: string;
-  exerciseName: string;
-  muscleGroup: string;
-  targetSets: number;
-  targetReps: number;
-  targetWeight: number;
+    id: string;
+    exerciseName: string;
+    muscleGroup: string;
+    targetSets: number;
+    targetReps: number;
+    targetWeights: number[]; // 각 세트별 무게를 배열로 저장
   orderIndex: number;
 }
 
 export interface WorkoutProgram {
-  id: string;
-  name: string;
-  description?: string;
-  daysOfWeek: string[];
-  exercises: ProgramExercise[];
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    name: string;
+    description?: string;
+    daysOfWeek: string[];
+    exercises: ProgramExercise[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 export const DAYS_OF_WEEK = [
@@ -26,4 +26,4 @@ export const DAYS_OF_WEEK = [
   { id: 'friday', label: '금' },
   { id: 'saturday', label: '토' },
   { id: 'sunday', label: '일' },
-] as const;
+  ] as const;
