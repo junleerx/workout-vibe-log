@@ -24,7 +24,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/');
+      navigate('/profile-select');
     }
   }, [user, loading, navigate]);
 
