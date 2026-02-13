@@ -73,25 +73,25 @@ const ProfileSelect = () => {
                                                   <div className="flex justify-center">
                                                                 <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
                                                                                 <Dumbbell className="h-8 w-8 text-primary" />
-                                                                </div>div>
-                                                  </div>div>
+                                                                </div>
+                                                  </div>
                                                   <div>
-                                                                <CardTitle className="text-2xl font-bold">프로필 선택</CardTitle>CardTitle>
+                                                                <CardTitle className="text-2xl font-bold">프로필 선택</CardTitle>
                                                                 <CardDescription className="text-muted-foreground">
                                                                                 운동 기록을 관리할 프로필을 선택하세요
-                                                                </CardDescription>CardDescription>
-                                                  </div>div>
+                                                                </CardDescription>
+                                                  </div>
                                                   <div className="text-sm text-muted-foreground">
                                                                 로그인: {user?.email}
-                                                  </div>div>
-                                      </CardHeader>CardHeader>
-                            </Card>Card>
+                                                  </div>
+                                      </CardHeader>
+                            </Card>
                     
                         {members.length > 0 && (
                             <Card className="border-border/50 bg-card/50 backdrop-blur mb-6">
                                         <CardHeader>
-                                                      <CardTitle className="text-lg">기존 프로필</CardTitle>CardTitle>
-                                        </CardHeader>CardHeader>
+                                                      <CardTitle className="text-lg">기존 프로필</CardTitle>
+                                        </CardHeader>
                                         <CardContent>
                                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                           {members.map((member) => (
@@ -107,9 +107,9 @@ const ProfileSelect = () => {
                                                                       </span>span>
                                                   </Button>Button>
                                                 ))}
-                                                      </div>div>
+                                                      </div>
                                         </CardContent>CardContent>
-                            </Card>Card>
+                            </Card>
                             )}
                     
                             <Card className="border-border/50 bg-card/50 backdrop-blur mb-6">
@@ -117,8 +117,8 @@ const ProfileSelect = () => {
                                                   <CardTitle className="text-lg flex items-center gap-2">
                                                                 <Plus className="h-5 w-5" />
                                                                 새 프로필 생성
-                                                  </CardTitle>CardTitle>
-                                      </CardHeader>CardHeader>
+                                                  </CardTitle>
+                                      </CardHeader>
                                       <CardContent>
                                                   <form onSubmit={handleAddMember} className="space-y-4">
                                                                 <Input
