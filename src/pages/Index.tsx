@@ -8,7 +8,7 @@ import { CalendarView } from '@/components/CalendarView';
 import { ProgramsView } from '@/components/ProgramsView';
 import { AIWorkoutView } from '@/components/AIWorkoutView';
 import { ProgressiveOverloadView } from '@/components/ProgressiveOverloadView';
-import { MemberSelector } from '@/components/MemberSelector';
+
 import { useWorkout } from '@/hooks/useWorkout';
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
 import { useCustomExercises } from '@/hooks/useCustomExercises';
