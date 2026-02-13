@@ -48,15 +48,6 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20">
       <Header activeTab={activeTab} onTabChange={setActiveTab} userEmail={user.email} onSignOut={signOut} />
       <main className="container max-w-2xl mx-auto px-4 pt-4">
-        {/* Member Selector */}
-        <MemberSelector
-          members={members}
-          selectedMember={selectedMember}
-          onSelectMember={setSelectedMember}
-          onAddMember={addMember}
-          onUpdateMember={updateMember}
-          onDeleteMember={deleteMember}
-        />
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="space-y-6">
           <TabsContent value="workout" className="mt-0">
