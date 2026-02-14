@@ -135,7 +135,8 @@ const ProfileSelect = () => {
                                                                                     disabled={isCreating}
                                                                                   >
                                                                                 프로필 생성 및 진입
-                                                                </Button                                              </form>
+                                                                </Button>
+                                              </form>
                                       </CardContent>
                             </Card>
                     
@@ -148,11 +149,10 @@ const ProfileSelect = () => {
                                                   <LogOut className="h-4 w-4 mr-2" />
                                                   로그아웃
                                       </Button>
-                            </div
-                    </div
-              </div
+                            </div>
+                    </div>
+              </div>
             );
 };
 
 export default ProfileSelect;
-</div>
