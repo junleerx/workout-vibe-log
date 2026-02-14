@@ -101,14 +101,14 @@ const ProfileSelect = () => {
                                                                           variant={selectedMember?.id === member.id ? 'default' : 'outline'}
                                                                           className="h-auto py-3 px-4 flex flex-col items-start justify-start"
                                                                         >
-                                                                      <span className="font-semibold">{member.name}</span>span>
+                                                                      <span className="font-semibold">{member.name}</span>
                                                                       <span className="text-xs text-muted-foreground">
                                                                           {member.workouts?.length || 0}개 운동 기록
-                                                                      </span>span>
-                                                  </Button>Button>
+                                                                      </span>
+                                                  </Button>
                                                 ))}
                                                       </div>
-                                        </CardContent>CardContent>
+                                        </CardContent>
                             </Card>
                             )}
                     
