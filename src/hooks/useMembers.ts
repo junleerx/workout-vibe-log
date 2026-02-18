@@ -39,11 +39,11 @@ export function useMembers() {
       if (memberList.length > 0 && !selectedMember) {
         setSelectedMember(memberList[0]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching members:', error);
       toast({
         title: '오류',
-        description: '회원 목록을 불러오는데 실패했습니다.',
+        description: `회원 목록 로드 실패: ${error.message || '알 수 없는 오류'}`,
         variant: 'destructive',
       });
     } finally {
