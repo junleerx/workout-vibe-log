@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 // 간단한 ID를 이메일 형식으로 변환
 const formatAsEmail = (id: string) => {
   if (id.includes('@')) return id;
-  return `${id}@junisgym.local`;
+  return `${id}@junisgym.com`;
 };
 
 const Auth = () => {
@@ -30,7 +30,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!userId || !password) {
       toast({
         title: '입력 오류',
@@ -145,8 +145,8 @@ const Auth = () => {
                 disabled={isSubmitting}
               />
             </div>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full"
               disabled={isSubmitting}
             >
@@ -156,7 +156,7 @@ const Auth = () => {
               {isSignUp ? '가입하기' : '로그인'}
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <button
               type="button"
@@ -164,8 +164,8 @@ const Auth = () => {
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
               disabled={isSubmitting}
             >
-              {isSignUp 
-                ? '이미 계정이 있으신가요? 로그인' 
+              {isSignUp
+                ? '이미 계정이 있으신가요? 로그인'
                 : '계정이 없으신가요? 가입하기'}
             </button>
           </div>

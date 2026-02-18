@@ -4,7 +4,7 @@
  * 없으면 아래 값이 사용됩니다. anon 키는 공개용이라 코드에 넣어도 괜찮습니다.
  */
 export const supabaseDefaults = {
-  url: 'https://nhdawwtkixcgwcfdbzot.supabase.co',
+  url: 'https://khylugmamayscyktzlhy.supabase.co',
   anonKey:
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oZGF3d3RraXhjZ3djZmRiem90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDI2MDgsImV4cCI6MjA4NTg3ODYwOH0.FKyDDqkQ0Pe8dVyBKwSW1mfmZQ5ZfqQhJxHrjvAdAM4',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoeWx1Z21hbWF5c2N5a3R6bGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MzkwNTEsImV4cCI6MjA4NzAxNTA1MX0.UekVP1nmzfKE_3X8FE7iqxQVP6PYGOh5V1njKrnXREk',
 };
