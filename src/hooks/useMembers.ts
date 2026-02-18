@@ -34,7 +34,7 @@ export function useMembers() {
 
       const memberList = (data || []) as Member[];
       setMembers(memberList);
-      
+
       // Auto-select first member if none selected
       if (memberList.length > 0 && !selectedMember) {
         setSelectedMember(memberList[0]);
@@ -75,7 +75,7 @@ export function useMembers() {
 
       const newMember = data as Member;
       setMembers([...members, newMember]);
-      
+
       if (!selectedMember) {
         setSelectedMember(newMember);
       }
@@ -86,11 +86,11 @@ export function useMembers() {
       });
 
       return newMember;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding member:', error);
       toast({
         title: '오류',
-        description: '회원 추가에 실패했습니다.',
+        description: `회원 추가 실패: ${error.message || '알 수 없는 오류'}`,
         variant: 'destructive',
       });
     }
@@ -105,7 +105,7 @@ export function useMembers() {
 
       if (error) throw error;
 
-      setMembers(members.map(m => 
+      setMembers(members.map(m =>
         m.id === memberId ? { ...m, ...updates } : m
       ));
 
