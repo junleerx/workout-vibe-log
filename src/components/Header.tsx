@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useMembers } from '@/hooks/useMembers';
 
-type TabType = 'workout' | 'programs' | 'ai' | 'overload' | 'history' | 'calendar' | 'progress';
+type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -24,7 +24,6 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
     { id: 'workout' as TabType, label: '운동', icon: Dumbbell },
     { id: 'programs' as TabType, label: '프로그램', icon: ClipboardList },
     { id: 'ai' as TabType, label: 'AI추천', icon: Sparkles },
-    { id: 'overload' as TabType, label: '과부하', icon: TrendingUp },
     { id: 'history' as TabType, label: '기록', icon: History },
     { id: 'calendar' as TabType, label: '캘린더', icon: Calendar },
     { id: 'progress' as TabType, label: '진행', icon: TrendingUp },
@@ -103,8 +102,8 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 text-sm whitespace-nowrap ${activeTab === tab.id
-                  ? 'bg-primary text-primary-foreground glow-effect'
-                  : 'bg-secondary text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground glow-effect'
+                : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
             >
               <tab.icon className="w-4 h-4" />
