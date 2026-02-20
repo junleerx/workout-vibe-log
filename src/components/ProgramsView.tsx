@@ -221,84 +221,41 @@ export function ProgramsView({
               <DialogHeader>
                 <DialogTitle className="text-base">운동 목록 관리</DialogTitle>
               </DialogHeader>
-              <div className="space-y-3 py-1">
-                {/* Tab switcher */}
-                <div className="flex rounded-xl bg-secondary/50 p-1">
-                  <button
-                    className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-all ${managetab === 'custom' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
-                    onClick={() => setManagetab('custom')}
-                  >
-                    커스텀 ({customExercises.length})
-                  </button>
-                  <button
-                    className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-all ${managetab === 'builtin' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
-                    onClick={() => setManagetab('builtin')}
-                  >
-                    기본 운동 {hiddenTemplates.length > 0 ? `(${hiddenTemplates.length}개 숨김)` : ''}
-                  </button>
-                </div>
-
-                {managetab === 'custom' ? (
-                  <div className="space-y-1.5">
-                    {customExercises.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-6">추가한 커스텀 운동이 없습니다.</p>
-                    ) : customExercises.map((ex) => (
-                      <div key={ex.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
-                        <div>
-                          <span className="text-sm font-medium">{ex.name}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
-                        </div>
-                        <Button
-                          variant="ghost" size="icon"
-                          className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
-                          onClick={() => {
-                            if (confirm(`"${ex.name}" 운동을 삭제하시겠습니까?`)) {
-                              onDeleteCustomExercise(ex.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    ))}
+              <div className="space-y-1.5 py-1">
+                {/* Active exercises — built-in (not hidden) */}
+                {exerciseTemplates.filter(ex => !hiddenTemplates.includes(ex.name)).map((ex) => (
+                  <div key={`t-${ex.name}`} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
+                    <div>
+                      <span className="text-sm font-medium">{ex.name}</span>
+                      <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10" onClick={() => toggleHideTemplate(ex.name)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    {exerciseTemplates.filter(ex => !hiddenTemplates.includes(ex.name)).map((ex) => (
-                      <div key={ex.name} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
-                        <div>
-                          <span className="text-sm font-medium">{ex.name}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
-                        </div>
-                        <Button
-                          variant="ghost" size="icon"
-                          className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
-                          onClick={() => toggleHideTemplate(ex.name)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                ))}
+                {/* Active exercises — custom */}
+                {customExercises.map((ex) => (
+                  <div key={ex.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
+                    <div>
+                      <span className="text-sm font-medium">{ex.name}</span>
+                      <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10" onClick={() => { if (confirm(`"${ex.name}" 운동을 삭제하시겠습니까?`)) onDeleteCustomExercise(ex.id); }}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ))}
+                {/* Deleted / hidden — restore section */}
+                {hiddenTemplates.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
+                    <p className="text-xs text-muted-foreground mb-2">삭제된 운동 ({hiddenTemplates.length}개) — 복원 가능</p>
+                    {exerciseTemplates.filter(ex => hiddenTemplates.includes(ex.name)).map((ex) => (
+                      <div key={`d-${ex.name}`} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/20 border border-border/20 opacity-50">
+                        <span className="text-sm line-through">{ex.name}</span>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg text-primary" onClick={() => toggleHideTemplate(ex.name)}>복원</Button>
                       </div>
                     ))}
-                    {hiddenTemplates.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-border/30">
-                        <p className="text-xs text-muted-foreground mb-2">삭제된 운동 ({hiddenTemplates.length}개) — 복원 가능</p>
-                        {exerciseTemplates.filter(ex => hiddenTemplates.includes(ex.name)).map((ex) => (
-                          <div key={ex.name} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/20 border border-border/20 opacity-50 mb-1">
-                            <div>
-                              <span className="text-sm font-medium line-through">{ex.name}</span>
-                              <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
-                            </div>
-                            <Button
-                              variant="ghost" size="sm"
-                              className="h-7 text-xs rounded-lg text-primary"
-                              onClick={() => toggleHideTemplate(ex.name)}
-                            >
-                              복원
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
