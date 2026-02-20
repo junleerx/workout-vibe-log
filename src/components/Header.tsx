@@ -102,24 +102,6 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
             </DropdownMenu>
           )}
         </div>
-
-        <nav className="flex gap-1 overflow-x-auto scrollbar-hide">
-          {tabs.map((tab) => (
-            <button
-              type="button"
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`flex-1 py-2.5 px-3 rounded-xl font-medium transition-all duration-200 flex flex-col items-center justify-center gap-1 text-sm whitespace-nowrap ${activeTab === tab.id
-                ? 'bg-primary/15 text-primary'
-                : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              <span className="text-[10px]">{tab.label}</span>
-              {activeTab === tab.id && <div className="w-1 h-1 rounded-full bg-primary" />}
-            </button>
-          ))}
-        </nav>
       </div>
     </header>
   );

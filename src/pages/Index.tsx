@@ -44,9 +44,13 @@ const Index = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 relative">
+      {/* Subtle patch background */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+        <img src="/logo-patch.jpg" alt="" className="w-[500px] h-[500px] object-contain opacity-[0.06]" />
+      </div>
       <Header activeTab={activeTab} onTabChange={setActiveTab} userEmail={user.email} onSignOut={signOut} />
-      <main className="container max-w-2xl mx-auto px-4 pt-4">
+      <main className="container max-w-2xl mx-auto px-4 pt-4 relative z-10">
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="space-y-6">
           <TabsContent value="workout" className="mt-0">
