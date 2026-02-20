@@ -32,8 +32,9 @@ interface ProgramsViewProps {
   ) => void;
   onDeleteProgram: (programId: string) => void;
   onStartFromProgram: (exercises: ProgramExercise[]) => void;
-  customExercises: { name: string; category: string }[];
+  customExercises: { id: string; name: string; category: string }[];
   onAddCustomExercise: (name: string, category: string) => void;
+  onDeleteCustomExercise: (exerciseId: string) => void;
 }
 
 export function ProgramsView({
@@ -44,6 +45,7 @@ export function ProgramsView({
   onStartFromProgram,
   customExercises,
   onAddCustomExercise,
+  onDeleteCustomExercise,
 }: ProgramsViewProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -57,10 +59,12 @@ export function ProgramsView({
   const [selectedExercise, setSelectedExercise] = useState('');
   const [customExerciseName, setCustomExerciseName] = useState('');
   const [customExerciseCategory, setCustomExerciseCategory] = useState('가슴');
+  const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
+  const [activeGroupRounds, setActiveGroupRounds] = useState<number>(1);
 
   const allExercises = [
-    ...exerciseTemplates,
-    ...customExercises.map((e) => ({ name: e.name, category: e.category })),
+    ...exerciseTemplates.map(e => ({ id: `template-${e.name}`, name: e.name, category: e.category, isCustom: false })),
+    ...customExercises.map((e) => ({ id: e.id, name: e.name, category: e.category, isCustom: true })),
   ];
 
   const handleDayToggle = (day: string) => {
@@ -81,6 +85,8 @@ export function ProgramsView({
           targetReps: 0,
           targetWeight: 0,
           targetDistance: undefined,
+          groupId: activeGroupId || undefined,
+          groupRounds: activeGroupId ? activeGroupRounds : undefined,
           sets: [],
           orderIndex: prev.length,
         },
@@ -102,11 +108,32 @@ export function ProgramsView({
         targetReps: 0,
         targetWeight: 0,
         targetDistance: undefined,
+        groupId: activeGroupId || undefined,
+        groupRounds: activeGroupId ? activeGroupRounds : undefined,
         sets: [],
         orderIndex: prev.length,
       },
     ]);
     setSelectedExercise('');
+  };
+
+  const handleDeleteSelectedCustomExercise = () => {
+    const exercise = allExercises.find((e) => e.name === selectedExercise);
+    if (exercise && exercise.isCustom) {
+      if (confirm(`"${exercise.name}" 운동을 삭제하시겠습니까?`)) {
+        onDeleteCustomExercise(exercise.id);
+        setSelectedExercise('');
+      }
+    }
+  };
+
+  const handleCreateGroup = () => {
+    setActiveGroupId(crypto.randomUUID());
+    setActiveGroupRounds(3); // 기본 3라운드
+  };
+
+  const handleFinishGroup = () => {
+    setActiveGroupId(null);
   };
 
   const handleRemoveExercise = (index: number) => {
@@ -151,6 +178,7 @@ export function ProgramsView({
     setTimeLimit(undefined);
     setTargetRounds(undefined);
     setProgramExercises([]);
+    setActiveGroupId(null);
   };
 
   const getDayLabel = (dayId: string) => {
@@ -210,22 +238,54 @@ export function ProgramsView({
               </div>
 
               {/* Add Exercise */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-muted-foreground">운동 추가 (목록 선택 또는 직접 입력)</label>
+              <div className={`space-y-3 p-3 rounded-xl border ${activeGroupId ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    {activeGroupId ? '진행 중인 서킷 블록에 운동 추가' : '운동 추가 (목록 선택 또는 직접 입력)'}
+                  </label>
+                  {!activeGroupId ? (
+                    <Button variant="outline" size="sm" onClick={handleCreateGroup} className="h-7 text-xs rounded-lg border-primary/30 text-primary">
+                      + 서킷/블록 묶기
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                        <span>목표 라운드:</span>
+                        <Input
+                          type="number"
+                          value={activeGroupRounds}
+                          onChange={(e) => setActiveGroupRounds(Number(e.target.value) || 1)}
+                          className="w-12 h-6 px-1 text-center rounded bg-background/50 border-primary/20"
+                        />
+                      </div>
+                      <Button variant="secondary" size="sm" onClick={handleFinishGroup} className="h-7 text-xs rounded-lg">
+                        블록 완료
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex gap-2">
-                  <select
-                    className="flex-1 rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                    value={selectedExercise}
-                    onChange={(e) => {
-                      setSelectedExercise(e.target.value);
-                      setCustomExerciseName(''); // 목록 선택 시 수동입력 초기화
-                    }}
-                  >
-                    <option value="">운동 목록에서 선택...</option>
-                    {allExercises.map((ex) => (
-                      <option key={ex.name} value={ex.name}>{ex.name} ({ex.category})</option>
-                    ))}
-                  </select>
+                  <div className="flex-1 flex gap-2">
+                    <select
+                      className="flex-1 rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                      value={selectedExercise}
+                      onChange={(e) => {
+                        setSelectedExercise(e.target.value);
+                        setCustomExerciseName(''); // 목록 선택 시 수동입력 초기화
+                      }}
+                    >
+                      <option value="">운동 목록에서 선택...</option>
+                      {allExercises.map((ex) => (
+                        <option key={ex.id} value={ex.name}>{ex.name} ({ex.category})</option>
+                      ))}
+                    </select>
+                    {selectedExercise && allExercises.find(e => e.name === selectedExercise)?.isCustom && (
+                      <Button type="button" variant="ghost" size="icon" onClick={handleDeleteSelectedCustomExercise} className="text-destructive shrink-0">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -265,39 +325,59 @@ export function ProgramsView({
               {/* Exercise List */}
               {programExercises.length > 0 && (
                 <div className="space-y-2">
-                  {programExercises.map((ex, index) => (
-                    <div key={index} className="p-3 rounded-xl bg-secondary/50 border border-border/50 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="w-4 h-4 text-muted-foreground/50" />
-                          <span className="font-medium text-sm">{ex.exerciseName}</span>
-                          <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
-                        </div>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveExercise(index)}>
-                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                        </Button>
-                      </div>
+                  {programExercises.map((ex, index) => {
+                    // 서킷 블록 시각적 처리
+                    const isGrouped = !!ex.groupId;
+                    const isFirstInGroup = isGrouped && (index === 0 || programExercises[index - 1].groupId !== ex.groupId);
+                    const isLastInGroup = isGrouped && (index === programExercises.length - 1 || programExercises[index + 1].groupId !== ex.groupId);
 
-                      <div className="grid grid-cols-4 gap-2 mt-3 flex-wrap">
-                        <div className="space-y-1">
-                          <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
-                          <Input type="number" placeholder="예: 3" value={ex.targetSets || ''} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetSets ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
-                        </div>
-                        <div className="space-y-1">
-                          <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
-                          <Input type="number" placeholder="예: 10" value={ex.targetReps || ''} onChange={(e) => handleUpdateExercise(index, { targetReps: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetReps ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
-                        </div>
-                        <div className="space-y-1">
-                          <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게(kg)</span>
-                          <Input type="number" placeholder="자유" value={ex.targetWeight || ''} onChange={(e) => handleUpdateExercise(index, { targetWeight: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetWeight ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
-                        </div>
-                        <div className="space-y-1">
-                          <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
-                          <Input type="number" placeholder="로잉 등" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                    return (
+                      <div key={index} className={`relative flex flex-col ${isGrouped ? 'mx-1' : ''}`}>
+                        {isFirstInGroup && (
+                          <div className="flex items-center gap-2 mb-1 pl-1">
+                            <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
+                              🔥 {ex.groupRounds} Rounds
+                            </Badge>
+                            <span className="text-xs text-muted-foreground font-medium">서킷 블록</span>
+                          </div>
+                        )}
+                        <div className={`p-3 bg-secondary/50 border-border/50 space-y-3 ${isGrouped
+                          ? `border-x ${isFirstInGroup ? 'rounded-t-xl border-t' : ''} ${isLastInGroup ? 'rounded-b-xl border-b mb-2' : ''} ${!isFirstInGroup && !isLastInGroup ? 'border-y-0' : ''} ml-2 border-l-primary/30`
+                          : 'rounded-xl border'
+                          }`}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                              <span className="font-medium text-sm">{ex.exerciseName}</span>
+                              <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
+                            </div>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => handleRemoveExercise(index)}>
+                              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                            </Button>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-2 mt-3 flex-wrap">
+                            <div className="space-y-1">
+                              <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
+                              <Input type="number" placeholder="예: 3" value={ex.targetSets || ''} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetSets ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                            </div>
+                            <div className="space-y-1">
+                              <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
+                              <Input type="number" placeholder="예: 10" value={ex.targetReps || ''} onChange={(e) => handleUpdateExercise(index, { targetReps: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetReps ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                            </div>
+                            <div className="space-y-1">
+                              <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게(kg)</span>
+                              <Input type="number" placeholder="자유" value={ex.targetWeight || ''} onChange={(e) => handleUpdateExercise(index, { targetWeight: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetWeight ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                            </div>
+                            <div className="space-y-1">
+                              <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
+                              <Input type="number" placeholder="로잉 등" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -368,28 +448,46 @@ export function ProgramsView({
 
                 {/* Exercise List */}
                 <div className="space-y-1.5">
-                  {program.exercises.map((ex) => (
-                    <div key={ex.id} className="flex items-center justify-between text-sm py-2 px-3 rounded-lg bg-secondary/40 border border-border/30">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-foreground/90">{ex.exerciseName}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium tabular-nums">
-                        {ex.targetDistance ? (
-                          <span className="text-primary/90 px-2 py-0.5 rounded bg-primary/10">{ex.targetDistance}m</span>
-                        ) : null}
+                  {program.exercises.map((ex, index) => {
+                    const isGrouped = !!ex.groupId;
+                    const isFirstInGroup = isGrouped && (index === 0 || program.exercises[index - 1].groupId !== ex.groupId);
+                    const isLastInGroup = isGrouped && (index === program.exercises.length - 1 || program.exercises[index + 1].groupId !== ex.groupId);
 
-                        {(ex.targetSets > 0 || ex.targetReps > 0) && (
-                          <span className="px-2 py-0.5 rounded bg-secondary">
-                            {ex.targetSets > 0 ? `${ex.targetSets}×` : ''}{ex.targetReps > 0 ? ex.targetReps : ''}
-                          </span>
+                    return (
+                      <div key={ex.id} className="relative flex flex-col">
+                        {isFirstInGroup && (
+                          <div className="flex items-center gap-1.5 mt-2 mb-1 px-1">
+                            <Badge variant="secondary" className="bg-primary/20 text-primary border-none text-[10px] py-0">
+                              🔥 {ex.groupRounds} Rounds
+                            </Badge>
+                          </div>
                         )}
+                        <div className={`flex items-center justify-between text-sm py-2 px-3 bg-secondary/40 border border-border/30 ${isGrouped
+                            ? `${isFirstInGroup ? 'rounded-t-lg border-t' : ''} ${isLastInGroup ? 'rounded-b-lg border-b mb-1' : ''} ${!isFirstInGroup && !isLastInGroup ? 'border-y-0' : ''} ml-2 border-l-2 border-l-primary/40`
+                            : 'rounded-lg'
+                          }`}>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-foreground/90">{ex.exerciseName}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium tabular-nums">
+                            {ex.targetDistance ? (
+                              <span className="text-primary/90 px-2 py-0.5 rounded bg-primary/10">{ex.targetDistance}m</span>
+                            ) : null}
 
-                        {ex.targetWeight > 0 && (
-                          <span className="text-primary/80 px-2 py-0.5 rounded bg-primary/10">{ex.targetWeight}kg</span>
-                        )}
+                            {(ex.targetSets > 0 || ex.targetReps > 0) && (
+                              <span className="px-2 py-0.5 rounded bg-secondary">
+                                {ex.targetSets > 0 ? `${ex.targetSets}×` : ''}{ex.targetReps > 0 ? ex.targetReps : ''}
+                              </span>
+                            )}
+
+                            {ex.targetWeight > 0 && (
+                              <span className="text-primary/80 px-2 py-0.5 rounded bg-primary/10">{ex.targetWeight}kg</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

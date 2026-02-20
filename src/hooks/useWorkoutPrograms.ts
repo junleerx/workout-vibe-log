@@ -50,7 +50,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
             name: program.name,
             description: program.description || undefined,
             daysOfWeek: program.days_of_week || [],
-            workoutStyle: program.workout_style || undefined,
+            workoutStyle: (program.workout_style as WorkoutProgram['workoutStyle']) || undefined,
             timeLimit: program.time_limit || undefined,
             targetRounds: program.target_rounds || undefined,
             exercises: (exercisesData || []).map((ex) => ({
@@ -61,6 +61,8 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
               targetReps: ex.target_reps,
               targetWeight: Number(ex.target_weight),
               targetDistance: ex.target_distance || undefined,
+              groupId: ex.group_id || undefined,
+              groupRounds: ex.group_rounds || undefined,
               sets: [], // Fix: Ensure sets array is present
               orderIndex: ex.order_index,
             })),
@@ -125,6 +127,8 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           target_reps: ex.targetReps,
           target_weight: ex.targetWeight,
           target_distance: ex.targetDistance || null,
+          group_id: ex.groupId || null,
+          group_rounds: ex.groupRounds || null,
           order_index: index,
         }));
 
