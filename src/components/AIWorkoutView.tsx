@@ -19,8 +19,8 @@ interface AIWorkoutViewProps {
 }
 
 const WORKOUT_TYPES = [
-  { id: 'circuit', label: '서킷', icon: RotateCw, desc: '순환 운동' },
-  { id: 'hiit', label: 'HIIT', icon: Zap, desc: '고강도 인터벌' },
+  { id: 'circuit', label: 'Hyrox', icon: RotateCw, desc: '기능성 서킷' },
+  { id: 'hiit', label: 'CrossFit', icon: Zap, desc: '크로스핏(AMRAP/EMOM)' },
 ] as const;
 
 const DIFFICULTIES = [
@@ -111,11 +111,10 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               key={type.id}
               type="button"
               onClick={() => setWorkoutType(type.id)}
-              className={`p-4 rounded-xl border-2 transition-all text-left ${
-                workoutType === type.id
+              className={`p-4 rounded-xl border-2 transition-all text-left ${workoutType === type.id
                   ? 'border-primary bg-primary/10'
                   : 'border-border bg-card hover:border-primary/40'
-              }`}
+                }`}
             >
               <type.icon className={`w-5 h-5 mb-2 ${workoutType === type.id ? 'text-primary' : 'text-muted-foreground'}`} />
               <div className="font-semibold text-sm">{type.label}</div>
@@ -134,11 +133,10 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               key={d.id}
               type="button"
               onClick={() => setDifficulty(d.id)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                difficulty === d.id
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${difficulty === d.id
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-              }`}
+                }`}
             >
               {d.label}
             </button>
@@ -155,11 +153,10 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               key={d.id}
               type="button"
               onClick={() => setDuration(d.id)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                duration === d.id
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${duration === d.id
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-              }`}
+                }`}
             >
               {d.label}
             </button>
@@ -176,11 +173,10 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               key={area.id}
               type="button"
               onClick={() => toggleFocus(area.id)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                focusAreas.includes(area.id)
+              className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${focusAreas.includes(area.id)
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-              }`}
+                }`}
             >
               {area.label}
             </button>
@@ -222,10 +218,18 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
                     <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
                     <span className="font-medium">{ex.exerciseName}</span>
                     <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
+                    {ex.workoutStyle === 'amrap' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-orange-500/10 text-orange-500 border-none">AMRAP</Badge>}
+                    {ex.workoutStyle === 'emom' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-blue-500/10 text-blue-500 border-none">EMOM</Badge>}
                   </div>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {ex.targetSets}×{ex.targetReps}
-                    {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
+                  <span className="text-xs text-muted-foreground tabular-nums text-right">
+                    {ex.workoutStyle === 'classic' || !ex.workoutStyle ? (
+                      <>
+                        {ex.targetSets}×{ex.targetReps}
+                        {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
+                      </>
+                    ) : (
+                      <span>도전!</span>
+                    )}
                   </span>
                 </div>
               ))}

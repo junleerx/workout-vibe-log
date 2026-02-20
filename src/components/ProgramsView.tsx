@@ -69,6 +69,9 @@ export function ProgramsView({
         targetSets: 3,
         targetReps: 10,
         targetWeight: 0,
+        sets: [], // Fix: Ensure sets is initialized
+        workoutStyle: 'classic',
+        timeLimit: 10,
         orderIndex: prev.length,
       },
     ]);
@@ -158,11 +161,10 @@ export function ProgramsView({
                       key={day.id}
                       type="button"
                       onClick={() => handleDayToggle(day.id)}
-                      className={`w-10 h-10 rounded-full text-sm font-semibold transition-all duration-200 ${
-                        selectedDays.includes(day.id)
-                          ? 'bg-primary text-primary-foreground shadow-md'
-                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                      }`}
+                      className={`w-10 h-10 rounded-full text-sm font-semibold transition-all duration-200 ${selectedDays.includes(day.id)
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                        }`}
                     >
                       {day.label}
                     </button>
@@ -205,6 +207,34 @@ export function ProgramsView({
                           <Trash2 className="w-3.5 h-3.5 text-destructive" />
                         </Button>
                       </div>
+
+                      {/* Workout Style & Time Limit (AMRAP/EMOM) */}
+                      <div className="flex gap-2 mb-2">
+                        <div className="flex-1 space-y-1">
+                          <span className="text-[10px] text-muted-foreground font-medium">스타일</span>
+                          <select
+                            className="w-full h-8 rounded-lg border border-input bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+                            value={ex.workoutStyle || 'classic'}
+                            onChange={(e) => handleUpdateExercise(index, { workoutStyle: e.target.value as any })}
+                          >
+                            <option value="classic">일반 (세트/랩스)</option>
+                            <option value="amrap">AMRAP (최대한 많이)</option>
+                            <option value="emom">EMOM (매분마다)</option>
+                          </select>
+                        </div>
+                        {(ex.workoutStyle === 'amrap' || ex.workoutStyle === 'emom') && (
+                          <div className="w-[80px] space-y-1">
+                            <span className="text-[10px] text-muted-foreground font-medium">제한(분)</span>
+                            <Input
+                              type="number"
+                              value={ex.timeLimit || 10}
+                              onChange={(e) => handleUpdateExercise(index, { timeLimit: Number(e.target.value) })}
+                              className="h-8 rounded-lg text-center text-xs"
+                            />
+                          </div>
+                        )}
+                      </div>
+
                       <div className="grid grid-cols-3 gap-2">
                         <div className="space-y-1">
                           <span className="text-[10px] text-muted-foreground font-medium">세트</span>
@@ -273,11 +303,10 @@ export function ProgramsView({
                     {DAYS_OF_WEEK.map((day) => (
                       <span
                         key={day.id}
-                        className={`w-7 h-7 rounded-full text-[11px] font-semibold flex items-center justify-center transition-colors ${
-                          program.daysOfWeek.includes(day.id)
-                            ? 'bg-primary/20 text-primary'
-                            : 'bg-secondary/50 text-muted-foreground/30'
-                        }`}
+                        className={`w-7 h-7 rounded-full text-[11px] font-semibold flex items-center justify-center transition-colors ${program.daysOfWeek.includes(day.id)
+                          ? 'bg-primary/20 text-primary'
+                          : 'bg-secondary/50 text-muted-foreground/30'
+                          }`}
                       >
                         {day.label}
                       </span>
@@ -289,10 +318,20 @@ export function ProgramsView({
                 <div className="space-y-1.5">
                   {program.exercises.map((ex) => (
                     <div key={ex.id} className="flex items-center justify-between text-sm py-1.5 px-3 rounded-lg bg-secondary/40">
-                      <span className="font-medium text-foreground/90">{ex.exerciseName}</span>
-                      <span className="text-xs text-muted-foreground tabular-nums">
-                        {ex.targetSets}×{ex.targetReps}
-                        {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground/90">{ex.exerciseName}</span>
+                        {ex.workoutStyle === 'amrap' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-orange-500/10 text-orange-500 border-none">AMRAP {ex.timeLimit}분</Badge>}
+                        {ex.workoutStyle === 'emom' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-blue-500/10 text-blue-500 border-none">EMOM {ex.timeLimit}분</Badge>}
+                      </div>
+                      <span className="text-xs text-muted-foreground tabular-nums text-right">
+                        {ex.workoutStyle === 'classic' || !ex.workoutStyle ? (
+                          <>
+                            {ex.targetSets}×{ex.targetReps}
+                            {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
+                          </>
+                        ) : (
+                          <span>도전!</span>
+                        )}
                       </span>
                     </div>
                   ))}

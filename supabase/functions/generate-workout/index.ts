@@ -17,20 +17,20 @@ serve(async (req) => {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const prompt = `
-    Role: Professional Fitness Trainer
-    Task: Generate a structured ${workoutType === "circuit" ? "Circuit Training" : "HIIT"} program in Korean.
+    Role: Professional Fitness Trainer specializing in Functional Fitness, CrossFit, and Hyrox.
+    Task: Generate a structured ${workoutType === "circuit" ? "Hyrox Style" : "CrossFit Style (AMRAP/EMOM)"} program in Korean.
     
     User Profile:
-    - Workout Type: ${workoutType === "circuit" ? "Circuit" : "HIIT"}
+    - Workout Type: ${workoutType === "circuit" ? "Hyrox Style" : "CrossFit"}
     - Difficulty: ${difficulty}
     - Duration: ${duration} minutes
     - Focus Areas: ${focusAreas?.join(", ") || "Full Body"}
 
     Requirements:
-    - Language: Korean (Access to English terms where common in Korea)
-    - Select 4-8 exercises appropriate for the type and focus.
+    - Language: Korean (Access to English terms where common in Korea like 버피, 로잉, 박스점프, 더블언더, 쓰러스터 등)
+    - Select 4-8 functional exercises appropriate for the type and focus. Include exercises typical of Hyrox (Rowing, SkiErg, Sled Push/Pull, Burpee Broad Jumps, Wall Balls, Lunges) or CrossFit.
     - Specify sets, reps, and approximate weight (or bodyweight).
-    - Provide a program name and short description.
+    - Provide an engaging program name and short description explaining the intent of the workout.
 
     Output Format: JSON only.
     Schema:
@@ -43,7 +43,9 @@ serve(async (req) => {
           "muscleGroup": "string (가슴, 등, 어깨, 하체, 팔, 복근, 전신)",
           "targetSets": number,
           "targetReps": number,
-          "targetWeight": number (0 for bodyweight)
+          "targetWeight": number (0 for bodyweight),
+          "workoutStyle": "string ('classic', 'amrap', 'emom')",
+          "timeLimit": number (optional, for amrap/emom)
         }
       ]
     }
