@@ -264,25 +264,41 @@ export function ProgramsView({
                   </div>
                 ) : (
                   <div className="space-y-1.5">
-                    <p className="text-xs text-muted-foreground mb-2">숨기면 드롭다운에서 안 보이며, 복원 클릭 시 다시 나타납니다.</p>
-                    {exerciseTemplates.map((ex) => {
-                      const isHidden = hiddenTemplates.includes(ex.name);
-                      return (
-                        <div key={ex.name} className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-opacity ${isHidden ? 'opacity-40 bg-secondary/20 border-border/20' : 'bg-secondary/50 border-border/40'}`}>
-                          <div>
-                            <span className="text-sm font-medium">{ex.name}</span>
-                            <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
-                          </div>
-                          <Button
-                            variant="ghost" size="sm"
-                            className={`h-7 text-xs rounded-lg ${isHidden ? 'text-primary' : 'text-muted-foreground'}`}
-                            onClick={() => toggleHideTemplate(ex.name)}
-                          >
-                            {isHidden ? '복원' : '숨김'}
-                          </Button>
+                    {exerciseTemplates.filter(ex => !hiddenTemplates.includes(ex.name)).map((ex) => (
+                      <div key={ex.name} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
+                        <div>
+                          <span className="text-sm font-medium">{ex.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
                         </div>
-                      );
-                    })}
+                        <Button
+                          variant="ghost" size="icon"
+                          className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
+                          onClick={() => toggleHideTemplate(ex.name)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                    {hiddenTemplates.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-border/30">
+                        <p className="text-xs text-muted-foreground mb-2">삭제된 운동 ({hiddenTemplates.length}개) — 복원 가능</p>
+                        {exerciseTemplates.filter(ex => hiddenTemplates.includes(ex.name)).map((ex) => (
+                          <div key={ex.name} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/20 border border-border/20 opacity-50 mb-1">
+                            <div>
+                              <span className="text-sm font-medium line-through">{ex.name}</span>
+                              <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
+                            </div>
+                            <Button
+                              variant="ghost" size="sm"
+                              className="h-7 text-xs rounded-lg text-primary"
+                              onClick={() => toggleHideTemplate(ex.name)}
+                            >
+                              복원
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
