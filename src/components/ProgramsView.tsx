@@ -33,6 +33,7 @@ interface ProgramsViewProps {
   onDeleteProgram: (programId: string) => void;
   onStartFromProgram: (exercises: ProgramExercise[]) => void;
   customExercises: { name: string; category: string }[];
+  onAddCustomExercise: (name: string, category: string) => void;
 }
 
 export function ProgramsView({
@@ -42,6 +43,7 @@ export function ProgramsView({
   onDeleteProgram,
   onStartFromProgram,
   customExercises,
+  onAddCustomExercise,
 }: ProgramsViewProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -53,6 +55,8 @@ export function ProgramsView({
   const [targetRounds, setTargetRounds] = useState<number | undefined>(undefined);
   const [programExercises, setProgramExercises] = useState<Omit<ProgramExercise, 'id'>[]>([]);
   const [selectedExercise, setSelectedExercise] = useState('');
+  const [customExerciseName, setCustomExerciseName] = useState('');
+  const [customExerciseCategory, setCustomExerciseCategory] = useState('가슴');
 
   const allExercises = [
     ...exerciseTemplates,
@@ -66,6 +70,25 @@ export function ProgramsView({
   };
 
   const handleAddExercise = () => {
+    if (customExerciseName.trim()) {
+      onAddCustomExercise(customExerciseName.trim(), customExerciseCategory);
+      setProgramExercises((prev) => [
+        ...prev,
+        {
+          exerciseName: customExerciseName.trim(),
+          muscleGroup: customExerciseCategory,
+          targetSets: 0,
+          targetReps: 0,
+          targetWeight: 0,
+          targetDistance: undefined,
+          sets: [],
+          orderIndex: prev.length,
+        },
+      ]);
+      setCustomExerciseName('');
+      return;
+    }
+
     if (!selectedExercise) return;
     const exercise = allExercises.find((e) => e.name === selectedExercise);
     if (!exercise) return;
@@ -75,8 +98,8 @@ export function ProgramsView({
       {
         exerciseName: exercise.name,
         muscleGroup: exercise.category,
-        targetSets: 3,
-        targetReps: 10,
+        targetSets: 0,
+        targetReps: 0,
         targetWeight: 0,
         targetDistance: undefined,
         sets: [],
@@ -187,20 +210,53 @@ export function ProgramsView({
               </div>
 
               {/* Add Exercise */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">운동 추가</label>
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-muted-foreground">운동 추가 (목록 선택 또는 직접 입력)</label>
                 <div className="flex gap-2">
                   <select
                     className="flex-1 rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     value={selectedExercise}
-                    onChange={(e) => setSelectedExercise(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedExercise(e.target.value);
+                      setCustomExerciseName(''); // 목록 선택 시 수동입력 초기화
+                    }}
                   >
-                    <option value="">운동을 선택하세요</option>
+                    <option value="">운동 목록에서 선택...</option>
                     {allExercises.map((ex) => (
                       <option key={ex.name} value={ex.name}>{ex.name} ({ex.category})</option>
                     ))}
                   </select>
-                  <Button type="button" onClick={handleAddExercise} disabled={!selectedExercise} className="rounded-xl px-4">
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex gap-2">
+                    <Input
+                      placeholder="목록에 없는 운동 직접 입력"
+                      value={customExerciseName}
+                      onChange={(e) => {
+                        setCustomExerciseName(e.target.value);
+                        setSelectedExercise(''); // 수동입력 시 목록 선택 초기화
+                      }}
+                      className="rounded-xl h-10"
+                    />
+                    {customExerciseName.trim() && (
+                      <select
+                        className="w-24 rounded-xl border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        value={customExerciseCategory}
+                        onChange={(e) => setCustomExerciseCategory(e.target.value)}
+                      >
+                        <option value="가슴">가슴</option>
+                        <option value="등">등</option>
+                        <option value="어깨">어깨</option>
+                        <option value="하체">하체</option>
+                        <option value="팔">팔</option>
+                        <option value="복근">복근</option>
+                        <option value="전신">전신</option>
+                        <option value="유산소">유산소</option>
+                      </select>
+                    )}
+                  </div>
+                  <Button type="button" onClick={handleAddExercise} disabled={!selectedExercise && !customExerciseName.trim()} className="rounded-xl px-4 h-10">
                     추가
                   </Button>
                 </div>
@@ -222,22 +278,22 @@ export function ProgramsView({
                         </Button>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-2 mt-3">
+                      <div className="grid grid-cols-4 gap-2 mt-3 flex-wrap">
                         <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-medium">세트</span>
-                          <Input type="number" value={ex.targetSets} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) })} className="h-8 rounded-lg text-center text-sm" />
+                          <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
+                          <Input type="number" placeholder="예: 3" value={ex.targetSets || ''} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetSets ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-medium">횟수</span>
-                          <Input type="number" value={ex.targetReps} onChange={(e) => handleUpdateExercise(index, { targetReps: Number(e.target.value) })} className="h-8 rounded-lg text-center text-sm" />
+                          <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
+                          <Input type="number" placeholder="예: 10" value={ex.targetReps || ''} onChange={(e) => handleUpdateExercise(index, { targetReps: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetReps ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-medium">무게(kg)</span>
-                          <Input type="number" value={ex.targetWeight} onChange={(e) => handleUpdateExercise(index, { targetWeight: Number(e.target.value) })} className="h-8 rounded-lg text-center text-sm" />
+                          <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게(kg)</span>
+                          <Input type="number" placeholder="자유" value={ex.targetWeight || ''} onChange={(e) => handleUpdateExercise(index, { targetWeight: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetWeight ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                         </div>
                         <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-medium">거리(m)</span>
-                          <Input type="number" placeholder="예: 1000" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className="h-8 rounded-lg text-center text-sm" />
+                          <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
+                          <Input type="number" placeholder="로잉 등" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                         </div>
                       </div>
                     </div>
@@ -313,20 +369,25 @@ export function ProgramsView({
                 {/* Exercise List */}
                 <div className="space-y-1.5">
                   {program.exercises.map((ex) => (
-                    <div key={ex.id} className="flex items-center justify-between text-sm py-1.5 px-3 rounded-lg bg-secondary/40">
+                    <div key={ex.id} className="flex items-center justify-between text-sm py-2 px-3 rounded-lg bg-secondary/40 border border-border/30">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground/90">{ex.exerciseName}</span>
+                        <span className="font-semibold text-foreground/90">{ex.exerciseName}</span>
                       </div>
-                      <span className="text-xs text-muted-foreground tabular-nums text-right">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium tabular-nums">
                         {ex.targetDistance ? (
-                          <span className="text-primary/90 font-medium">{ex.targetDistance}m</span>
-                        ) : (
-                          <>
-                            {ex.targetSets}×{ex.targetReps}
-                            {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
-                          </>
+                          <span className="text-primary/90 px-2 py-0.5 rounded bg-primary/10">{ex.targetDistance}m</span>
+                        ) : null}
+
+                        {(ex.targetSets > 0 || ex.targetReps > 0) && (
+                          <span className="px-2 py-0.5 rounded bg-secondary">
+                            {ex.targetSets > 0 ? `${ex.targetSets}×` : ''}{ex.targetReps > 0 ? ex.targetReps : ''}
+                          </span>
                         )}
-                      </span>
+
+                        {ex.targetWeight > 0 && (
+                          <span className="text-primary/80 px-2 py-0.5 rounded bg-primary/10">{ex.targetWeight}kg</span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -24,7 +24,7 @@ const Index = () => {
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
   const { workouts, currentWorkout, startWorkout, startWorkoutWithExercises, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkout();
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
-  const { customExercises } = useCustomExercises();
+  const { customExercises, addCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('workout');
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const Index = () => {
             <WorkoutView currentWorkout={currentWorkout} onStartWorkout={startWorkout} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
           </TabsContent>
           <TabsContent value="programs">
-            <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkoutWithExercises(exs); setActiveTab('workout'); }} customExercises={customExercises} />
+            <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkoutWithExercises(exs); setActiveTab('workout'); }} customExercises={customExercises} onAddCustomExercise={addCustomExercise} />
           </TabsContent>
           <TabsContent value="ai">
             <AIWorkoutView
