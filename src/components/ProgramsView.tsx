@@ -91,36 +91,13 @@ export function ProgramsView({
   };
 
   const handleAddExercise = () => {
+    let newEx: Omit<ProgramExercise, 'id'> | null = null;
+
     if (customExerciseName.trim()) {
       onAddCustomExercise(customExerciseName.trim(), customExerciseCategory);
-      setProgramExercises((prev) => [
-        ...prev,
-        {
-          exerciseName: customExerciseName.trim(),
-          muscleGroup: customExerciseCategory,
-          targetSets: 0,
-          targetReps: 0,
-          targetWeight: 0,
-          targetDistance: undefined,
-          groupId: activeGroupId || undefined,
-          groupRounds: activeGroupId ? activeGroupRounds : undefined,
-          sets: [],
-          orderIndex: prev.length,
-        },
-      ]);
-      setCustomExerciseName('');
-      return;
-    }
-
-    if (!selectedExercise) return;
-    const exercise = allExercises.find((e) => e.name === selectedExercise);
-    if (!exercise) return;
-
-    setProgramExercises((prev) => [
-      ...prev,
-      {
-        exerciseName: exercise.name,
-        muscleGroup: exercise.category,
+      newEx = {
+        exerciseName: customExerciseName.trim(),
+        muscleGroup: customExerciseCategory,
         targetSets: 0,
         targetReps: 0,
         targetWeight: 0,
@@ -128,10 +105,47 @@ export function ProgramsView({
         groupId: activeGroupId || undefined,
         groupRounds: activeGroupId ? activeGroupRounds : undefined,
         sets: [],
-        orderIndex: prev.length,
-      },
-    ]);
-    setSelectedExercise('');
+        orderIndex: programExercises.length,
+      };
+      setCustomExerciseName('');
+    } else if (selectedExercise) {
+      const exercise = allExercises.find((e) => e.name === selectedExercise);
+      if (exercise) {
+        newEx = {
+          exerciseName: exercise.name,
+          muscleGroup: exercise.category,
+          targetSets: 0,
+          targetReps: 0,
+          targetWeight: 0,
+          targetDistance: undefined,
+          groupId: activeGroupId || undefined,
+          groupRounds: activeGroupId ? activeGroupRounds : undefined,
+          sets: [],
+          orderIndex: programExercises.length,
+        };
+        setSelectedExercise('');
+      }
+    }
+
+    if (!newEx) return;
+
+    setProgramExercises((prev) => {
+      if (activeGroupId) {
+        let lastIdx = -1;
+        for (let i = prev.length - 1; i >= 0; i--) {
+          if (prev[i].groupId === activeGroupId) {
+            lastIdx = i;
+            break;
+          }
+        }
+        if (lastIdx !== -1) {
+          const next = [...prev];
+          next.splice(lastIdx + 1, 0, newEx!);
+          return next;
+        }
+      }
+      return [...prev, newEx!];
+    });
   };
 
   const handleDeleteSelectedCustomExercise = () => {
@@ -478,6 +492,24 @@ export function ProgramsView({
                               </div>
                             </div>
                           </div>
+                          {isLastInGroup && activeGroupId !== ex.groupId && (
+                            <div className="flex justify-center -mt-1 mb-3 relative z-10 w-full">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-[11px] rounded-full border-primary/30 text-primary bg-background/90 shadow-sm hover:bg-primary/10 px-4 whitespace-nowrap"
+                                onClick={() => {
+                                  setActiveGroupId(ex.groupId!);
+                                  setActiveGroupRounds(ex.groupRounds!);
+                                  const modal = document.querySelector('[role="dialog"]') || document.querySelector('.max-h-\\[90vh\\]');
+                                  modal?.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                              >
+                                + 이 서킷 블록에 추가
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
