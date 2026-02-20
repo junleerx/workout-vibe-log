@@ -1,73 +1,66 @@
-# Welcome to your Lovable project
+# Juni's Gym — Workout Tracker
 
-## Project info
+A full-stack progressive web app for tracking personal training sessions, managing workout programs, and analyzing performance over time.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Workout Logging** — Track sets, reps, and weight in real-time with a live elapsed timer and auto-rest timer
+- **Program Builder** — Create structured programs with classic, AMRAP, EMOM, and RFT formats; build circuit blocks with configurable rounds
+- **AI Workout Generation** — Generate personalized workouts via AI based on style, difficulty, duration, and focus area
+- **Progress Analytics** — Visualize strength trends and volume over time with interactive charts
+- **Workout Calendar** — Browse your training history day-by-day
+- **Multi-unit Support** — Toggle between kg and lbs; stored in kg internally, displayed in the unit of your choice
+- **Custom Exercises** — Add and manage your own exercises alongside the built-in library
+- **Authentication** — Per-user data via Supabase Auth
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+| Layer | Technology |
+|---|---|
+| Frontend | React 18 + TypeScript |
+| Build | Vite |
+| Styling | Tailwind CSS + shadcn/ui |
+| Backend | Supabase (Postgres + Auth + Edge Functions) |
+| AI | OpenAI API (via Supabase Edge Function) |
+| Deployment | Vercel |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+```bash
+# Clone the repository
+git clone https://github.com/junleerx/workout-vibe-log.git
+cd workout-vibe-log
 
-**Use your preferred IDE**
+# Install dependencies
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Set up environment variables
+cp .env.example .env.local
+# → Add your Supabase URL and anon key
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-**Use GitHub Codespaces**
+## Database
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Migrations are located in `supabase/migrations/`. Apply them via the Supabase dashboard SQL editor or with:
 
-## What technologies are used for this project?
+```bash
+npx supabase db push
+```
 
-This project is built with:
+## Deployment
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The app is deployed on Vercel. Each push to `main` triggers an automatic production deployment.
 
-## How can I deploy this project?
+## License
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT
