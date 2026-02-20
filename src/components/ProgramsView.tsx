@@ -15,6 +15,9 @@ interface ProgramsViewProps {
     name: string,
     description: string,
     daysOfWeek: string[],
+    workoutStyle: string | undefined,
+    timeLimit: number | undefined,
+    targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[]
   ) => void;
   onUpdateProgram: (
@@ -22,6 +25,9 @@ interface ProgramsViewProps {
     name: string,
     description: string,
     daysOfWeek: string[],
+    workoutStyle: string | undefined,
+    timeLimit: number | undefined,
+    targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[]
   ) => void;
   onDeleteProgram: (programId: string) => void;
@@ -42,6 +48,9 @@ export function ProgramsView({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [workoutStyle, setWorkoutStyle] = useState<'classic' | 'amrap' | 'emom' | 'rft' | undefined>(undefined);
+  const [timeLimit, setTimeLimit] = useState<number | undefined>(undefined);
+  const [targetRounds, setTargetRounds] = useState<number | undefined>(undefined);
   const [programExercises, setProgramExercises] = useState<Omit<ProgramExercise, 'id'>[]>([]);
   const [selectedExercise, setSelectedExercise] = useState('');
 
@@ -69,9 +78,8 @@ export function ProgramsView({
         targetSets: 3,
         targetReps: 10,
         targetWeight: 0,
-        sets: [], // Fix: Ensure sets is initialized
-        workoutStyle: 'classic',
-        timeLimit: 10,
+        targetDistance: undefined,
+        sets: [],
         orderIndex: prev.length,
       },
     ]);
@@ -93,6 +101,9 @@ export function ProgramsView({
     setName(program.name);
     setDescription(program.description || '');
     setSelectedDays(program.daysOfWeek);
+    setWorkoutStyle(program.workoutStyle as any);
+    setTimeLimit(program.timeLimit);
+    setTargetRounds(program.targetRounds);
     setProgramExercises(program.exercises.map(({ id, ...rest }) => rest));
     setIsDialogOpen(true);
   };
@@ -100,9 +111,9 @@ export function ProgramsView({
   const handleSave = () => {
     if (!name.trim()) return;
     if (editingId) {
-      onUpdateProgram(editingId, name, description, selectedDays, programExercises);
+      onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
     } else {
-      onCreateProgram(name, description, selectedDays, programExercises);
+      onCreateProgram(name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
     }
     closeDialog();
   };
@@ -113,6 +124,9 @@ export function ProgramsView({
     setName('');
     setDescription('');
     setSelectedDays([]);
+    setWorkoutStyle(undefined);
+    setTimeLimit(undefined);
+    setTargetRounds(undefined);
     setProgramExercises([]);
   };
 
@@ -208,34 +222,7 @@ export function ProgramsView({
                         </Button>
                       </div>
 
-                      {/* Workout Style & Time Limit (AMRAP/EMOM) */}
-                      <div className="flex gap-2 mb-2">
-                        <div className="flex-1 space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-medium">스타일</span>
-                          <select
-                            className="w-full h-8 rounded-lg border border-input bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                            value={ex.workoutStyle || 'classic'}
-                            onChange={(e) => handleUpdateExercise(index, { workoutStyle: e.target.value as any })}
-                          >
-                            <option value="classic">일반 (세트/랩스)</option>
-                            <option value="amrap">AMRAP (최대한 많이)</option>
-                            <option value="emom">EMOM (매분마다)</option>
-                          </select>
-                        </div>
-                        {(ex.workoutStyle === 'amrap' || ex.workoutStyle === 'emom') && (
-                          <div className="w-[80px] space-y-1">
-                            <span className="text-[10px] text-muted-foreground font-medium">제한(분)</span>
-                            <Input
-                              type="number"
-                              value={ex.timeLimit || 10}
-                              onChange={(e) => handleUpdateExercise(index, { timeLimit: Number(e.target.value) })}
-                              className="h-8 rounded-lg text-center text-xs"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-4 gap-2 mt-3">
                         <div className="space-y-1">
                           <span className="text-[10px] text-muted-foreground font-medium">세트</span>
                           <Input type="number" value={ex.targetSets} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) })} className="h-8 rounded-lg text-center text-sm" />
@@ -247,6 +234,10 @@ export function ProgramsView({
                         <div className="space-y-1">
                           <span className="text-[10px] text-muted-foreground font-medium">무게(kg)</span>
                           <Input type="number" value={ex.targetWeight} onChange={(e) => handleUpdateExercise(index, { targetWeight: Number(e.target.value) })} className="h-8 rounded-lg text-center text-sm" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-muted-foreground font-medium">거리(m)</span>
+                          <Input type="number" placeholder="예: 1000" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className="h-8 rounded-lg text-center text-sm" />
                         </div>
                       </div>
                     </div>
@@ -282,7 +273,12 @@ export function ProgramsView({
               <div className="p-4 pb-3">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="font-bold text-base">{program.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-base">{program.name}</h3>
+                      {program.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-none font-bold">🔥 AMRAP {program.timeLimit}분</Badge>}
+                      {program.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none font-bold">⏰ EMOM {program.timeLimit}분</Badge>}
+                      {program.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-purple-500/10 text-purple-500 border-none font-bold">🏆 {program.targetRounds} Rounds</Badge>}
+                    </div>
                     {program.description && (
                       <p className="text-xs text-muted-foreground mt-0.5">{program.description}</p>
                     )}
@@ -320,17 +316,15 @@ export function ProgramsView({
                     <div key={ex.id} className="flex items-center justify-between text-sm py-1.5 px-3 rounded-lg bg-secondary/40">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground/90">{ex.exerciseName}</span>
-                        {ex.workoutStyle === 'amrap' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-orange-500/10 text-orange-500 border-none">AMRAP {ex.timeLimit}분</Badge>}
-                        {ex.workoutStyle === 'emom' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-blue-500/10 text-blue-500 border-none">EMOM {ex.timeLimit}분</Badge>}
                       </div>
                       <span className="text-xs text-muted-foreground tabular-nums text-right">
-                        {ex.workoutStyle === 'classic' || !ex.workoutStyle ? (
+                        {ex.targetDistance ? (
+                          <span className="text-primary/90 font-medium">{ex.targetDistance}m</span>
+                        ) : (
                           <>
                             {ex.targetSets}×{ex.targetReps}
                             {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
                           </>
-                        ) : (
-                          <span>도전!</span>
                         )}
                       </span>
                     </div>

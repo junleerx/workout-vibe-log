@@ -37,6 +37,9 @@ serve(async (req) => {
     {
       "name": "string",
       "description": "string",
+      "workoutStyle": "string ('classic', 'amrap', 'emom', 'rft')",
+      "timeLimit": number (optional, for amrap/emom minutes),
+      "targetRounds": number (optional, for rft),
       "exercises": [
         {
           "exerciseName": "string",
@@ -44,8 +47,7 @@ serve(async (req) => {
           "targetSets": number,
           "targetReps": number,
           "targetWeight": number (0 for bodyweight),
-          "workoutStyle": "string ('classic', 'amrap', 'emom')",
-          "timeLimit": number (optional, for amrap/emom)
+          "targetDistance": number (optional, for distance based exercises like rowing, in meters)
         }
       ]
     }

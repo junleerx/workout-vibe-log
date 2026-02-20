@@ -10,11 +10,22 @@ import { ProgramExercise } from '@/types/program';
 interface GeneratedProgram {
   name: string;
   description: string;
+  workoutStyle?: 'classic' | 'amrap' | 'emom' | 'rft';
+  timeLimit?: number;
+  targetRounds?: number;
   exercises: Omit<ProgramExercise, 'id' | 'orderIndex'>[];
 }
 
 interface AIWorkoutViewProps {
-  onSaveAsProgram: (name: string, description: string, daysOfWeek: string[], exercises: Omit<ProgramExercise, 'id'>[]) => void;
+  onSaveAsProgram: (
+    name: string,
+    description: string,
+    daysOfWeek: string[],
+    workoutStyle: string | undefined,
+    timeLimit: number | undefined,
+    targetRounds: number | undefined,
+    exercises: Omit<ProgramExercise, 'id'>[]
+  ) => void;
   onStartWorkout: (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number }[]) => void;
 }
 
@@ -83,7 +94,15 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
   const handleSave = () => {
     if (!generated) return;
     const exercises = generated.exercises.map((ex, i) => ({ ...ex, orderIndex: i }));
-    onSaveAsProgram(generated.name, generated.description, [], exercises);
+    onSaveAsProgram(
+      generated.name,
+      generated.description,
+      [],
+      generated.workoutStyle,
+      generated.timeLimit,
+      generated.targetRounds,
+      exercises
+    );
     toast({ title: '저장 완료', description: '프로그램으로 저장되었습니다.' });
   };
 
@@ -112,8 +131,8 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               type="button"
               onClick={() => setWorkoutType(type.id)}
               className={`p-4 rounded-xl border-2 transition-all text-left ${workoutType === type.id
-                  ? 'border-primary bg-primary/10'
-                  : 'border-border bg-card hover:border-primary/40'
+                ? 'border-primary bg-primary/10'
+                : 'border-border bg-card hover:border-primary/40'
                 }`}
             >
               <type.icon className={`w-5 h-5 mb-2 ${workoutType === type.id ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -134,8 +153,8 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               type="button"
               onClick={() => setDifficulty(d.id)}
               className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${difficulty === d.id
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
                 }`}
             >
               {d.label}
@@ -154,8 +173,8 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               type="button"
               onClick={() => setDuration(d.id)}
               className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${duration === d.id
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
                 }`}
             >
               {d.label}
@@ -174,8 +193,8 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
               type="button"
               onClick={() => toggleFocus(area.id)}
               className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${focusAreas.includes(area.id)
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                ? 'bg-primary text-primary-foreground shadow-md'
+                : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
                 }`}
             >
               {area.label}
@@ -208,8 +227,13 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
         <Card className="overflow-hidden border-primary/30 bg-card/80 backdrop-blur-sm slide-up">
           <CardContent className="p-0">
             <div className="p-4 bg-primary/5 border-b border-border/30">
-              <h3 className="font-bold text-base">{generated.name}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{generated.description}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-bold text-base">{generated.name}</h3>
+                {generated.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-none font-bold">🔥 AMRAP {generated.timeLimit}분</Badge>}
+                {generated.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none font-bold">⏰ EMOM {generated.timeLimit}분</Badge>}
+                {generated.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-purple-500/10 text-purple-500 border-none font-bold">🏆 {generated.targetRounds} Rounds</Badge>}
+              </div>
+              <p className="text-xs text-muted-foreground">{generated.description}</p>
             </div>
             <div className="p-4 space-y-2">
               {generated.exercises.map((ex, i) => (
@@ -218,17 +242,17 @@ export function AIWorkoutView({ onSaveAsProgram, onStartWorkout }: AIWorkoutView
                     <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-[10px] font-bold flex items-center justify-center">{i + 1}</span>
                     <span className="font-medium">{ex.exerciseName}</span>
                     <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
-                    {ex.workoutStyle === 'amrap' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-orange-500/10 text-orange-500 border-none">AMRAP</Badge>}
-                    {ex.workoutStyle === 'emom' && <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-blue-500/10 text-blue-500 border-none">EMOM</Badge>}
                   </div>
                   <span className="text-xs text-muted-foreground tabular-nums text-right">
-                    {ex.workoutStyle === 'classic' || !ex.workoutStyle ? (
+                    {ex.targetDistance ? (
+                      <span className="text-primary/90 font-medium">{ex.targetDistance}m</span>
+                    ) : (generated.workoutStyle === 'classic' || !generated.workoutStyle) ? (
                       <>
                         {ex.targetSets}×{ex.targetReps}
                         {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
                       </>
                     ) : (
-                      <span>도전!</span>
+                      <span className="text-primary">도전!</span>
                     )}
                   </span>
                 </div>

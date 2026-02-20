@@ -13,9 +13,8 @@ export interface ProgramExercise {
         targetSets: number;
         targetReps: number;
         targetWeight: number;
+        targetDistance?: number; // 미터 단위 (예: 로잉 1000m)
         sets: ExerciseSet[]; // 각 세트별 상세 정보
-        workoutStyle?: 'classic' | 'amrap' | 'emom';
-        timeLimit?: number; // 분 단위
         orderIndex: number;
 }
 
@@ -24,6 +23,9 @@ export interface WorkoutProgram {
         name: string;
         description?: string;
         daysOfWeek: string[];
+        workoutStyle?: 'classic' | 'amrap' | 'emom' | 'rft';
+        timeLimit?: number; // AMRAP, EMOM용 제한 시간 (분)
+        targetRounds?: number; // RFT용 목표 라운드 수
         exercises: ProgramExercise[];
         createdAt: string;
         updatedAt: string;

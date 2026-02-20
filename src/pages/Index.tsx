@@ -57,7 +57,7 @@ const Index = () => {
           </TabsContent>
           <TabsContent value="ai">
             <AIWorkoutView
-              onSaveAsProgram={createProgram}
+              onSaveAsProgram={(name, desc, days, style, limit, rounds, exs) => createProgram(name, desc, days, style, limit, rounds, exs)}
               onStartWorkout={(exs) => { startWorkoutWithExercises(exs); setActiveTab('workout'); }}
             />
           </TabsContent>

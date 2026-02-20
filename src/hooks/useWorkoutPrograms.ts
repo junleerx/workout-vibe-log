@@ -50,6 +50,9 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
             name: program.name,
             description: program.description || undefined,
             daysOfWeek: program.days_of_week || [],
+            workoutStyle: program.workout_style || undefined,
+            timeLimit: program.time_limit || undefined,
+            targetRounds: program.target_rounds || undefined,
             exercises: (exercisesData || []).map((ex) => ({
               id: ex.id,
               exerciseName: ex.exercise_name,
@@ -57,6 +60,8 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
               targetSets: ex.target_sets,
               targetReps: ex.target_reps,
               targetWeight: Number(ex.target_weight),
+              targetDistance: ex.target_distance || undefined,
+              sets: [], // Fix: Ensure sets array is present
               orderIndex: ex.order_index,
             })),
             createdAt: program.created_at,
@@ -86,6 +91,9 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     name: string,
     description: string,
     daysOfWeek: string[],
+    workoutStyle: string | undefined,
+    timeLimit: number | undefined,
+    targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[]
   ) => {
     if (!user) return;
@@ -98,6 +106,9 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           name,
           description: description || null,
           days_of_week: daysOfWeek,
+          workout_style: workoutStyle || null,
+          time_limit: timeLimit || null,
+          target_rounds: targetRounds || null,
           member_id: memberId || null,
         })
         .select()
@@ -113,6 +124,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           target_sets: ex.targetSets,
           target_reps: ex.targetReps,
           target_weight: ex.targetWeight,
+          target_distance: ex.targetDistance || null,
           order_index: index,
         }));
 
@@ -144,6 +156,9 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     name: string,
     description: string,
     daysOfWeek: string[],
+    workoutStyle: string | undefined,
+    timeLimit: number | undefined,
+    targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[]
   ) => {
     if (!user) return;
@@ -155,6 +170,9 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           name,
           description: description || null,
           days_of_week: daysOfWeek,
+          workout_style: workoutStyle || null,
+          time_limit: timeLimit || null,
+          target_rounds: targetRounds || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', programId);
@@ -176,6 +194,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           target_sets: ex.targetSets,
           target_reps: ex.targetReps,
           target_weight: ex.targetWeight,
+          target_distance: ex.targetDistance || null,
           order_index: index,
         }));
 
