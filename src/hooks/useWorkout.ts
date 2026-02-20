@@ -31,18 +31,62 @@ export function useWorkout() {
   };
 
   /** 프로그램에서 시작할 때 운동 목록을 한 번에 넣을 때 사용 */
-  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number }[]) => {
-    const newExercises: Exercise[] = exercises.map((ex) => ({
-      id: crypto.randomUUID(),
-      name: ex.exerciseName,
-      category: ex.muscleGroup as ExerciseCategory,
-      sets: Array.from({ length: ex.targetSets || 1 }, () => ({
-        id: crypto.randomUUID(),
-        reps: ex.targetReps || 0,
-        weight: ex.targetWeight || 0,
-        completed: false,
-      })),
-    }));
+  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; groupId?: string; groupRounds?: number }[]) => {
+    const newExercises: Exercise[] = [];
+
+    // groupId별로 그룹핑해서 각 그룹을 groupRounds만큼 반복 확장
+    const groups = new Map<string, typeof exercises>();
+    const ungrouped: typeof exercises = [];
+
+    for (const ex of exercises) {
+      if (ex.groupId) {
+        if (!groups.has(ex.groupId)) groups.set(ex.groupId, []);
+        groups.get(ex.groupId)!.push(ex);
+      } else {
+        ungrouped.push(ex);
+      }
+    }
+
+    // 순서 유지를 위해 original order로 확장
+    const processedGroups = new Set<string>();
+    for (const ex of exercises) {
+      if (ex.groupId && !processedGroups.has(ex.groupId)) {
+        processedGroups.add(ex.groupId);
+        const groupExercises = groups.get(ex.groupId)!;
+        const totalRounds = ex.groupRounds || 1;
+        for (let round = 1; round <= totalRounds; round++) {
+          for (const gex of groupExercises) {
+            newExercises.push({
+              id: crypto.randomUUID(),
+              name: gex.exerciseName,
+              category: gex.muscleGroup as ExerciseCategory,
+              groupId: gex.groupId,
+              roundNumber: round,
+              groupRounds: totalRounds,
+              sets: Array.from({ length: gex.targetSets || 1 }, () => ({
+                id: crypto.randomUUID(),
+                reps: gex.targetReps || 0,
+                weight: gex.targetWeight || 0,
+                completed: false,
+              })),
+            });
+          }
+        }
+      } else if (!ex.groupId) {
+        newExercises.push({
+          id: crypto.randomUUID(),
+          name: ex.exerciseName,
+          category: ex.muscleGroup as ExerciseCategory,
+          sets: Array.from({ length: ex.targetSets || 1 }, () => ({
+            id: crypto.randomUUID(),
+            reps: ex.targetReps || 0,
+            weight: ex.targetWeight || 0,
+            completed: false,
+          })),
+        });
+      }
+    }
+
     setCurrentWorkout({
       id: crypto.randomUUID(),
       date: new Date().toISOString(),

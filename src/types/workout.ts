@@ -11,6 +11,9 @@ export interface Exercise {
     sets: WorkoutSet[];
     category: ExerciseCategory;
     previousSets?: WorkoutSet[]; // 이전 운동 기록 (저번 주차 데이터)
+    groupId?: string;      // 서킷 그룹 식별자
+    roundNumber?: number;  // 현재 라운드 (1부터 시작)
+    groupRounds?: number;  // 해당 그룹의 총 라운드 수
 }
 
 export interface Workout {
@@ -25,12 +28,12 @@ export interface Workout {
 
 export type ExerciseCategory =
     | '가슴'
-  | '등'
-  | '어깨'
-  | '하체'
-  | '팔'
-  | '복근'
-  | '전신';
+    | '등'
+    | '어깨'
+    | '하체'
+    | '팔'
+    | '복근'
+    | '전신';
 
 export interface ExerciseTemplate {
     name: string;

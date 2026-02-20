@@ -96,16 +96,33 @@ export function WorkoutView({
       </div>
 
       <div className="space-y-4 mb-6">
-        {currentWorkout.exercises.map((exercise) => (
-          <ExerciseCard
-            key={exercise.id}
-            exercise={exercise}
-            onAddSet={() => onAddSet(exercise.id)}
-            onRemoveSet={(setId) => onRemoveSet(exercise.id, setId)}
-            onUpdateSet={(setId, updates) => handleUpdateSet(exercise.id, setId, updates)}
-            onRemoveExercise={() => onRemoveExercise(exercise.id)}
-          />
-        ))}
+        {currentWorkout.exercises.map((exercise, index) => {
+          const isFirstInRound = exercise.roundNumber !== undefined && (
+            index === 0 ||
+            currentWorkout.exercises[index - 1].groupId !== exercise.groupId ||
+            currentWorkout.exercises[index - 1].roundNumber !== exercise.roundNumber
+          );
+          return (
+            <div key={exercise.id}>
+              {isFirstInRound && (
+                <div className="flex items-center gap-2 mb-2 mt-3">
+                  <div className="h-px flex-1 bg-primary/20" />
+                  <span className="text-xs font-bold text-primary px-2 py-1 rounded-full bg-primary/10">
+                    🔥 Round {exercise.roundNumber} / {exercise.groupRounds}
+                  </span>
+                  <div className="h-px flex-1 bg-primary/20" />
+                </div>
+              )}
+              <ExerciseCard
+                exercise={exercise}
+                onAddSet={() => onAddSet(exercise.id)}
+                onRemoveSet={(setId) => onRemoveSet(exercise.id, setId)}
+                onUpdateSet={(setId, updates) => handleUpdateSet(exercise.id, setId, updates)}
+                onRemoveExercise={() => onRemoveExercise(exercise.id)}
+              />
+            </div>
+          );
+        })}
       </div>
 
       <Button
@@ -148,9 +165,9 @@ export function WorkoutView({
       )}
 
       {showTimer && (
-        <RestTimer 
-          initialSeconds={restTime} 
-          onClose={() => setShowTimer(false)} 
+        <RestTimer
+          initialSeconds={restTime}
+          onClose={() => setShowTimer(false)}
         />
       )}
     </div>
