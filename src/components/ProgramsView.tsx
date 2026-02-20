@@ -62,9 +62,23 @@ export function ProgramsView({
   const [customExerciseCategory, setCustomExerciseCategory] = useState('가슴');
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [activeGroupRounds, setActiveGroupRounds] = useState<number>(1);
+  const [hiddenTemplates, setHiddenTemplates] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('hidden_templates') || '[]'); } catch { return []; }
+  });
+  const [managetab, setManagetab] = useState<'custom' | 'builtin'>('custom');
+
+  const toggleHideTemplate = (name: string) => {
+    setHiddenTemplates((prev) => {
+      const next = prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name];
+      localStorage.setItem('hidden_templates', JSON.stringify(next));
+      return next;
+    });
+  };
 
   const allExercises = [
-    ...exerciseTemplates.map(e => ({ id: `template-${e.name}`, name: e.name, category: e.category, isCustom: false })),
+    ...exerciseTemplates
+      .filter(e => !hiddenTemplates.includes(e.name))
+      .map(e => ({ id: `template-${e.name}`, name: e.name, category: e.category, isCustom: false })),
     ...customExercises.map((e) => ({ id: e.id, name: e.name, category: e.category, isCustom: true })),
   ];
 
@@ -208,20 +222,34 @@ export function ProgramsView({
                 <DialogTitle className="text-base">운동 목록 관리</DialogTitle>
               </DialogHeader>
               <div className="space-y-3 py-1">
-                {customExercises.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-6">추가한 커스텀 운동이 없습니다.</p>
-                ) : (
+                {/* Tab switcher */}
+                <div className="flex rounded-xl bg-secondary/50 p-1">
+                  <button
+                    className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-all ${managetab === 'custom' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
+                    onClick={() => setManagetab('custom')}
+                  >
+                    커스텀 ({customExercises.length})
+                  </button>
+                  <button
+                    className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition-all ${managetab === 'builtin' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
+                    onClick={() => setManagetab('builtin')}
+                  >
+                    기본 운동 {hiddenTemplates.length > 0 ? `(${hiddenTemplates.length}개 숨김)` : ''}
+                  </button>
+                </div>
+
+                {managetab === 'custom' ? (
                   <div className="space-y-1.5">
-                    <p className="text-xs text-muted-foreground font-medium mb-2">내 커스텀 운동 ({customExercises.length}개)</p>
-                    {customExercises.map((ex) => (
+                    {customExercises.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-6">추가한 커스텀 운동이 없습니다.</p>
+                    ) : customExercises.map((ex) => (
                       <div key={ex.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
                         <div>
                           <span className="text-sm font-medium">{ex.name}</span>
                           <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
                         </div>
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="ghost" size="icon"
                           className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10"
                           onClick={() => {
                             if (confirm(`"${ex.name}" 운동을 삭제하시겠습니까?`)) {
@@ -233,6 +261,28 @@ export function ProgramsView({
                         </Button>
                       </div>
                     ))}
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground mb-2">숨기면 드롭다운에서 안 보이며, 복원 클릭 시 다시 나타납니다.</p>
+                    {exerciseTemplates.map((ex) => {
+                      const isHidden = hiddenTemplates.includes(ex.name);
+                      return (
+                        <div key={ex.name} className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-opacity ${isHidden ? 'opacity-40 bg-secondary/20 border-border/20' : 'bg-secondary/50 border-border/40'}`}>
+                          <div>
+                            <span className="text-sm font-medium">{ex.name}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
+                          </div>
+                          <Button
+                            variant="ghost" size="sm"
+                            className={`h-7 text-xs rounded-lg ${isHidden ? 'text-primary' : 'text-muted-foreground'}`}
+                            onClick={() => toggleHideTemplate(ex.name)}
+                          >
+                            {isHidden ? '복원' : '숨김'}
+                          </Button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
