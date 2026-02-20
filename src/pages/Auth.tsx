@@ -109,10 +109,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background patch image */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <img src="/logo-patch.jpg" alt="" className="w-[600px] h-[600px] object-contain opacity-[0.35]" style={{ clipPath: 'inset(0 0 6% 0)' }} />
-      </div>
       {/* Background decoration */}
       <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" />
