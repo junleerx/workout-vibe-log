@@ -6,6 +6,7 @@ import { ExerciseSelector } from './ExerciseSelector';
 import { Button } from '@/components/ui/button';
 import { Plus, Play, Square, Timer } from 'lucide-react';
 import { RestTimer } from './RestTimer';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface WorkoutViewProps {
   currentWorkout: Workout | null;
@@ -38,6 +39,7 @@ export function WorkoutView({
   const [showTimer, setShowTimer] = useState(false);
   const [restTime] = useState(90);
   const [elapsed, setElapsed] = useState(0);
+  const { unit, toDisplay } = useWeightUnit();
 
   useEffect(() => {
     if (!currentWorkout) { setElapsed(0); return; }
@@ -109,7 +111,7 @@ export function WorkoutView({
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
             <span className="text-xs font-medium">완료 볼륨</span>
           </div>
-          <p className="text-xl font-bold text-gradient">{totalVolume > 0 ? `${totalVolume.toLocaleString()}kg` : '—'}</p>
+          <p className="text-xl font-bold text-gradient">{totalVolume > 0 ? `${toDisplay(totalVolume).toLocaleString()}${unit}` : '—'}</p>
         </div>
         <div className="bg-primary/10 rounded-xl p-4 card-shadow">
           <div className="flex items-center gap-1 text-primary mb-1">

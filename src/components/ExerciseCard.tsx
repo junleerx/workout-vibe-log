@@ -2,6 +2,7 @@ import { Exercise, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
 import { Plus, Trash2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -18,15 +19,15 @@ export function ExerciseCard({
   onUpdateSet,
   onRemoveExercise,
 }: ExerciseCardProps) {
+  const { unit, toDisplay, toKg } = useWeightUnit();
   return (
     <div className="bg-card rounded-xl p-4 card-shadow slide-up">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-bold text-foreground">{exercise.name}</h3>
           <span
-            className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full border ${
-              categoryColors[exercise.category]
-            }`}
+            className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full border ${categoryColors[exercise.category]
+              }`}
           >
             {exercise.category}
           </span>
@@ -44,7 +45,7 @@ export function ExerciseCard({
       <div className="space-y-2">
         <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground px-2">
           <div className="col-span-2">세트</div>
-          <div className="col-span-4">무게 (kg)</div>
+          <div className="col-span-4">무게 ({unit})</div>
           <div className="col-span-4">횟수</div>
           <div className="col-span-2"></div>
         </div>
@@ -52,9 +53,8 @@ export function ExerciseCard({
         {exercise.sets.map((set, index) => (
           <div
             key={set.id}
-            className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg transition-colors ${
-              set.completed ? 'bg-primary/10' : 'bg-secondary/50'
-            }`}
+            className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-primary/10' : 'bg-secondary/50'
+              }`}
           >
             <div className="col-span-2 text-sm font-semibold text-muted-foreground">
               {index + 1}
@@ -62,9 +62,9 @@ export function ExerciseCard({
             <div className="col-span-4">
               <input
                 type="number"
-                value={set.weight || ''}
+                value={set.weight ? toDisplay(set.weight) : ''}
                 onChange={(e) =>
-                  onUpdateSet(set.id, { weight: parseFloat(e.target.value) || 0 })
+                  onUpdateSet(set.id, { weight: toKg(parseFloat(e.target.value) || 0) })
                 }
                 className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="0"
@@ -89,11 +89,10 @@ export function ExerciseCard({
                   const newStatus = !set.completed;
                   onUpdateSet(set.id, { completed: newStatus });
                 }}
-                className={`p-1.5 rounded-lg transition-all ${
-                  set.completed
+                className={`p-1.5 rounded-lg transition-all ${set.completed
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted/50 text-muted-foreground hover:bg-primary/20'
-                }`}
+                  }`}
               >
                 <Check className="w-4 h-4" />
               </button>

@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useMembers } from '@/hooks/useMembers';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
 
@@ -19,6 +20,7 @@ interface HeaderProps {
 
 export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderProps) {
   const { members, selectedMember, switchProfile } = useMembers();
+  const { unit, toggleUnit } = useWeightUnit();
 
   const tabs = [
     { id: 'workout' as TabType, label: '운동', icon: Dumbbell },
@@ -85,6 +87,12 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
                   </>
                 )}
 
+                <div className="h-px bg-border my-1" />
+                <DropdownMenuItem onClick={toggleUnit} className="cursor-pointer font-medium">
+                  <span className="mr-2 text-base">{unit === 'kg' ? '🔄' : '🔄'}</span>
+                  {unit === 'kg' ? 'lbs로 바꾸기' : 'kg로 바꾸기'}
+                  <span className="ml-auto text-xs text-muted-foreground">현재: {unit.toUpperCase()}</span>
+                </DropdownMenuItem>
                 <div className="h-px bg-border my-1" />
                 <DropdownMenuItem onClick={onSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />

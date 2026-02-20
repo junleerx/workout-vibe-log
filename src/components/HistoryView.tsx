@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface HistoryViewProps {
   workouts: Workout[];
@@ -22,6 +23,7 @@ function formatDuration(seconds: number): string {
 export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const { unit, toDisplay } = useWeightUnit();
 
   const filtered = workouts.filter((w) =>
     !search || w.exercises.some((ex) => ex.name.toLowerCase().includes(search.toLowerCase()))
@@ -131,7 +133,7 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
                       {exercise.sets.map((set, i) => (
                         <div key={set.id} className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="w-10 text-right font-medium text-foreground/60">Set {i + 1}</span>
-                          {set.weight > 0 && <span className="text-primary font-semibold">{set.weight}kg</span>}
+                          {set.weight > 0 && <span className="text-primary font-semibold">{toDisplay(set.weight)}{unit}</span>}
                           {set.reps > 0 && <span>× {set.reps}회</span>}
                           {set.weight === 0 && set.reps === 0 && <span className="italic">기록 없음</span>}
                           {set.completed && <span className="text-green-500">✓</span>}
