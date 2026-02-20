@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Play, Edit2, GripVertical, Target } from 'lucide-react';
+import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy } from 'lucide-react';
 import { WorkoutProgram, ProgramExercise, DAYS_OF_WEEK } from '@/types/program';
 import { exerciseTemplates } from '@/data/exercises';
 
@@ -153,6 +153,16 @@ export function ProgramsView({
 
   const handleRemoveExercise = (index: number) => {
     setProgramExercises((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMoveExercise = (index: number, direction: 'up' | 'down') => {
+    setProgramExercises((prev) => {
+      const next = [...prev];
+      const swapIndex = direction === 'up' ? index - 1 : index + 1;
+      if (swapIndex < 0 || swapIndex >= next.length) return prev;
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+      return next;
+    });
   };
 
   const handleUpdateExercise = (index: number, updates: Partial<Omit<ProgramExercise, 'id'>>) => {
@@ -405,9 +415,24 @@ export function ProgramsView({
                           {isFirstInGroup && (
                             <div className="flex items-center gap-2 mb-1 pl-1">
                               <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
-                                🔥 {ex.groupRounds} Rounds
+                                🔥
                               </Badge>
-                              <span className="text-xs text-muted-foreground font-medium">서킷 블록</span>
+                              <input
+                                type="number"
+                                min={1}
+                                value={ex.groupRounds || 3}
+                                onChange={(e) => {
+                                  const newRounds = Number(e.target.value) || 1;
+                                  const gid = ex.groupId;
+                                  setProgramExercises((prev) =>
+                                    prev.map((item) =>
+                                      item.groupId === gid ? { ...item, groupRounds: newRounds } : item
+                                    )
+                                  );
+                                }}
+                                className="w-12 h-6 text-center text-xs font-bold rounded-lg border border-primary/30 bg-primary/10 text-primary focus:outline-none"
+                              />
+                              <span className="text-xs text-muted-foreground font-medium">Rounds · 서킷 블록</span>
                             </div>
                           )}
                           <div className={`p-3 bg-secondary/50 border-border/50 space-y-3 ${isGrouped
@@ -416,7 +441,14 @@ export function ProgramsView({
                             }`}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                                <div className="flex flex-col">
+                                  <button type="button" onClick={() => handleMoveExercise(index, 'up')} disabled={index === 0} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
+                                    <ChevronUp className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button type="button" onClick={() => handleMoveExercise(index, 'down')} disabled={index === programExercises.length - 1} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
+                                    <ChevronDown className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
                                 <span className="font-medium text-sm">{ex.exerciseName}</span>
                                 <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
                               </div>
@@ -490,6 +522,17 @@ export function ProgramsView({
                     )}
                   </div>
                   <div className="flex gap-0.5 -mr-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title="복제" onClick={() => onCreateProgram(
+                      `${program.name} (복사)`,
+                      program.description || '',
+                      program.daysOfWeek,
+                      program.workoutStyle,
+                      program.timeLimit,
+                      program.targetRounds,
+                      program.exercises.map(({ id, ...rest }) => rest)
+                    )}>
+                      <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEditClick(program)}>
                       <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
                     </Button>
