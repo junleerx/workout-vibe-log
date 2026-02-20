@@ -116,8 +116,8 @@ const Auth = () => {
       <Card className="w-full max-w-md glass gradient-border border-border/30 relative z-10">
         <CardHeader className="text-center space-y-4 pt-8">
           <div className="flex justify-center">
-            <div className="p-3 rounded-2xl bg-primary/10 glow-effect">
-              <Dumbbell className="h-8 w-8 text-primary" />
+            <div className="w-16 h-16 rounded-2xl overflow-hidden glow-effect">
+              <img src="/logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />
             </div>
           </div>
           <div>

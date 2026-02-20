@@ -36,8 +36,8 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
       <div className="container py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/15 glow-effect">
-              <Dumbbell className="w-6 h-6 text-primary" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden glow-effect">
+              <img src="/logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold text-gradient">Juni's Gym</h1>

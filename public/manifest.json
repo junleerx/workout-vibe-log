@@ -4,13 +4,13 @@
     "description": "간편하게 운동을 기록하고 진행 상황을 추적하세요",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0f172a",
-    "theme_color": "#0f172a",
+    "background_color": "#0a0c14",
+    "theme_color": "#0a0c14",
     "icons": [
         {
-            "src": "/icon.svg",
+            "src": "/logo-patch.jpg",
             "sizes": "192x192 512x512",
-            "type": "image/svg+xml"
+            "type": "image/jpeg"
         }
     ]
 }
