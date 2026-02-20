@@ -70,13 +70,13 @@ const Index = () => {
           <TabsContent value="calendar">
             <CalendarView workouts={workouts} selectedMember={selectedMember} />
           </TabsContent>
-          <TabsList className="fixed bottom-0 left-0 right-0 h-16 bg-background border-t grid grid-cols-6 px-1 z-40">
-            <TabsTrigger value="workout" className="flex flex-col gap-1"><Dumbbell className="w-5 h-5" /><span className="text-[10px]">운동</span></TabsTrigger>
-            <TabsTrigger value="programs" className="flex flex-col gap-1"><ClipboardList className="w-5 h-5" /><span className="text-[10px]">프로그램</span></TabsTrigger>
-            <TabsTrigger value="ai" className="flex flex-col gap-1"><Sparkles className="w-5 h-5" /><span className="text-[10px]">AI추천</span></TabsTrigger>
-            <TabsTrigger value="history" className="flex flex-col gap-1"><History className="w-5 h-5" /><span className="text-[10px]">기록</span></TabsTrigger>
-            <TabsTrigger value="progress" className="flex flex-col gap-1"><LineChart className="w-5 h-5" /><span className="text-[10px]">통계</span></TabsTrigger>
-            <TabsTrigger value="calendar" className="flex flex-col gap-1"><Calendar className="w-5 h-5" /><span className="text-[10px]">달력</span></TabsTrigger>
+          <TabsList className="fixed bottom-0 left-0 right-0 h-16 glass border-t border-border/30 grid grid-cols-6 px-1 z-40">
+            <TabsTrigger value="workout" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl"><Dumbbell className="w-5 h-5" /><span className="text-[10px]">운동</span></TabsTrigger>
+            <TabsTrigger value="programs" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl"><ClipboardList className="w-5 h-5" /><span className="text-[10px]">프로그램</span></TabsTrigger>
+            <TabsTrigger value="ai" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl"><Sparkles className="w-5 h-5" /><span className="text-[10px]">AI추천</span></TabsTrigger>
+            <TabsTrigger value="history" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl"><History className="w-5 h-5" /><span className="text-[10px]">기록</span></TabsTrigger>
+            <TabsTrigger value="progress" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl"><LineChart className="w-5 h-5" /><span className="text-[10px]">통계</span></TabsTrigger>
+            <TabsTrigger value="calendar" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl"><Calendar className="w-5 h-5" /><span className="text-[10px]">달력</span></TabsTrigger>
           </TabsList>
         </Tabs>
       </main>

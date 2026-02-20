@@ -32,11 +32,11 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+    <header className="sticky top-0 z-50 glass border-b border-border/30">
       <div className="container py-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/20 glow-effect">
+            <div className="p-2 rounded-xl bg-primary/15 glow-effect">
               <Dumbbell className="w-6 h-6 text-primary" />
             </div>
             <div className="flex flex-col">
@@ -109,13 +109,14 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
               type="button"
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex-1 py-2.5 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 text-sm whitespace-nowrap ${activeTab === tab.id
-                ? 'bg-primary text-primary-foreground glow-effect'
-                : 'bg-secondary text-muted-foreground hover:text-foreground'
+              className={`flex-1 py-2.5 px-3 rounded-xl font-medium transition-all duration-200 flex flex-col items-center justify-center gap-1 text-sm whitespace-nowrap ${activeTab === tab.id
+                ? 'bg-primary/15 text-primary'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                 }`}
             >
               <tab.icon className="w-4 h-4" />
-              {tab.label}
+              <span className="text-[10px]">{tab.label}</span>
+              {activeTab === tab.id && <div className="w-1 h-1 rounded-full bg-primary" />}
             </button>
           ))}
         </nav>

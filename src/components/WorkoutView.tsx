@@ -164,7 +164,7 @@ export function WorkoutView({
       </Button>
 
       {/* 탭 바(h-16) 위에 배치해 겹치지 않도록 bottom-20 */}
-      <div className="fixed bottom-20 left-0 right-0 p-4 bg-background/95 backdrop-blur-lg border-t border-border z-50">
+      <div className="fixed bottom-20 left-0 right-0 p-4 glass border-t border-border/30 z-50">
         <div className="container flex gap-3">
           <Button type="button" variant="outline" className="flex-1" onClick={onCancelWorkout}>
             취소

@@ -52,7 +52,7 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
           placeholder="운동 이름으로 검색..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 rounded-xl"
+          className="pl-9 rounded-xl glass border-border/30 focus:ring-2 focus:ring-primary/30 transition-shadow"
         />
       </div>
 
@@ -68,7 +68,7 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
         const isExpanded = expandedId === workout.id;
 
         return (
-          <div key={workout.id} className="bg-card rounded-xl card-shadow slide-up overflow-hidden">
+          <div key={workout.id} className="bg-card rounded-xl card-shadow slide-up overflow-hidden accent-stripe hover-lift">
             {/* Header — always visible */}
             <div
               className="p-4 cursor-pointer select-none"

@@ -21,7 +21,7 @@ export function ExerciseCard({
 }: ExerciseCardProps) {
   const { unit, toDisplay, toKg } = useWeightUnit();
   return (
-    <div className="bg-card rounded-xl p-4 card-shadow slide-up">
+    <div className="bg-card rounded-xl p-4 card-shadow slide-up hover-lift">
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-bold text-foreground">{exercise.name}</h3>
@@ -90,7 +90,7 @@ export function ExerciseCard({
                   onUpdateSet(set.id, { completed: newStatus });
                 }}
                 className={`p-1.5 rounded-lg transition-all ${set.completed
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-primary text-primary-foreground animate-check'
                     : 'bg-muted/50 text-muted-foreground hover:bg-primary/20'
                   }`}
               >

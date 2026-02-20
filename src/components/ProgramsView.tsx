@@ -505,7 +505,7 @@ export function ProgramsView({
       {/* Program Cards */}
       <div className="grid gap-4">
         {programs.map((program) => (
-          <Card key={program.id} className="overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
+          <Card key={program.id} className="overflow-hidden border-border/30 bg-card/80 backdrop-blur-sm gradient-border hover-lift">
             <CardContent className="p-0">
               {/* Card Header */}
               <div className="p-4 pb-3">

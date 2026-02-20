@@ -108,17 +108,21 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur">
-        <CardHeader className="text-center space-y-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px]" />
+
+      <Card className="w-full max-w-md glass gradient-border border-border/30 relative z-10">
+        <CardHeader className="text-center space-y-4 pt-8">
           <div className="flex justify-center">
-            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+            <div className="p-3 rounded-2xl bg-primary/10 glow-effect">
               <Dumbbell className="h-8 w-8 text-primary" />
             </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Juni's Gym</CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardTitle className="text-2xl font-bold text-gradient">Juni's Gym</CardTitle>
+            <CardDescription className="text-muted-foreground mt-1">
               {isSignUp ? '계정을 만들어 운동을 기록하세요' : '간단한 ID로 로그인하세요'}
             </CardDescription>
           </div>
@@ -131,7 +135,7 @@ const Auth = () => {
                 placeholder="ID (예: qwer)"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
-                className="bg-background/50 border-border/50"
+                className="bg-background/50 border-border/40 rounded-xl h-11 focus:ring-2 focus:ring-primary/30 transition-shadow"
                 disabled={isSubmitting}
               />
             </div>
@@ -141,13 +145,14 @@ const Auth = () => {
                 placeholder="비밀번호 (6자 이상)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-background/50 border-border/50"
+                className="bg-background/50 border-border/40 rounded-xl h-11 focus:ring-2 focus:ring-primary/30 transition-shadow"
                 disabled={isSubmitting}
               />
             </div>
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 rounded-xl font-semibold text-sm"
+              style={{ background: 'var(--gradient-premium)' }}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
