@@ -63,6 +63,8 @@ export function ProgramsView({
   const [customExerciseCategory, setCustomExerciseCategory] = useState('가슴');
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [activeGroupRounds, setActiveGroupRounds] = useState<number>(1);
+  const [isGroupingMode, setIsGroupingMode] = useState(false);
+  const [selectedIndicesForGroup, setSelectedIndicesForGroup] = useState<number[]>([]);
   const { unit, toDisplay, toKg } = useWeightUnit();
   const [hiddenTemplates, setHiddenTemplates] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('hidden_templates') || '[]'); } catch { return []; }
@@ -184,6 +186,37 @@ export function ProgramsView({
   const handleUpdateExercise = (index: number, updates: Partial<Omit<ProgramExercise, 'id'>>) => {
     setProgramExercises((prev) =>
       prev.map((ex, i) => (i === index ? { ...ex, ...updates } : ex))
+    );
+  };
+
+  const handleCreateGroupFromSelection = () => {
+    if (selectedIndicesForGroup.length < 2) {
+      alert('서킷으로 묶으려면 2개 이상의 운동을 선택해주세요.');
+      return;
+    }
+    const newGroupId = crypto.randomUUID();
+    const sortedSelected = [...selectedIndicesForGroup].sort((a, b) => a - b);
+    const insertIndex = sortedSelected[0];
+
+    setProgramExercises((prev) => {
+      const next = [...prev];
+      const selectedExs = sortedSelected.map(idx => ({ ...next[idx], groupId: newGroupId, groupRounds: 3 }));
+      // Remove selected from their original positions (working backwards to preserve indices)
+      for (let i = sortedSelected.length - 1; i >= 0; i--) {
+        next.splice(sortedSelected[i], 1);
+      }
+      // Insert them all at the first selection's original index
+      next.splice(insertIndex, 0, ...selectedExs);
+      return next;
+    });
+
+    setIsGroupingMode(false);
+    setSelectedIndicesForGroup([]);
+  };
+
+  const handleUngroup = (groupId: string) => {
+    setProgramExercises((prev) =>
+      prev.map(ex => ex.groupId === groupId ? { ...ex, groupId: undefined, groupRounds: undefined } : ex)
     );
   };
 
@@ -336,12 +369,17 @@ export function ProgramsView({
                 <div className={`space-y-3 p-3 rounded-xl border ${activeGroupId ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-muted-foreground">
-                      {activeGroupId ? '진행 중인 서킷 블록에 운동 추가' : '운동 추가 (목록 선택 또는 직접 입력)'}
+                      {activeGroupId ? '진행 중인 서킷 블록에 운동 추가' : '운동 추가 (목록 또는 직접 입력)'}
                     </label>
                     {!activeGroupId ? (
-                      <Button variant="outline" size="sm" onClick={handleCreateGroup} className="h-7 text-xs rounded-lg border-primary/30 text-primary">
-                        + 서킷/블록 묶기
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setIsGroupingMode(!isGroupingMode)} className={`h-7 text-xs rounded-lg transition-colors ${isGroupingMode ? 'bg-primary border-primary text-primary-foreground' : 'border-border'}`}>
+                          {isGroupingMode ? '선택 취소' : '기존 운동 묶기'}
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={handleCreateGroup} className="h-7 text-xs rounded-lg border-primary/30 text-primary">
+                          + 신규 서킷 블록
+                        </Button>
+                      </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
@@ -359,6 +397,15 @@ export function ProgramsView({
                       </div>
                     )}
                   </div>
+
+                  {isGroupingMode && (
+                    <div className="flex items-center justify-between p-2 bg-primary/10 rounded-lg mb-2">
+                      <span className="text-xs text-primary font-medium">{selectedIndicesForGroup.length}개 운동 선택됨</span>
+                      <Button size="sm" onClick={handleCreateGroupFromSelection} disabled={selectedIndicesForGroup.length < 2} className="h-7 text-xs rounded-lg">
+                        선택 항목 서킷으로 묶기
+                      </Button>
+                    </div>
+                  )}
 
                   <div className="flex gap-2">
                     <div className="flex-1 flex gap-2">
@@ -429,42 +476,60 @@ export function ProgramsView({
                       return (
                         <div key={index} className={`relative flex flex-col ${isGrouped ? 'mx-1' : ''}`}>
                           {isFirstInGroup && (
-                            <div className="flex items-center gap-2 mb-1 pl-1">
-                              <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
-                                🔥
-                              </Badge>
-                              <input
-                                type="number"
-                                min={1}
-                                value={ex.groupRounds || 3}
-                                onChange={(e) => {
-                                  const newRounds = Number(e.target.value) || 1;
-                                  const gid = ex.groupId;
-                                  setProgramExercises((prev) =>
-                                    prev.map((item) =>
-                                      item.groupId === gid ? { ...item, groupRounds: newRounds } : item
-                                    )
-                                  );
-                                }}
-                                className="w-12 h-6 text-center text-xs font-bold rounded-lg border border-primary/30 bg-primary/10 text-primary focus:outline-none"
-                              />
-                              <span className="text-xs text-muted-foreground font-medium">Rounds · 서킷 블록</span>
+                            <div className="flex items-center justify-between gap-2 mb-1 pl-1">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
+                                  🔥
+                                </Badge>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={ex.groupRounds || 3}
+                                  onChange={(e) => {
+                                    const newRounds = Number(e.target.value) || 1;
+                                    const gid = ex.groupId;
+                                    setProgramExercises((prev) =>
+                                      prev.map((item) =>
+                                        item.groupId === gid ? { ...item, groupRounds: newRounds } : item
+                                      )
+                                    );
+                                  }}
+                                  className="w-12 h-6 text-center text-xs font-bold rounded-lg border border-primary/30 bg-primary/10 text-primary focus:outline-none"
+                                />
+                                <span className="text-xs text-muted-foreground font-medium">Rounds · 서킷 블록</span>
+                              </div>
+                              <Button variant="ghost" size="sm" onClick={() => handleUngroup(ex.groupId!)} className="h-6 text-[10px] rounded hover:bg-destructive/10 hover:text-destructive">
+                                블록 해제
+                              </Button>
                             </div>
                           )}
                           <div className={`p-3 bg-secondary/50 border-border/50 space-y-3 ${isGrouped
                             ? `border-x ${isFirstInGroup ? 'rounded-t-xl border-t' : ''} ${isLastInGroup ? 'rounded-b-xl border-b mb-2' : ''} ${!isFirstInGroup && !isLastInGroup ? 'border-y-0' : ''} ml-2 border-l-primary/30`
                             : 'rounded-xl border'
-                            }`}>
+                            } ${isGroupingMode && !isGrouped ? 'opacity-80' : ''}`}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="flex flex-col">
-                                  <button type="button" onClick={() => handleMoveExercise(index, 'up')} disabled={index === 0} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
-                                    <ChevronUp className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button type="button" onClick={() => handleMoveExercise(index, 'down')} disabled={index === programExercises.length - 1} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
-                                    <ChevronDown className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
+                                {isGroupingMode && !isGrouped && (
+                                  <input
+                                    type="checkbox"
+                                    className="w-4 h-4 mr-1 accent-primary rounded bg-background border-border/50"
+                                    checked={selectedIndicesForGroup.includes(index)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) setSelectedIndicesForGroup(prev => [...prev, index]);
+                                      else setSelectedIndicesForGroup(prev => prev.filter(i => i !== index));
+                                    }}
+                                  />
+                                )}
+                                {!isGroupingMode && (
+                                  <div className="flex flex-col">
+                                    <button type="button" onClick={() => handleMoveExercise(index, 'up')} disabled={index === 0} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
+                                      <ChevronUp className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button type="button" onClick={() => handleMoveExercise(index, 'down')} disabled={index === programExercises.length - 1} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
+                                      <ChevronDown className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                )}
                                 <span className="font-medium text-sm">{ex.exerciseName}</span>
                                 <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
                               </div>
