@@ -132,12 +132,26 @@ export function WorkoutView({
           return (
             <div key={exercise.id}>
               {isFirstInRound && (
-                <div className="flex items-center gap-2 mb-2 mt-3">
-                  <div className="h-px flex-1 bg-primary/20" />
-                  <span className="text-xs font-bold text-primary px-2 py-1 rounded-full bg-primary/10">
-                    🔥 Round {exercise.roundNumber} / {exercise.groupRounds}
-                  </span>
-                  <div className="h-px flex-1 bg-primary/20" />
+                <div className="mt-10 mb-5 relative flex justify-center">
+                  {/* Background dashed line */}
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t-2 border-dashed border-primary/50" />
+                  </div>
+                  {/* Solid Glowing Badge */}
+                  <div className="relative">
+                    <span
+                      className="px-6 py-2.5 rounded-full text-base font-black text-primary-foreground flex items-center gap-2 tracking-wide"
+                      style={{
+                        background: 'var(--gradient-premium)',
+                        boxShadow: '0 4px 20px -2px hsl(38 92% 55% / 0.5)'
+                      }}
+                    >
+                      <span className="text-xl leading-none">🔥</span>
+                      ROUND {exercise.roundNumber}
+                      <span className="text-primary-foreground/60 font-medium">/</span>
+                      {exercise.groupRounds}
+                    </span>
+                  </div>
                 </div>
               )}
               <ExerciseCard
