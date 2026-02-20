@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Workout } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Calendar, Trash2, Dumbbell, Timer } from 'lucide-react';
+import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -13,13 +15,18 @@ interface HistoryViewProps {
 function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) {
-    return `${hours}시간 ${minutes}분`;
-  }
+  if (hours > 0) return `${hours}시간 ${minutes}분`;
   return `${minutes}분`;
 }
 
 export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+
+  const filtered = workouts.filter((w) =>
+    !search || w.exercises.some((ex) => ex.name.toLowerCase().includes(search.toLowerCase()))
+  );
+
   if (workouts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
@@ -36,72 +43,105 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
 
   return (
     <div className="space-y-4 pb-6">
-      {workouts.map((workout) => {
-        const totalSets = workout.exercises.reduce((acc, ex) => acc + ex.sets.length, 0);
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="운동 이름으로 검색..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9 rounded-xl"
+        />
+      </div>
+
+      {filtered.length === 0 && (
+        <p className="text-center text-muted-foreground py-10">검색 결과가 없습니다.</p>
+      )}
+
+      {filtered.map((workout) => {
         const totalVolume = workout.exercises.reduce(
-          (acc, ex) =>
-            acc + ex.sets.reduce((setAcc, s) => setAcc + s.weight * s.reps, 0),
+          (acc, ex) => acc + ex.sets.reduce((s, set) => s + set.weight * set.reps, 0),
           0
         );
+        const isExpanded = expandedId === workout.id;
 
         return (
-          <div key={workout.id} className="bg-card rounded-xl p-4 card-shadow slide-up">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(workout.date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })}
-                </p>
-                {workout.duration && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                    <Timer className="w-3 h-3" />
-                    {formatDuration(workout.duration)}
+          <div key={workout.id} className="bg-card rounded-xl card-shadow slide-up overflow-hidden">
+            {/* Header — always visible */}
+            <div
+              className="p-4 cursor-pointer select-none"
+              onClick={() => setExpandedId(isExpanded ? null : workout.id)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">
+                    {format(new Date(workout.date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })}
+                  </p>
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                    {workout.duration && (
+                      <span className="flex items-center gap-1">
+                        <Timer className="w-3 h-3" />
+                        {formatDuration(workout.duration)}
+                      </span>
+                    )}
+                    <span>{workout.exercises.length}개 운동</span>
+                    {totalVolume > 0 && <span>{totalVolume.toLocaleString()} kg</span>}
                   </div>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDeleteWorkout(workout.id)}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-secondary/50 rounded-lg p-3">
-                <p className="text-xs text-muted-foreground mb-1">운동 수</p>
-                <p className="text-lg font-bold">{workout.exercises.length}개</p>
-              </div>
-              <div className="bg-secondary/50 rounded-lg p-3">
-                <p className="text-xs text-muted-foreground mb-1">총 볼륨</p>
-                <p className="text-lg font-bold">{totalVolume.toLocaleString()} kg</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {workout.exercises.map((exercise) => (
-                <div
-                  key={exercise.id}
-                  className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
-                >
-                  <div className="flex items-center gap-2">
-                    <Dumbbell className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium">{exercise.name}</span>
-                    <span
-                      className={`px-2 py-0.5 text-xs font-medium rounded-full border ${
-                        categoryColors[exercise.category]
-                      }`}
-                    >
-                      {exercise.category}
-                    </span>
+                  {/* Exercise name pills */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {workout.exercises.slice(0, 4).map((ex) => (
+                      <span key={ex.id} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                        {ex.name}
+                      </span>
+                    ))}
+                    {workout.exercises.length > 4 && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                        +{workout.exercises.length - 4}개
+                      </span>
+                    )}
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {exercise.sets.length} 세트
-                  </span>
                 </div>
-              ))}
+                <div className="flex items-center gap-1 ml-2">
+                  {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  <Button
+                    variant="ghost" size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                    onClick={(e) => { e.stopPropagation(); onDeleteWorkout(workout.id); }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
             </div>
+
+            {/* Expanded detail — set-level data */}
+            {isExpanded && (
+              <div className="border-t border-border/50 px-4 pb-4 pt-3 space-y-3">
+                {workout.exercises.map((exercise) => (
+                  <div key={exercise.id}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Dumbbell className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span className="font-semibold text-sm">{exercise.name}</span>
+                      <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full border ${categoryColors[exercise.category]}`}>
+                        {exercise.category}
+                      </span>
+                    </div>
+                    {/* Per-set breakdown */}
+                    <div className="ml-5 space-y-1">
+                      {exercise.sets.map((set, i) => (
+                        <div key={set.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="w-10 text-right font-medium text-foreground/60">Set {i + 1}</span>
+                          {set.weight > 0 && <span className="text-primary font-semibold">{set.weight}kg</span>}
+                          {set.reps > 0 && <span>× {set.reps}회</span>}
+                          {set.weight === 0 && set.reps === 0 && <span className="italic">기록 없음</span>}
+                          {set.completed && <span className="text-green-500">✓</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}

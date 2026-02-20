@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Workout, WorkoutSet, ExerciseCategory } from '@/types/workout';
 import { CustomExercise } from '@/types/member';
 import { ExerciseCard } from './ExerciseCard';
@@ -37,6 +37,24 @@ export function WorkoutView({
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [restTime] = useState(90);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!currentWorkout) { setElapsed(0); return; }
+    const start = new Date(currentWorkout.date).getTime();
+    const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [currentWorkout?.date]);
+
+  const formatElapsed = (s: number) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  };
 
   if (!currentWorkout) {
     return (
@@ -79,7 +97,7 @@ export function WorkoutView({
 
   return (
     <div className="pb-32">
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-card rounded-xl p-4 card-shadow">
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
             <Timer className="w-4 h-4" />
@@ -89,9 +107,16 @@ export function WorkoutView({
         </div>
         <div className="bg-card rounded-xl p-4 card-shadow">
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <span className="text-xs font-medium">총 볼륨</span>
+            <span className="text-xs font-medium">완료 볼륨</span>
           </div>
-          <p className="text-2xl font-bold text-gradient">{totalVolume.toLocaleString()} kg</p>
+          <p className="text-xl font-bold text-gradient">{totalVolume > 0 ? `${totalVolume.toLocaleString()}kg` : '—'}</p>
+        </div>
+        <div className="bg-primary/10 rounded-xl p-4 card-shadow">
+          <div className="flex items-center gap-1 text-primary mb-1">
+            <Timer className="w-4 h-4" />
+            <span className="text-xs font-medium">진행 시간</span>
+          </div>
+          <p className="text-xl font-bold text-primary tabular-nums">{formatElapsed(elapsed)}</p>
         </div>
       </div>
 

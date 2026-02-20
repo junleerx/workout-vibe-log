@@ -38,10 +38,7 @@ export function CalendarView({ workouts, selectedMember }: CalendarViewProps) {
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
     if (date) {
-      const hasWorkouts = workouts.some(w => isSameDay(parseISO(w.date), date));
-      if (hasWorkouts) {
-        setShowWorkoutDialog(true);
-      }
+      setShowWorkoutDialog(true);
     }
   };
 
@@ -123,9 +120,8 @@ export function CalendarView({ workouts, selectedMember }: CalendarViewProps) {
                             <Dumbbell className="w-4 h-4 text-muted-foreground" />
                             <span className="font-medium">{exercise.name}</span>
                             <span
-                              className={`px-2 py-0.5 text-xs font-medium rounded-full border ${
-                                categoryColors[exercise.category]
-                              }`}
+                              className={`px-2 py-0.5 text-xs font-medium rounded-full border ${categoryColors[exercise.category]
+                                }`}
                             >
                               {exercise.category}
                             </span>
