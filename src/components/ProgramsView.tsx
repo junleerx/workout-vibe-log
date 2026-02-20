@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy } from 'lucide-react';
 import { WorkoutProgram, ProgramExercise, DAYS_OF_WEEK } from '@/types/program';
 import { exerciseTemplates } from '@/data/exercises';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface ProgramsViewProps {
   programs: WorkoutProgram[];
@@ -62,6 +63,7 @@ export function ProgramsView({
   const [customExerciseCategory, setCustomExerciseCategory] = useState('가슴');
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [activeGroupRounds, setActiveGroupRounds] = useState<number>(1);
+  const { unit, toDisplay, toKg } = useWeightUnit();
   const [hiddenTemplates, setHiddenTemplates] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('hidden_templates') || '[]'); } catch { return []; }
   });
@@ -467,8 +469,8 @@ export function ProgramsView({
                                 <Input type="number" placeholder="예: 10" value={ex.targetReps || ''} onChange={(e) => handleUpdateExercise(index, { targetReps: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetReps ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                               </div>
                               <div className="space-y-1">
-                                <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게(kg)</span>
-                                <Input type="number" placeholder="자유" value={ex.targetWeight || ''} onChange={(e) => handleUpdateExercise(index, { targetWeight: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetWeight ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게({unit})</span>
+                                <Input type="number" placeholder="자유" value={ex.targetWeight ? toDisplay(ex.targetWeight) : ''} onChange={(e) => handleUpdateExercise(index, { targetWeight: toKg(Number(e.target.value)) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetWeight ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                               </div>
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
@@ -594,7 +596,9 @@ export function ProgramsView({
                             )}
 
                             {ex.targetWeight > 0 && (
-                              <span className="text-primary/80 px-2 py-0.5 rounded bg-primary/10">{ex.targetWeight}kg</span>
+                              <span className="text-primary/80 px-2 py-0.5 rounded bg-primary/10">
+                                {toDisplay(ex.targetWeight)}{unit}
+                              </span>
                             )}
                           </div>
                         </div>
