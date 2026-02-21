@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, Zap, RotateCw, Save, Play, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { ProgramExercise } from '@/types/program';
 import { AIProgramGeneratorView } from './AIProgramGeneratorView';
 
@@ -64,6 +65,7 @@ const FOCUS_AREAS = [
 ] as const;
 
 export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStartWorkout }: AIWorkoutViewProps) {
+  const { unit, toDisplay } = useWeightUnit();
   const [mode, setMode] = useState<'wod' | 'plan'>('wod');
   const [workoutType, setWorkoutType] = useState<string>('circuit');
   const [difficulty, setDifficulty] = useState<string>('intermediate');
@@ -281,14 +283,18 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
                       <span className="text-xs text-muted-foreground tabular-nums text-right">
                         {ex.targetDistance ? (
                           <span className="text-primary/90 font-medium">{ex.targetDistance}m</span>
-                        ) : (generated.workoutStyle === 'classic' || !generated.workoutStyle) ? (
-                          <>
-                            {ex.targetSets}×{ex.targetReps}
-                            {ex.targetWeight > 0 && <span className="ml-1 text-primary/80">{ex.targetWeight}kg</span>}
-                          </>
-                        ) : (
-                          <span className="text-primary">도전!</span>
+                        ) : null}
+                        {ex.targetDistance && (ex.targetSets || ex.targetReps || ex.targetWeight > 0) ? ' / ' : ''}
+
+                        {(ex.targetSets || 0) > 0 && (ex.targetReps || 0) > 0 && `${ex.targetSets}×${ex.targetReps}`}
+                        {((ex.targetSets || 0) === 0 || (ex.targetReps || 0) === 0) && (ex.targetReps || 0) > 0 && `${ex.targetReps} reps`}
+
+                        {ex.targetWeight > 0 && (
+                          <span className="ml-1 text-primary/80">
+                            {toDisplay(ex.targetWeight)}{unit}
+                          </span>
                         )}
+                        {ex.targetWeight === 0 && !ex.targetDistance && <span className="ml-1 text-muted-foreground/60">(Bodyweight)</span>}
                       </span>
                     </div>
                   ))}
