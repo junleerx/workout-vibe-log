@@ -8,7 +8,7 @@ import { CalendarView } from '@/components/CalendarView';
 import { ProgramsView } from '@/components/ProgramsView';
 import { AIWorkoutView } from '@/components/AIWorkoutView';
 
-import { useWorkout } from '@/hooks/useWorkout';
+import { useWorkoutCloud } from '@/hooks/useWorkoutCloud';
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
 import { useCustomExercises } from '@/hooks/useCustomExercises';
 import { useMembers } from '@/hooks/useMembers';
@@ -22,7 +22,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
-  const { workouts, currentWorkout, startWorkout, startWorkoutWithExercises, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkout();
+  const { workouts, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('workout');
@@ -54,15 +54,15 @@ const Index = () => {
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="space-y-6">
           <TabsContent value="workout" className="mt-0">
-            <WorkoutView currentWorkout={currentWorkout} onStartWorkout={startWorkout} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
+            <WorkoutView currentWorkout={currentWorkout} onStartWorkout={() => startWorkout(selectedMember?.id)} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
           </TabsContent>
           <TabsContent value="programs">
-            <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkoutWithExercises(exs); setActiveTab('workout'); }} customExercises={customExercises} onAddCustomExercise={addCustomExercise} onDeleteCustomExercise={deleteCustomExercise} />
+            <ProgramsView programs={programs} onCreateProgram={createProgram} onUpdateProgram={updateProgram} onDeleteProgram={deleteProgram} onStartFromProgram={(exs) => { startWorkoutFromProgram(selectedMember?.id || '', exs); setActiveTab('workout'); }} customExercises={customExercises} onAddCustomExercise={addCustomExercise} onDeleteCustomExercise={deleteCustomExercise} />
           </TabsContent>
           <TabsContent value="ai">
             <AIWorkoutView
               onSaveAsProgram={(name, desc, days, style, limit, rounds, exs) => createProgram(name, desc, days, style, limit, rounds, exs)}
-              onStartWorkout={(exs) => { startWorkoutWithExercises(exs); setActiveTab('workout'); }}
+              onStartWorkout={(exs) => { startWorkoutFromProgram(selectedMember?.id || '', exs); setActiveTab('workout'); }}
             />
           </TabsContent>
           <TabsContent value="history">

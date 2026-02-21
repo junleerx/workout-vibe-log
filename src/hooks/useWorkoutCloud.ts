@@ -29,7 +29,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
         .from('workouts')
         .select('*')
         .order('date', { ascending: false });
-      
+
       if (memberId) {
         query = query.eq('member_id', memberId);
       }
@@ -103,23 +103,66 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     setCurrentWorkout(newWorkout);
   };
 
-  const startWorkoutFromProgram = (selectedMemberId: string, programExercises: ProgramExercise[]) => {
-    const exercises: Exercise[] = programExercises.map((pe) => ({
-      id: crypto.randomUUID(),
-      name: pe.exerciseName,
-      category: pe.muscleGroup as Exercise['category'],
-      sets: Array.from({ length: pe.targetSets }, () => ({
-        id: crypto.randomUUID(),
-        reps: pe.targetReps,
-        weight: pe.targetWeight,
-        completed: false,
-      })),
-    }));
+  const startWorkoutFromProgram = (selectedMemberId: string, exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; groupId?: string; groupRounds?: number }[]) => {
+    const newExercises: Exercise[] = [];
+
+    // groupId별로 그룹핑해서 각 그룹을 groupRounds만큼 반복 확장 (서킷/크로스핏 블록 처리)
+    const groups = new Map<string, typeof exercises>();
+    const ungrouped: typeof exercises = [];
+
+    for (const ex of exercises) {
+      if (ex.groupId) {
+        if (!groups.has(ex.groupId)) groups.set(ex.groupId, []);
+        groups.get(ex.groupId)!.push(ex);
+      } else {
+        ungrouped.push(ex);
+      }
+    }
+
+    // 순서 유지를 위해 original order로 확장
+    const processedGroups = new Set<string>();
+    for (const ex of exercises) {
+      if (ex.groupId && !processedGroups.has(ex.groupId)) {
+        processedGroups.add(ex.groupId);
+        const groupExercises = groups.get(ex.groupId)!;
+        const totalRounds = ex.groupRounds || 1;
+        for (let round = 1; round <= totalRounds; round++) {
+          for (const gex of groupExercises) {
+            newExercises.push({
+              id: crypto.randomUUID(),
+              name: gex.exerciseName,
+              category: gex.muscleGroup as Exercise['category'],
+              groupId: gex.groupId,
+              roundNumber: round,
+              groupRounds: totalRounds,
+              sets: Array.from({ length: gex.targetSets || 1 }, () => ({
+                id: crypto.randomUUID(),
+                reps: gex.targetReps || 0,
+                weight: gex.targetWeight || 0,
+                completed: false,
+              })),
+            });
+          }
+        }
+      } else if (!ex.groupId) {
+        newExercises.push({
+          id: crypto.randomUUID(),
+          name: ex.exerciseName,
+          category: ex.muscleGroup as Exercise['category'],
+          sets: Array.from({ length: ex.targetSets || 1 }, () => ({
+            id: crypto.randomUUID(),
+            reps: ex.targetReps || 0,
+            weight: ex.targetWeight || 0,
+            completed: false,
+          })),
+        });
+      }
+    }
 
     const newWorkout: Workout = {
       id: crypto.randomUUID(),
       date: new Date().toISOString(),
-      exercises,
+      exercises: newExercises,
       memberId: selectedMemberId,
     };
     setCurrentWorkout(newWorkout);
@@ -219,7 +262,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     if (!currentWorkout || !user) return;
 
     const duration = Math.floor((Date.now() - new Date(currentWorkout.date).getTime()) / 1000);
-    
+
     // Calculate totals
     let totalVolume = 0;
     let totalSets = 0;
@@ -311,7 +354,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       if (error) throw error;
 
       setWorkouts(workouts.filter((w) => w.id !== workoutId));
-      
+
       toast({
         title: '삭제 완료',
         description: '운동 기록이 삭제되었습니다.',
