@@ -37,7 +37,7 @@ export function WorkoutView({
 }: WorkoutViewProps) {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
-  const [restTime] = useState(90);
+  const [activeRestTime, setActiveRestTime] = useState(90);
   const [elapsed, setElapsed] = useState(0);
   const { unit, toDisplay } = useWeightUnit();
 
@@ -80,6 +80,7 @@ export function WorkoutView({
   const handleUpdateSet = (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => {
     onUpdateSet(exerciseId, setId, updates);
     if (updates.completed === true) {
+      setActiveRestTime(90); // 기본 세트 휴식시간 (추후 설정 연동 가능)
       setShowTimer(true);
     }
   };
@@ -129,6 +130,15 @@ export function WorkoutView({
             currentWorkout.exercises[index - 1].groupId !== exercise.groupId ||
             currentWorkout.exercises[index - 1].roundNumber !== exercise.roundNumber
           );
+
+          const isLastInRound = exercise.roundNumber !== undefined && (
+            index === currentWorkout.exercises.length - 1 ||
+            currentWorkout.exercises[index + 1].groupId !== exercise.groupId ||
+            currentWorkout.exercises[index + 1].roundNumber !== exercise.roundNumber
+          );
+
+          const isNotLastRoundOfGroup = exercise.roundNumber !== undefined && exercise.groupRounds !== undefined && exercise.roundNumber < exercise.groupRounds;
+
           return (
             <div key={exercise.id}>
               {isFirstInRound && (
@@ -161,6 +171,25 @@ export function WorkoutView({
                 onUpdateSet={(setId, updates) => handleUpdateSet(exercise.id, setId, updates)}
                 onRemoveExercise={() => onRemoveExercise(exercise.id)}
               />
+
+              {isLastInRound && exercise.groupRestTime && exercise.groupRestTime > 0 && isNotLastRoundOfGroup && (
+                <div className="mt-4 mb-8 flex flex-col items-center justify-center gap-3">
+                  <div className="w-px h-6 bg-border/50" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-full shadow-sm border-orange-500/30 text-orange-600 bg-orange-500/5 hover:bg-orange-500/10 hover:text-orange-700 font-bold px-6 h-10"
+                    onClick={() => {
+                      setActiveRestTime(exercise.groupRestTime!);
+                      setShowTimer(true);
+                    }}
+                  >
+                    <Timer className="w-4 h-4 mr-2" />
+                    Round {exercise.roundNumber} 휴식 ({exercise.groupRestTime}초) 시작
+                  </Button>
+                  <div className="w-px h-6 bg-border/50" />
+                </div>
+              )}
             </div>
           );
         })}
@@ -207,7 +236,7 @@ export function WorkoutView({
 
       {showTimer && (
         <RestTimer
-          initialSeconds={restTime}
+          initialSeconds={activeRestTime}
           onClose={() => setShowTimer(false)}
         />
       )}
