@@ -44,6 +44,16 @@ export function ExerciseCard({
                 {exercise.targetTime}초
               </span>
             )}
+            {exercise.groupId && exercise.roundNumber && exercise.groupRounds && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 text-xs font-medium rounded-full bg-purple-500/10 text-purple-500 border border-purple-500/20">
+                R{exercise.roundNumber}/{exercise.groupRounds}
+              </span>
+            )}
+            {exercise.groupRestTime && exercise.groupRestTime > 0 && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500/10 text-yellow-600 border border-yellow-500/20">
+                ⏸ {exercise.groupRestTime}초
+              </span>
+            )}
           </div>
         </div>
         <Button

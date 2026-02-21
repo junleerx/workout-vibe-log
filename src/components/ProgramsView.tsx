@@ -63,6 +63,7 @@ export function ProgramsView({
   const [customExerciseCategory, setCustomExerciseCategory] = useState('가슴');
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const [activeGroupRounds, setActiveGroupRounds] = useState<number>(1);
+  const [activeGroupRestTime, setActiveGroupRestTime] = useState<number>(60);
   const [isGroupingMode, setIsGroupingMode] = useState(false);
   const [selectedIndicesForGroup, setSelectedIndicesForGroup] = useState<number[]>([]);
   const { unit, toDisplay, toKg } = useWeightUnit();
@@ -107,6 +108,7 @@ export function ProgramsView({
         targetTime: undefined,
         groupId: activeGroupId || undefined,
         groupRounds: activeGroupId ? activeGroupRounds : undefined,
+        groupRestTime: activeGroupId ? activeGroupRestTime : undefined,
         sets: [],
         orderIndex: programExercises.length,
       };
@@ -124,6 +126,7 @@ export function ProgramsView({
           targetTime: undefined,
           groupId: activeGroupId || undefined,
           groupRounds: activeGroupId ? activeGroupRounds : undefined,
+          groupRestTime: activeGroupId ? activeGroupRestTime : undefined,
           sets: [],
           orderIndex: programExercises.length,
         };
@@ -165,6 +168,7 @@ export function ProgramsView({
   const handleCreateGroup = () => {
     setActiveGroupId(crypto.randomUUID());
     setActiveGroupRounds(3); // 기본 3라운드
+    setActiveGroupRestTime(60); // 기본 60초 휴식
   };
 
   const handleFinishGroup = () => {
@@ -202,7 +206,7 @@ export function ProgramsView({
 
     setProgramExercises((prev) => {
       const next = [...prev];
-      const selectedExs = sortedSelected.map(idx => ({ ...next[idx], groupId: newGroupId, groupRounds: 3 }));
+      const selectedExs = sortedSelected.map(idx => ({ ...next[idx], groupId: newGroupId, groupRounds: 3, groupRestTime: 60 }));
       // Remove selected from their original positions (working backwards to preserve indices)
       for (let i = sortedSelected.length - 1; i >= 0; i--) {
         next.splice(sortedSelected[i], 1);
@@ -259,6 +263,7 @@ export function ProgramsView({
     setTargetRounds(undefined);
     setProgramExercises([]);
     setActiveGroupId(null);
+    setActiveGroupRestTime(60);
   };
 
   const getDayLabel = (dayId: string) => {
@@ -389,13 +394,23 @@ export function ProgramsView({
                     ) : (
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                          <span>목표 라운드:</span>
+                          <span>라운드:</span>
                           <Input
                             type="number"
                             value={activeGroupRounds}
                             onChange={(e) => setActiveGroupRounds(Number(e.target.value) || 1)}
                             className="w-12 h-6 px-1 text-center rounded bg-background/50 border-primary/20"
                           />
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-500">
+                          <span>쉬는시간:</span>
+                          <Input
+                            type="number"
+                            value={activeGroupRestTime}
+                            onChange={(e) => setActiveGroupRestTime(Number(e.target.value) || 0)}
+                            className="w-14 h-6 px-1 text-center rounded bg-background/50 border-orange-500/20"
+                          />
+                          <span>초</span>
                         </div>
                         <Button variant="secondary" size="sm" onClick={handleFinishGroup} className="h-7 text-xs rounded-lg">
                           블록 완료
@@ -578,6 +593,7 @@ export function ProgramsView({
                                 onClick={() => {
                                   setActiveGroupId(ex.groupId!);
                                   setActiveGroupRounds(ex.groupRounds!);
+                                  setActiveGroupRestTime(ex.groupRestTime || 60);
                                   const modal = document.querySelector('[role="dialog"]') || document.querySelector('.max-h-\\[90vh\\]');
                                   modal?.scrollTo({ top: 0, behavior: 'smooth' });
                                 }}
@@ -689,6 +705,11 @@ export function ProgramsView({
                             <Badge variant="secondary" className="bg-primary/20 text-primary border-none text-[10px] py-0">
                               🔥 {ex.groupRounds} Rounds
                             </Badge>
+                            {ex.groupRestTime && (
+                              <Badge variant="secondary" className="bg-orange-500/20 text-orange-500 border-none text-[10px] py-0">
+                                ⏸ {ex.groupRestTime}초 휴식
+                              </Badge>
+                            )}
                           </div>
                         )}
                         <div className={`flex items-center justify-between text-sm py-2 px-3 bg-secondary/40 border border-border/30 ${isGrouped

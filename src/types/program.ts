@@ -17,6 +17,7 @@ export interface ProgramExercise {
         targetTime?: number; // 초 단위 (예: 플랭크 60초)
         groupId?: string; // 같은 그룹/서킷으로 묶인 운동들의 고유 ID
         groupRounds?: number; // 해당 그룹의 총 반복 라운드 수
+        groupRestTime?: number; // 라운드 간 휴식 시간 (초)
         sets: ExerciseSet[]; // 각 세트별 상세 정보
         orderIndex: number;
 }

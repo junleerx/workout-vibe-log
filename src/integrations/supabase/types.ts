@@ -145,6 +145,7 @@ export type Database = {
           target_time: number | null
           group_id: string | null
           group_rounds: number | null
+          group_rest_time: number | null
         }
         Insert: {
           created_at?: string
@@ -160,6 +161,7 @@ export type Database = {
           target_time?: number | null
           group_id?: string | null
           group_rounds?: number | null
+          group_rest_time?: number | null
         }
         Update: {
           created_at?: string
@@ -175,6 +177,7 @@ export type Database = {
           target_time?: number | null
           group_id?: string | null
           group_rounds?: number | null
+          group_rest_time?: number | null
         }
         Relationships: [
           {

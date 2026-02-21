@@ -64,6 +64,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
               targetTime: ex.target_time || undefined,
               groupId: ex.group_id || undefined,
               groupRounds: ex.group_rounds || undefined,
+              groupRestTime: ex.group_rest_time || undefined,
               sets: [], // Fix: Ensure sets array is present
               orderIndex: ex.order_index,
             })),
@@ -131,6 +132,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           target_time: ex.targetTime || null,
           group_id: ex.groupId || null,
           group_rounds: ex.groupRounds || null,
+          group_rest_time: ex.groupRestTime || null,
           order_index: index,
         }));
 
@@ -204,6 +206,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           target_time: ex.targetTime || null,
           group_id: ex.groupId || null,
           group_rounds: ex.groupRounds || null,
+          group_rest_time: ex.groupRestTime || null,
           order_index: index,
         }));
 

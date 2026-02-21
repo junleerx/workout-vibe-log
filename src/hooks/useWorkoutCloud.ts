@@ -103,7 +103,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     setCurrentWorkout(newWorkout);
   };
 
-  const startWorkoutFromProgram = (selectedMemberId: string, exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number; groupId?: string; groupRounds?: number }[]) => {
+  const startWorkoutFromProgram = (selectedMemberId: string, exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number; groupId?: string; groupRounds?: number; groupRestTime?: number }[]) => {
     const newExercises: Exercise[] = [];
 
     // groupId별로 그룹핑해서 각 그룹을 groupRounds만큼 반복 확장 (서킷/크로스핏 블록 처리)
@@ -135,6 +135,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
               groupId: gex.groupId,
               roundNumber: round,
               groupRounds: totalRounds,
+              groupRestTime: gex.groupRestTime,
               targetDistance: gex.targetDistance,
               targetTime: gex.targetTime,
               sets: Array.from({ length: gex.targetSets || 1 }, () => ({
