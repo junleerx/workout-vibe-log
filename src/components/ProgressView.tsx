@@ -1,23 +1,23 @@
 import { useMemo, useState } from 'react';
 import { Workout, Exercise } from '@/types/workout';
 import { Member } from '@/types/member';
-import { 
-  ChartContainer, 
-  ChartTooltip, 
+import {
+  ChartContainer,
+  ChartTooltip,
   ChartTooltipContent,
-  ChartConfig 
+  ChartConfig
 } from '@/components/ui/chart';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
   CartesianGrid,
   BarChart,
   Bar,
   ResponsiveContainer,
 } from 'recharts';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { TrendingUp, TrendingDown, Minus, Dumbbell } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface ProgressViewProps {
   workouts: Workout[];
@@ -53,6 +54,7 @@ const chartConfig: ChartConfig = {
 
 export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
   const [selectedExercise, setSelectedExercise] = useState<string>('');
+  const { unit, toDisplay } = useWeightUnit();
 
   // Get unique exercises from all workouts
   const availableExercises = useMemo(() => {
@@ -116,7 +118,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
     const last = progressData[progressData.length - 1];
 
     const weightChange = last.maxWeight - first.maxWeight;
-    const weightChangePercent = first.maxWeight > 0 
+    const weightChangePercent = first.maxWeight > 0
       ? ((weightChange / first.maxWeight) * 100)
       : 0;
 
@@ -176,7 +178,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
             <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="bg-secondary/50 rounded-lg p-4">
                 <p className="text-xs text-muted-foreground mb-1">최근 무게</p>
-                <p className="text-2xl font-bold">{stats.latestWeight} kg</p>
+                <p className="text-2xl font-bold">{toDisplay(stats.latestWeight)} {unit}</p>
               </div>
               <div className="bg-secondary/50 rounded-lg p-4">
                 <p className="text-xs text-muted-foreground mb-1">최근 반복 횟수</p>
@@ -187,7 +189,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
                 <div className="flex items-center gap-2">
                   {getTrendIcon(stats.weightChange)}
                   <span className="text-2xl font-bold">
-                    {stats.weightChange > 0 ? '+' : ''}{stats.weightChange} kg
+                    {stats.weightChange > 0 ? '+' : ''}{toDisplay(stats.weightChange)} {unit}
                   </span>
                   <span className={`text-sm ${stats.weightChangePercent >= 0 ? 'text-primary' : 'text-destructive'}`}>
                     ({stats.weightChangePercent >= 0 ? '+' : ''}{stats.weightChangePercent.toFixed(1)}%)
@@ -202,19 +204,19 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
               <ChartContainer config={chartConfig} className="h-[200px]">
                 <LineChart data={progressData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
-                  <XAxis 
-                    dataKey="dateLabel" 
+                  <XAxis
+                    dataKey="dateLabel"
                     tickLine={false}
                     axisLine={false}
                   />
-                  <YAxis 
+                  <YAxis
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `${value}kg`}
+                    tickFormatter={(value) => `${toDisplay(value)}${unit}`}
                   />
-                  <ChartTooltip 
+                  <ChartTooltip
                     content={
-                      <ChartTooltipContent 
+                      <ChartTooltipContent
                         labelFormatter={(_, payload) => {
                           if (payload && payload[0]) {
                             return format(parseISO(payload[0].payload.date), 'yyyy년 M월 d일');
@@ -222,7 +224,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
                           return '';
                         }}
                       />
-                    } 
+                    }
                   />
                   <Line
                     type="monotone"
@@ -242,19 +244,19 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
               <ChartContainer config={chartConfig} className="h-[200px]">
                 <BarChart data={progressData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
-                  <XAxis 
-                    dataKey="dateLabel" 
+                  <XAxis
+                    dataKey="dateLabel"
                     tickLine={false}
                     axisLine={false}
                   />
-                  <YAxis 
+                  <YAxis
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => `${value}회`}
                   />
-                  <ChartTooltip 
+                  <ChartTooltip
                     content={
-                      <ChartTooltipContent 
+                      <ChartTooltipContent
                         labelFormatter={(_, payload) => {
                           if (payload && payload[0]) {
                             return format(parseISO(payload[0].payload.date), 'yyyy년 M월 d일');
@@ -262,7 +264,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
                           return '';
                         }}
                       />
-                    } 
+                    }
                   />
                   <Bar
                     dataKey="totalReps"

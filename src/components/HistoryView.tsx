@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Workout } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
@@ -87,7 +87,7 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
                       </span>
                     )}
                     <span>{workout.exercises.length}개 운동</span>
-                    {totalVolume > 0 && <span>{totalVolume.toLocaleString()} kg</span>}
+                    {totalVolume > 0 && <span>{toDisplay(totalVolume).toLocaleString()} {unit}</span>}
                   </div>
                   {/* Exercise name pills */}
                   <div className="flex flex-wrap gap-1 mt-2">
@@ -108,7 +108,7 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
                   <Button
                     variant="ghost" size="icon"
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                    onClick={(e) => { e.stopPropagation(); onDeleteWorkout(workout.id); }}
+                    onClick={(e) => { e.stopPropagation(); if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) onDeleteWorkout(workout.id); }}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
@@ -127,6 +127,18 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
                       <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full border ${categoryColors[exercise.category]}`}>
                         {exercise.category}
                       </span>
+                      {exercise.targetDistance && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-primary/10 text-primary">
+                          <MapPin className="w-2.5 h-2.5" />
+                          {exercise.targetDistance}m
+                        </span>
+                      )}
+                      {exercise.targetTime && (
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-orange-500/10 text-orange-500">
+                          <Clock className="w-2.5 h-2.5" />
+                          {exercise.targetTime}초
+                        </span>
+                      )}
                     </div>
                     {/* Per-set breakdown */}
                     <div className="ml-5 space-y-1">

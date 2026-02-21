@@ -7,6 +7,7 @@ import { format, isSameDay, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { Dumbbell, Timer, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface CalendarViewProps {
   workouts: Workout[];
@@ -25,6 +26,7 @@ function formatDuration(seconds: number): string {
 export function CalendarView({ workouts, selectedMember }: CalendarViewProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [showWorkoutDialog, setShowWorkoutDialog] = useState(false);
+  const { unit, toDisplay } = useWeightUnit();
 
   const workoutDates = useMemo(() => {
     return workouts.map(w => parseISO(w.date));
@@ -106,7 +108,7 @@ export function CalendarView({ workouts, selectedMember }: CalendarViewProps) {
                       </div>
                       <div className="bg-background/50 rounded-lg p-3">
                         <p className="text-xs text-muted-foreground mb-1">총 볼륨</p>
-                        <p className="text-lg font-bold">{totalVolume.toLocaleString()} kg</p>
+                        <p className="text-lg font-bold">{toDisplay(totalVolume).toLocaleString()} {unit}</p>
                       </div>
                     </div>
 
