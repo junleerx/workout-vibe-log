@@ -31,7 +31,7 @@ export function useWorkout() {
   };
 
   /** 프로그램에서 시작할 때 운동 목록을 한 번에 넣을 때 사용 */
-  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; groupId?: string; groupRounds?: number }[]) => {
+  const startWorkoutWithExercises = (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number; groupId?: string; groupRounds?: number }[]) => {
     const newExercises: Exercise[] = [];
 
     // groupId별로 그룹핑해서 각 그룹을 groupRounds만큼 반복 확장
@@ -63,6 +63,8 @@ export function useWorkout() {
               groupId: gex.groupId,
               roundNumber: round,
               groupRounds: totalRounds,
+              targetDistance: gex.targetDistance,
+              targetTime: gex.targetTime,
               sets: Array.from({ length: gex.targetSets || 1 }, () => ({
                 id: crypto.randomUUID(),
                 reps: gex.targetReps || 0,
@@ -77,6 +79,8 @@ export function useWorkout() {
           id: crypto.randomUUID(),
           name: ex.exerciseName,
           category: ex.muscleGroup as ExerciseCategory,
+          targetDistance: ex.targetDistance,
+          targetTime: ex.targetTime,
           sets: Array.from({ length: ex.targetSets || 1 }, () => ({
             id: crypto.randomUUID(),
             reps: ex.targetReps || 0,

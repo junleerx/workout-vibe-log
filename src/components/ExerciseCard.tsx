@@ -1,6 +1,6 @@
 import { Exercise, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Plus, Trash2, Check } from 'lucide-react';
+import { Plus, Trash2, Check, MapPin, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 
@@ -25,12 +25,26 @@ export function ExerciseCard({
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-bold text-foreground">{exercise.name}</h3>
-          <span
-            className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full border ${categoryColors[exercise.category]
-              }`}
-          >
-            {exercise.category}
-          </span>
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            <span
+              className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full border ${categoryColors[exercise.category]
+                }`}
+            >
+              {exercise.category}
+            </span>
+            {exercise.targetDistance && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20">
+                <MapPin className="w-3 h-3" />
+                {exercise.targetDistance}m
+              </span>
+            )}
+            {exercise.targetTime && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 text-xs font-medium rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/20">
+                <Clock className="w-3 h-3" />
+                {exercise.targetTime}초
+              </span>
+            )}
+          </div>
         </div>
         <Button
           variant="ghost"
@@ -90,8 +104,8 @@ export function ExerciseCard({
                   onUpdateSet(set.id, { completed: newStatus });
                 }}
                 className={`p-1.5 rounded-lg transition-all ${set.completed
-                    ? 'bg-primary text-primary-foreground animate-check'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-primary/20'
+                  ? 'bg-primary text-primary-foreground animate-check'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-primary/20'
                   }`}
               >
                 <Check className="w-4 h-4" />
