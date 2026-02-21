@@ -266,9 +266,9 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
                 <div className="p-4 bg-primary/5 border-b border-border/30">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-bold text-base">{generated.name}</h3>
-                    {generated.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-none font-bold">🔥 AMRAP {generated.timeLimit}분</Badge>}
-                    {generated.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none font-bold">⏰ EMOM {generated.timeLimit}분</Badge>}
-                    {generated.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-purple-500/10 text-purple-500 border-none font-bold">🏆 {generated.targetRounds} Rounds</Badge>}
+                    {generated.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-brand-red/10 text-brand-red border-none font-bold">🔥 AMRAP {generated.timeLimit}분</Badge>}
+                    {generated.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-brand-blue/10 text-brand-blue border-none font-bold">⏰ EMOM {generated.timeLimit}분</Badge>}
+                    {generated.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-brand-green/10 text-brand-green border-none font-bold">🏆 {generated.targetRounds} Rounds</Badge>}
                   </div>
                   <p className="text-xs text-muted-foreground">{generated.description}</p>
                 </div>
@@ -285,7 +285,7 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
                           <span className="text-primary/90 font-medium">{ex.targetDistance}m</span>
                         ) : null}
                         {ex.targetTime ? (
-                          <span className="text-orange-500/90 font-medium ml-1">{ex.targetTime}초</span>
+                          <span className="text-brand-red/90 font-medium ml-1">{ex.targetTime}초</span>
                         ) : null}
                         {(ex.targetDistance || ex.targetTime) && (ex.targetSets || ex.targetReps || ex.targetWeight > 0) ? ' / ' : ''}
 

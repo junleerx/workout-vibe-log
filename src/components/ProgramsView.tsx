@@ -402,13 +402,13 @@ export function ProgramsView({
                             className="w-12 h-6 px-1 text-center rounded bg-background/50 border-primary/20"
                           />
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-500">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-red">
                           <span>쉬는시간:</span>
                           <Input
                             type="number"
                             value={activeGroupRestTime}
                             onChange={(e) => setActiveGroupRestTime(Number(e.target.value) || 0)}
-                            className="w-14 h-6 px-1 text-center rounded bg-background/50 border-orange-500/20"
+                            className="w-14 h-6 px-1 text-center rounded bg-background/50 border-brand-red/20"
                           />
                           <span>초</span>
                         </div>
@@ -519,7 +519,7 @@ export function ProgramsView({
                                 />
                                 <span className="text-xs text-muted-foreground font-medium">R</span>
                                 <span className="text-xs text-muted-foreground">·</span>
-                                <span className="text-xs text-orange-500 font-medium">⏸</span>
+                                <span className="text-xs text-brand-red font-medium">⏸</span>
                                 <input
                                   type="number"
                                   min={0}
@@ -533,7 +533,7 @@ export function ProgramsView({
                                       )
                                     );
                                   }}
-                                  className="w-14 h-6 text-center text-xs font-bold rounded-lg border border-orange-500/30 bg-orange-500/10 text-orange-500 focus:outline-none"
+                                  className="w-14 h-6 text-center text-xs font-bold rounded-lg border border-brand-red/30 bg-brand-red/10 text-brand-red focus:outline-none"
                                 />
                                 <span className="text-xs text-muted-foreground font-medium">초 휴식</span>
                               </div>
@@ -659,9 +659,9 @@ export function ProgramsView({
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-base">{program.name}</h3>
-                      {program.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-none font-bold">🔥 AMRAP {program.timeLimit}분</Badge>}
-                      {program.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 border-none font-bold">⏰ EMOM {program.timeLimit}분</Badge>}
-                      {program.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-purple-500/10 text-purple-500 border-none font-bold">🏆 {program.targetRounds} Rounds</Badge>}
+                      {program.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-brand-red/10 text-brand-red border-none font-bold">🔥 AMRAP {program.timeLimit}분</Badge>}
+                      {program.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-brand-blue/10 text-brand-blue border-none font-bold">⏰ EMOM {program.timeLimit}분</Badge>}
+                      {program.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-brand-green/10 text-brand-green border-none font-bold">🏆 {program.targetRounds} Rounds</Badge>}
                     </div>
                     {program.description && (
                       <p className="text-xs text-muted-foreground mt-0.5">{program.description}</p>
@@ -724,7 +724,7 @@ export function ProgramsView({
                               🔥 {ex.groupRounds} Rounds
                             </Badge>
                             {ex.groupRestTime && (
-                              <Badge variant="secondary" className="bg-orange-500/20 text-orange-500 border-none text-[10px] py-0">
+                              <Badge variant="secondary" className="bg-brand-red/20 text-brand-red border-none text-[10px] py-0">
                                 ⏸ {ex.groupRestTime}초 휴식
                               </Badge>
                             )}
@@ -742,7 +742,7 @@ export function ProgramsView({
                               <span className="text-primary/90 px-2 py-0.5 rounded bg-primary/10">{ex.targetDistance}m</span>
                             ) : null}
                             {ex.targetTime ? (
-                              <span className="text-orange-500/90 px-2 py-0.5 rounded bg-orange-500/10">{ex.targetTime}초</span>
+                              <span className="text-brand-red/90 px-2 py-0.5 rounded bg-brand-red/10">{ex.targetTime}초</span>
                             ) : null}
 
                             {(ex.targetSets > 0 || ex.targetReps > 0) && (
