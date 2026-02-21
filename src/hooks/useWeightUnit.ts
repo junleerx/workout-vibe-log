@@ -7,7 +7,8 @@ export type WeightUnit = 'kg' | 'lbs';
 
 export function useWeightUnit() {
     const [unit, setUnit] = useState<WeightUnit>(() => {
-        return (localStorage.getItem(KEY) as WeightUnit) || 'kg';
+        // Default is 'lbs' — only use stored value if explicitly set before
+        return (localStorage.getItem(KEY) as WeightUnit) || 'lbs';
     });
 
     const toggleUnit = useCallback(() => {
@@ -38,3 +39,4 @@ export function useWeightUnit() {
 
     return { unit, toggleUnit, toDisplay, toKg };
 }
+
