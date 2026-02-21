@@ -36,7 +36,7 @@ interface AIWorkoutViewProps {
       exercises: Omit<ProgramExercise, 'id'>[];
     }[]
   ) => void;
-  onStartWorkout: (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number }[]) => void;
+  onStartWorkout: (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number }[]) => void;
 }
 
 const WORKOUT_TYPES = [
@@ -284,7 +284,10 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
                         {ex.targetDistance ? (
                           <span className="text-primary/90 font-medium">{ex.targetDistance}m</span>
                         ) : null}
-                        {ex.targetDistance && (ex.targetSets || ex.targetReps || ex.targetWeight > 0) ? ' / ' : ''}
+                        {ex.targetTime ? (
+                          <span className="text-orange-500/90 font-medium ml-1">{ex.targetTime}초</span>
+                        ) : null}
+                        {(ex.targetDistance || ex.targetTime) && (ex.targetSets || ex.targetReps || ex.targetWeight > 0) ? ' / ' : ''}
 
                         {(ex.targetSets || 0) > 0 && (ex.targetReps || 0) > 0 && `${ex.targetSets}×${ex.targetReps}`}
                         {((ex.targetSets || 0) === 0 || (ex.targetReps || 0) === 0) && (ex.targetReps || 0) > 0 && `${ex.targetReps} reps`}

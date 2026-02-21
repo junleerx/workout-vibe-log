@@ -45,7 +45,9 @@ serve(async (req: Request) => {
               "muscleGroup": "string",
               "targetSets": number,
               "targetReps": number,
-              "targetWeight": number (0 for bodyweight, otherwise an estimated starting weight based on level)
+              "targetWeight": number (0 for bodyweight, otherwise an estimated starting weight based on level),
+              "targetDistance": number (optional, for distance based exercises in meters),
+              "targetTime": number (optional, for time based exercises in seconds)
             }
           ]
         }

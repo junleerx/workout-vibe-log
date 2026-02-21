@@ -102,8 +102,9 @@ export function ProgramsView({
         muscleGroup: customExerciseCategory,
         targetSets: 0,
         targetReps: 0,
-        targetWeight: 0,
+        targetWeight: undefined, // Changed from 0 to undefined
         targetDistance: undefined,
+        targetTime: undefined, // Added targetTime
         groupId: activeGroupId || undefined,
         groupRounds: activeGroupId ? activeGroupRounds : undefined,
         sets: [],
@@ -118,8 +119,9 @@ export function ProgramsView({
           muscleGroup: exercise.category,
           targetSets: 0,
           targetReps: 0,
-          targetWeight: 0,
+          targetWeight: undefined, // Changed from 0 to undefined
           targetDistance: undefined,
+          targetTime: undefined, // Added targetTime
           groupId: activeGroupId || undefined,
           groupRounds: activeGroupId ? activeGroupRounds : undefined,
           sets: [],
@@ -538,7 +540,8 @@ export function ProgramsView({
                               </Button>
                             </div>
 
-                            <div className="grid grid-cols-4 gap-2 mt-3 flex-wrap">
+                            {/* Desktop: 5 cols, Mobile: 3 top + 2 bottom for better fit */}
+                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3 flex-wrap">
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
                                 <Input type="number" placeholder="예: 3" value={ex.targetSets || ''} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetSets ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
@@ -554,6 +557,10 @@ export function ProgramsView({
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
                                 <Input type="number" placeholder="로잉 등" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                              </div>
+                              <div className="space-y-1 col-span-3 sm:col-span-1">
+                                <span className={`text-[10px] font-medium transition-colors ${ex.targetTime ? 'text-primary' : 'text-muted-foreground/60'}`}>시간(초)</span>
+                                <Input type="number" placeholder="예: 60" value={ex.targetTime || ''} onChange={(e) => handleUpdateExercise(index, { targetTime: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetTime ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                               </div>
                             </div>
                           </div>
@@ -591,15 +598,17 @@ export function ProgramsView({
       </div>
 
       {/* Empty State */}
-      {programs.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-            <Target className="w-8 h-8 text-primary" />
+      {
+        programs.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+              <Target className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="font-semibold mb-1">프로그램이 없습니다</h3>
+            <p className="text-sm text-muted-foreground">운동 프로그램을 만들어<br />일관된 루틴을 유지하세요</p>
           </div>
-          <h3 className="font-semibold mb-1">프로그램이 없습니다</h3>
-          <p className="text-sm text-muted-foreground">운동 프로그램을 만들어<br />일관된 루틴을 유지하세요</p>
-        </div>
-      )}
+        )
+      }
 
       {/* Program Cards */}
       <div className="grid gap-4">
@@ -685,6 +694,9 @@ export function ProgramsView({
                             {ex.targetDistance ? (
                               <span className="text-primary/90 px-2 py-0.5 rounded bg-primary/10">{ex.targetDistance}m</span>
                             ) : null}
+                            {ex.targetTime ? (
+                              <span className="text-orange-500/90 px-2 py-0.5 rounded bg-orange-500/10">{ex.targetTime}초</span>
+                            ) : null}
 
                             {(ex.targetSets > 0 || ex.targetReps > 0) && (
                               <span className="px-2 py-0.5 rounded bg-secondary">
@@ -719,6 +731,6 @@ export function ProgramsView({
           </Card>
         ))}
       </div>
-    </div>
+    </div >
   );
 }

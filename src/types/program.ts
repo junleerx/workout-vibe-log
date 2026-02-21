@@ -14,6 +14,7 @@ export interface ProgramExercise {
         targetReps: number;
         targetWeight: number;
         targetDistance?: number; // 미터 단위 (예: 로잉 1000m)
+        targetTime?: number; // 초 단위 (예: 플랭크 60초)
         groupId?: string; // 같은 그룹/서킷으로 묶인 운동들의 고유 ID
         groupRounds?: number; // 해당 그룹의 총 반복 라운드 수
         sets: ExerciseSet[]; // 각 세트별 상세 정보

@@ -47,7 +47,8 @@ serve(async (req) => {
           "targetSets": number,
           "targetReps": number,
           "targetWeight": number (0 for bodyweight),
-          "targetDistance": number (optional, for distance based exercises like rowing, in meters)
+          "targetDistance": number (optional, for distance based exercises like rowing, in meters),
+          "targetTime": number (optional, for time based exercises like plank, in seconds)
         }
       ]
     }

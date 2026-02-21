@@ -142,6 +142,7 @@ export type Database = {
           target_sets: number
           target_weight: number
           target_distance: number | null
+          target_time: number | null
           group_id: string | null
           group_rounds: number | null
         }
@@ -156,6 +157,7 @@ export type Database = {
           target_sets?: number
           target_weight?: number
           target_distance?: number | null
+          target_time?: number | null
           group_id?: string | null
           group_rounds?: number | null
         }
@@ -170,6 +172,7 @@ export type Database = {
           target_sets?: number
           target_weight?: number
           target_distance?: number | null
+          target_time?: number | null
           group_id?: string | null
           group_rounds?: number | null
         }
