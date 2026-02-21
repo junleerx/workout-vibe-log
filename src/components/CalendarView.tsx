@@ -57,7 +57,7 @@ export function CalendarView({ workouts, selectedMember }: CalendarViewProps) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-card rounded-xl p-4 card-shadow">
+      <div className="bg-card rounded-2xl p-4 card-shadow border border-border/30">
         <h3 className="text-lg font-bold mb-4">
           {selectedMember?.name || '회원'} 운동 캘린더
         </h3>

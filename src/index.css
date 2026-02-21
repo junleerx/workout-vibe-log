@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,43 +6,89 @@
 
 @layer base {
   :root {
-    /* ─── Warm Dark Theme — Charcoal + Amber ─── */
-    --background: 0 0% 7%;
-    --foreground: 40 10% 92%;
+    /* ----- Premium Light Mode (Apple Fitness Inspired) ----- */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
-    --card: 0 0% 11%;
-    --card-foreground: 40 10% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 0 0% 11%;
-    --popover-foreground: 40 10% 92%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 38 92% 55%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 40 10% 92%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
 
-    --accent: 25 80% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 38 92% 55%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    /* Custom tokens */
-    --gradient-premium: linear-gradient(135deg, hsl(38 92% 55%) 0%, hsl(25 80% 50%) 100%);
-    --gradient-subtle: linear-gradient(135deg, hsl(38 92% 55% / 0.15) 0%, hsl(25 80% 50% / 0.1) 100%);
-    --shadow-glow: 0 0 24px hsl(38 92% 55% / 0.15);
-    --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.3), 0 0 0 1px hsl(0 0% 18%);
-    --shadow-elevated: 0 8px 32px hsl(0 0% 0% / 0.4), 0 2px 8px hsl(0 0% 0% / 0.2);
+    /* Apple Fitness vibrant accents */
+    --brand-red: 348 83% 47%;
+    --brand-green: 134 61% 41%;
+    --brand-blue: 211 100% 50%;
+    
+    --gradient-premium: linear-gradient(135deg, hsl(211 100% 50%) 0%, hsl(348 83% 47%) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(211 100% 50% / 0.1) 0%, hsl(348 83% 47% / 0.1) 100%);
+    --shadow-glow: 0 0 24px hsl(211 100% 50% / 0.15);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.05), 0 0 0 1px hsl(0 0% 0% / 0.05);
+    --shadow-elevated: 0 10px 40px hsl(0 0% 0% / 0.1), 0 2px 10px hsl(0 0% 0% / 0.05);
+  }
+
+  .dark {
+    /* ----- Deep Dark Pro Mode ----- */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    
+    /* Neon Accents for Dark Mode */
+    --brand-red: 348 100% 65%;
+    --brand-green: 134 100% 55%;
+    --brand-blue: 211 100% 65%;
+
+    --gradient-premium: linear-gradient(135deg, hsl(211 100% 65%) 0%, hsl(348 100% 65%) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(211 100% 65% / 0.15) 0%, hsl(348 100% 65% / 0.15) 100%);
+    --shadow-glow: 0 0 24px hsl(211 100% 65% / 0.2);
+    --shadow-card: 0 2px 12px hsl(0 0% 0% / 0.5), 0 0 0 1px hsl(0 0% 18%);
+    --shadow-elevated: 0 8px 32px hsl(0 0% 0% / 0.6), 0 2px 8px hsl(0 0% 0% / 0.3);
   }
 }
 
@@ -53,11 +99,13 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'Outfit', sans-serif;
+    /* Smooth Apple-like scrolling */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Better scrollbar for dark theme */
+  /* Better scrollbar for dark/light theme */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -67,8 +115,8 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(0 0% 25%);
-    border-radius: 3px;
+    @apply bg-muted-foreground/30;
+    border-radius: 4px;
   }
 }
 
@@ -90,82 +138,44 @@
 
   /* ─── Glass effect ─── */
   .glass {
-    background: hsl(0 0% 9% / 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsl(0 0% 18% / 0.5);
-  }
-
-  /* ─── Gradient border ─── */
-  .gradient-border {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gradient-premium);
-    opacity: 0.8;
-  }
-
-  /* ─── Accent stripe (left bar) ─── */
-  .accent-stripe {
-    position: relative;
-  }
-
-  .accent-stripe::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    bottom: 8px;
-    left: 0;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: var(--gradient-premium);
+    @apply bg-background/70 backdrop-blur-xl border border-white/10;
   }
 
   /* ─── Hover lift ─── */
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.01);
     box-shadow: var(--shadow-elevated);
   }
 
   /* ─── Animations ─── */
   .animate-pulse-glow {
-    animation: pulse-glow 2.5s ease-in-out infinite;
+    animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   @keyframes pulse-glow {
-
-    0%,
-    100% {
-      box-shadow: 0 0 12px hsl(38 92% 55% / 0.1);
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 12px var(--shadow-glow);
     }
-
     50% {
-      box-shadow: 0 0 32px hsl(38 92% 55% / 0.25);
+      opacity: .8;
+      box-shadow: 0 0 32px var(--shadow-glow);
     }
   }
 
   .slide-up {
-    animation: slide-up 0.3s ease-out;
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   @keyframes slide-up {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
@@ -173,41 +183,28 @@
   }
 
   @keyframes check-pop {
-    0% {
-      transform: scale(1);
-    }
-
-    50% {
-      transform: scale(1.2);
-    }
-
-    100% {
-      transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
   }
 
   .animate-check {
-    animation: check-pop 0.2s ease-out;
+    animation: check-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* Shimmer skeleton */
   @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-
-    100% {
-      background-position: 200% 0;
-    }
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 
   .skeleton {
-    background: linear-gradient(90deg,
-        hsl(0 0% 13%) 25%,
-        hsl(0 0% 18%) 50%,
-        hsl(0 0% 13%) 75%);
+    background: linear-gradient(90deg, 
+      var(--muted) 25%, 
+      var(--muted-foreground) 50%, 
+      var(--muted) 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
+    animation: shimmer 2s infinite linear;
     border-radius: var(--radius);
   }
 }

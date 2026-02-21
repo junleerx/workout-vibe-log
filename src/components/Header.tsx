@@ -9,6 +9,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useMembers } from '@/hooks/useMembers';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
+import { ThemeToggle } from './ThemeToggle';
+import { motion } from 'framer-motion';
 
 type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
 
@@ -34,23 +36,30 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
   ];
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border/30">
-      <div className="container py-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden glow-effect">
-              <img src="/logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-2xl font-bold text-gradient">Juni's Gym</h1>
-              {selectedMember && (
-                <span className="text-xs text-muted-foreground font-medium">
-                  {selectedMember.name}님 운동중
-                </span>
-              )}
-            </div>
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="sticky top-0 z-50 py-3 px-4 sm:px-6"
+    >
+      <div className="mx-auto max-w-5xl rounded-2xl glass card-shadow px-4 py-3 flex items-center justify-between transition-all duration-300">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl overflow-hidden glow-effect flex-shrink-0">
+            <img src="/logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />
           </div>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60 tracking-tight leading-none">
+              Juni's Gym
+            </h1>
+            {selectedMember && (
+              <span className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                {selectedMember.name}님 운동중
+              </span>
+            )}
+          </div>
+        </div>
 
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {userEmail && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -119,6 +128,6 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
