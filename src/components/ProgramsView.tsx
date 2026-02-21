@@ -237,7 +237,11 @@ export function ProgramsView({
   const handleSave = () => {
     if (!name.trim()) return;
     if (editingId) {
-      onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
+      if (window.confirm('프로그램을 이대로 수정하시겠습니까?')) {
+        onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
+      } else {
+        return; // 수정 취소
+      }
     } else {
       onCreateProgram(name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
     }
@@ -644,7 +648,11 @@ export function ProgramsView({
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleEditClick(program)}>
                       <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => onDeleteProgram(program.id)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => {
+                      if (window.confirm('정말 이 프로그램을 삭제하시겠습니까? 삭제된 프로그램은 복구할 수 없습니다.')) {
+                        onDeleteProgram(program.id);
+                      }
+                    }}>
                       <Trash2 className="w-3.5 h-3.5 text-destructive/70" />
                     </Button>
                   </div>
