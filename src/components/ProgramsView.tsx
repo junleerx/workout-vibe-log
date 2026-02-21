@@ -102,9 +102,9 @@ export function ProgramsView({
         muscleGroup: customExerciseCategory,
         targetSets: 0,
         targetReps: 0,
-        targetWeight: undefined, // Changed from 0 to undefined
+        targetWeight: 0,
         targetDistance: undefined,
-        targetTime: undefined, // Added targetTime
+        targetTime: undefined,
         groupId: activeGroupId || undefined,
         groupRounds: activeGroupId ? activeGroupRounds : undefined,
         sets: [],
@@ -119,9 +119,9 @@ export function ProgramsView({
           muscleGroup: exercise.category,
           targetSets: 0,
           targetReps: 0,
-          targetWeight: undefined, // Changed from 0 to undefined
+          targetWeight: 0,
           targetDistance: undefined,
-          targetTime: undefined, // Added targetTime
+          targetTime: undefined,
           groupId: activeGroupId || undefined,
           groupRounds: activeGroupId ? activeGroupRounds : undefined,
           sets: [],
