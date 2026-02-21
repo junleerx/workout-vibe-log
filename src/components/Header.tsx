@@ -1,4 +1,5 @@
-import { Dumbbell, History, LogOut, User, Calendar, TrendingUp, ClipboardList, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Dumbbell, History, LogOut, User, Calendar, TrendingUp, ClipboardList, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ interface HeaderProps {
 export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderProps) {
   const { members, selectedMember, switchProfile } = useMembers();
   const { unit, toggleUnit } = useWeightUnit();
+  const [converting, setConverting] = useState(false);
 
   const tabs = [
     { id: 'workout' as TabType, label: '운동', icon: Dumbbell },
@@ -88,10 +90,24 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
                 )}
 
                 <div className="h-px bg-border my-1" />
-                <DropdownMenuItem onClick={toggleUnit} className="cursor-pointer font-medium">
-                  <span className="mr-2 text-base">{unit === 'kg' ? '🔄' : '🔄'}</span>
-                  {unit === 'kg' ? 'lbs로 바꾸기' : 'kg로 바꾸기'}
-                  <span className="ml-auto text-xs text-muted-foreground">현재: {unit.toUpperCase()}</span>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    setConverting(true);
+                    await toggleUnit();
+                    setConverting(false);
+                  }}
+                  disabled={converting}
+                  className="cursor-pointer font-medium"
+                >
+                  {converting
+                    ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    : <span className="mr-2 text-base">🔄</span>
+                  }
+                  {converting
+                    ? '변환 중...'
+                    : unit === 'kg' ? 'lbs로 바꾸기' : 'kg로 바꾸기'
+                  }
+                  {!converting && <span className="ml-auto text-xs text-muted-foreground">현재: {unit.toUpperCase()}</span>}
                 </DropdownMenuItem>
                 <div className="h-px bg-border my-1" />
                 <DropdownMenuItem onClick={onSignOut} className="text-destructive cursor-pointer">
