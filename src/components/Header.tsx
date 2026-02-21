@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useMembers } from '@/hooks/useMembers';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
-import { ThemeToggle } from './ThemeToggle';
 import { motion } from 'framer-motion';
 
 type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
@@ -59,7 +58,6 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
         </div>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           {userEmail && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
