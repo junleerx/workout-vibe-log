@@ -498,7 +498,7 @@ export function ProgramsView({
                         <div key={index} className={`relative flex flex-col ${isGrouped ? 'mx-1' : ''}`}>
                           {isFirstInGroup && (
                             <div className="flex items-center justify-between gap-2 mb-1 pl-1">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
                                   🔥
                                 </Badge>
@@ -517,7 +517,25 @@ export function ProgramsView({
                                   }}
                                   className="w-12 h-6 text-center text-xs font-bold rounded-lg border border-primary/30 bg-primary/10 text-primary focus:outline-none"
                                 />
-                                <span className="text-xs text-muted-foreground font-medium">Rounds · 서킷 블록</span>
+                                <span className="text-xs text-muted-foreground font-medium">R</span>
+                                <span className="text-xs text-muted-foreground">·</span>
+                                <span className="text-xs text-orange-500 font-medium">⏸</span>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  value={ex.groupRestTime || 0}
+                                  onChange={(e) => {
+                                    const newRestTime = Number(e.target.value) || 0;
+                                    const gid = ex.groupId;
+                                    setProgramExercises((prev) =>
+                                      prev.map((item) =>
+                                        item.groupId === gid ? { ...item, groupRestTime: newRestTime } : item
+                                      )
+                                    );
+                                  }}
+                                  className="w-14 h-6 text-center text-xs font-bold rounded-lg border border-orange-500/30 bg-orange-500/10 text-orange-500 focus:outline-none"
+                                />
+                                <span className="text-xs text-muted-foreground font-medium">초 휴식</span>
                               </div>
                               <Button variant="ghost" size="sm" onClick={() => handleUngroup(ex.groupId!)} className="h-6 text-[10px] rounded hover:bg-destructive/10 hover:text-destructive">
                                 블록 해제
