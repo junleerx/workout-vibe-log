@@ -202,6 +202,8 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
           target_weight: ex.targetWeight,
           target_distance: ex.targetDistance || null,
           target_time: ex.targetTime || null,
+          group_id: ex.groupId || null,
+          group_rounds: ex.groupRounds || null,
           order_index: index,
         }));
 
