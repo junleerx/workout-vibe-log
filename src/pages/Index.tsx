@@ -40,7 +40,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
-  const { workouts, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkoutCloud({ memberId: selectedMember?.id });
+  const { workouts, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -100,7 +100,7 @@ const Index = () => {
           </TabsContent>
           <TabsContent value="history" className="mt-0 outline-none">
             <TabTransition value="history" activeTab={activeTab}>
-              <HistoryView workouts={workouts} onDeleteWorkout={deleteWorkout} />
+              <HistoryView workouts={workouts} onDeleteWorkout={deleteWorkout} onUpdateSavedSet={updateSavedSet} />
             </TabTransition>
           </TabsContent>
           <TabsContent value="progress" className="mt-0 outline-none">

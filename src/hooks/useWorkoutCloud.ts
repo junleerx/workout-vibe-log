@@ -18,7 +18,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
   // Fetch workouts from database
   const fetchWorkouts = useCallback(async () => {
-    if (!user) {
+    if (!user || !memberId) {
       setWorkouts([]);
       setLoading(false);
       return;
@@ -28,11 +28,8 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       let query = supabase
         .from('workouts')
         .select('*')
+        .eq('member_id', memberId)
         .order('date', { ascending: false });
-
-      if (memberId) {
-        query = query.eq('member_id', memberId);
-      }
 
       const { data: workoutsData, error: workoutsError } = await query;
 
@@ -374,6 +371,36 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     }
   };
 
+  // Update a specific set in a saved workout
+  const updateSavedSet = async (setId: string, updates: { weight?: number; reps?: number }) => {
+    try {
+      const { error } = await supabase
+        .from('exercise_sets')
+        .update(updates)
+        .eq('id', setId);
+
+      if (error) throw error;
+
+      // Optimistic local update
+      setWorkouts(prev =>
+        prev.map(w => ({
+          ...w,
+          exercises: w.exercises.map(ex => ({
+            ...ex,
+            sets: ex.sets.map(s =>
+              s.id === setId ? { ...s, ...updates } : s
+            ),
+          })),
+        }))
+      );
+
+      toast({ title: '수정 완료', description: '세트 데이터가 수정되었습니다.' });
+    } catch (error) {
+      console.error('Error updating set:', error);
+      toast({ title: '오류', description: '세트 수정에 실패했습니다.', variant: 'destructive' });
+    }
+  };
+
   return {
     workouts,
     currentWorkout,
@@ -388,5 +415,6 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     finishWorkout,
     cancelWorkout,
     deleteWorkout,
+    updateSavedSet,
   };
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Workout } from '@/types/workout';
+import { Workout, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock } from 'lucide-react';
+import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { format } from 'date-fns';
@@ -11,6 +11,7 @@ import { useWeightUnit } from '@/hooks/useWeightUnit';
 interface HistoryViewProps {
   workouts: Workout[];
   onDeleteWorkout: (workoutId: string) => void;
+  onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
 }
 
 function formatDuration(seconds: number): string {
@@ -20,14 +21,39 @@ function formatDuration(seconds: number): string {
   return `${minutes}분`;
 }
 
-export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
+export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: HistoryViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const { unit, toDisplay } = useWeightUnit();
+  const { unit, toDisplay, toKg } = useWeightUnit();
+
+  // editing state: { [setId]: { weight, reps } }
+  const [editingSetId, setEditingSetId] = useState<string | null>(null);
+  const [editWeight, setEditWeight] = useState('');
+  const [editReps, setEditReps] = useState('');
 
   const filtered = workouts.filter((w) =>
     !search || w.exercises.some((ex) => ex.name.toLowerCase().includes(search.toLowerCase()))
   );
+
+  const startEditing = (set: WorkoutSet) => {
+    setEditingSetId(set.id);
+    setEditWeight(String(toDisplay(set.weight)));
+    setEditReps(String(set.reps));
+  };
+
+  const cancelEditing = () => {
+    setEditingSetId(null);
+    setEditWeight('');
+    setEditReps('');
+  };
+
+  const saveEditing = async (setId: string) => {
+    if (!onUpdateSavedSet) return;
+    const newWeight = toKg(parseFloat(editWeight) || 0);
+    const newReps = parseInt(editReps) || 0;
+    await onUpdateSavedSet(setId, { weight: newWeight, reps: newReps });
+    setEditingSetId(null);
+  };
 
   if (workouts.length === 0) {
     return (
@@ -116,7 +142,7 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
               </div>
             </div>
 
-            {/* Expanded detail — set-level data */}
+            {/* Expanded detail — set-level data with edit capability */}
             {isExpanded && (
               <div className="border-t border-border/50 px-4 pb-4 pt-3 space-y-3">
                 {workout.exercises.map((exercise) => (
@@ -134,21 +160,71 @@ export function HistoryView({ workouts, onDeleteWorkout }: HistoryViewProps) {
                         </span>
                       )}
                       {exercise.targetTime && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-orange-500/10 text-orange-500">
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-brand-red/10 text-brand-red">
                           <Clock className="w-2.5 h-2.5" />
                           {exercise.targetTime}초
                         </span>
                       )}
                     </div>
-                    {/* Per-set breakdown */}
+                    {/* Per-set breakdown with edit */}
                     <div className="ml-5 space-y-1">
                       {exercise.sets.map((set, i) => (
                         <div key={set.id} className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="w-10 text-right font-medium text-foreground/60">Set {i + 1}</span>
-                          {set.weight > 0 && <span className="text-primary font-semibold">{toDisplay(set.weight)}{unit}</span>}
-                          {set.reps > 0 && <span>× {set.reps}회</span>}
-                          {set.weight === 0 && set.reps === 0 && <span className="italic">기록 없음</span>}
-                          {set.completed && <span className="text-green-500">✓</span>}
+
+                          {editingSetId === set.id ? (
+                            /* ─── EDITING MODE ─── */
+                            <>
+                              <input
+                                type="number"
+                                value={editWeight}
+                                onChange={(e) => setEditWeight(e.target.value)}
+                                className="w-16 h-6 px-1.5 text-xs bg-secondary rounded border border-primary/30 text-foreground text-center focus:outline-none focus:ring-1 focus:ring-primary"
+                                step="0.5"
+                              />
+                              <span className="text-muted-foreground text-[10px]">{unit}</span>
+                              <span className="text-muted-foreground">×</span>
+                              <input
+                                type="number"
+                                value={editReps}
+                                onChange={(e) => setEditReps(e.target.value)}
+                                className="w-12 h-6 px-1.5 text-xs bg-secondary rounded border border-primary/30 text-foreground text-center focus:outline-none focus:ring-1 focus:ring-primary"
+                              />
+                              <span className="text-muted-foreground text-[10px]">회</span>
+                              <Button
+                                variant="ghost" size="icon"
+                                className="h-6 w-6 text-brand-green hover:text-brand-green/80"
+                                onClick={() => saveEditing(set.id)}
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost" size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                onClick={cancelEditing}
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </Button>
+                            </>
+                          ) : (
+                            /* ─── DISPLAY MODE ─── */
+                            <>
+                              {set.weight > 0 && <span className="text-primary font-semibold">{toDisplay(set.weight)}{unit}</span>}
+                              {set.reps > 0 && <span>× {set.reps}회</span>}
+                              {set.weight === 0 && set.reps === 0 && <span className="italic">기록 없음</span>}
+                              {set.completed && <span className="text-brand-green">✓</span>}
+                              {onUpdateSavedSet && (
+                                <Button
+                                  variant="ghost" size="icon"
+                                  className="h-5 w-5 ml-1 text-muted-foreground/50 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                                  style={{ opacity: 1 }}
+                                  onClick={() => startEditing(set)}
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
