@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { Workout } from '@/types/workout';
 import { Member } from '@/types/member';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
-import { Dumbbell, Clock, Flame, Target, Timer, ChevronRight } from 'lucide-react';
+import { Dumbbell, Clock, Flame, Target, Timer, ChevronRight, Pencil } from 'lucide-react';
 import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval, subDays, isSameDay, differenceInCalendarDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -27,6 +27,23 @@ function formatDurationShort(seconds: number): string {
 export function DashboardView({ workouts, selectedMember, onNavigateToHistory }: DashboardViewProps) {
     const { unit, toDisplay } = useWeightUnit();
 
+    // ─── user-configurable weekly goal ───
+    const [weeklyGoal, setWeeklyGoal] = useState(() => {
+        const saved = localStorage.getItem('weeklyGoal');
+        return saved ? parseInt(saved) : 5;
+    });
+
+    const handleEditGoal = useCallback(() => {
+        const input = window.prompt('주간 운동 목표 횟수를 입력하세요:', String(weeklyGoal));
+        if (input !== null) {
+            const val = parseInt(input);
+            if (!isNaN(val) && val > 0 && val <= 14) {
+                setWeeklyGoal(val);
+                localStorage.setItem('weeklyGoal', String(val));
+            }
+        }
+    }, [weeklyGoal]);
+
     // ─── derived stats ───
     const stats = useMemo(() => {
         const now = new Date();
@@ -38,8 +55,8 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
             return isWithinInterval(d, { start: weekStart, end: weekEnd });
         });
 
-        // total active minutes (all time)
-        const totalMinutes = workouts.reduce((acc, w) => acc + (w.duration ? Math.floor(w.duration / 60) : 0), 0);
+        // weekly active minutes
+        const weeklyMinutes = thisWeekWorkouts.reduce((acc, w) => acc + (w.duration ? Math.floor(w.duration / 60) : 0), 0);
 
         // streak calculation
         let streak = 0;
@@ -58,8 +75,8 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
             }
         }
 
-        // weekly goal (default 5)
-        const weeklyGoal = 5;
+        // total workouts all-time
+        const totalWorkouts = workouts.length;
 
         // this week daily activity (minutes per day Mon-Sun)
         const dailyActivity: number[] = Array(7).fill(0);
@@ -81,10 +98,9 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
         const streakChange = thisWeekWorkouts.length - prevWeekWorkouts.length;
 
         return {
-            totalWorkouts: workouts.length,
-            totalMinutes,
+            totalWorkouts,
+            weeklyMinutes,
             streak,
-            weeklyGoal,
             weeklyCompleted: thisWeekWorkouts.length,
             dailyActivity,
             recent,
@@ -94,7 +110,7 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
 
     const dayLabels = ['월', '화', '수', '목', '금', '토', '일'];
     const maxActivity = Math.max(...stats.dailyActivity, 1);
-    const progressPercent = Math.min((stats.weeklyCompleted / stats.weeklyGoal) * 100, 100);
+    const progressPercent = Math.min((stats.weeklyCompleted / weeklyGoal) * 100, 100);
 
     // ─── stat card data ───
     const statCards = [
@@ -107,8 +123,8 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
         },
         {
             label: '활동 시간',
-            value: stats.totalMinutes.toLocaleString(),
-            sub: '분 (전체)',
+            value: stats.weeklyMinutes.toLocaleString(),
+            sub: '분 (이번 주)',
             icon: Clock,
             color: 'from-brand-red/80 to-brand-red',
         },
@@ -121,10 +137,11 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
         },
         {
             label: '주간 목표',
-            value: `${stats.weeklyCompleted}/${stats.weeklyGoal}`,
-            sub: '이번 주',
+            value: `${stats.weeklyCompleted}/${weeklyGoal}`,
+            sub: '이번 주 · 탭하여 수정',
             icon: Target,
             color: 'from-brand-blue/80 to-brand-blue',
+            onClick: handleEditGoal,
         },
     ];
 
@@ -147,7 +164,8 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="bg-card rounded-2xl p-4 card-shadow border border-border/30 flex flex-col justify-between min-h-[120px] relative overflow-hidden"
+                        onClick={'onClick' in card ? (card as any).onClick : undefined}
+                        className={`bg-card rounded-2xl p-4 card-shadow border border-border/30 flex flex-col justify-between min-h-[120px] relative overflow-hidden ${'onClick' in card ? 'cursor-pointer active:scale-[0.97] transition-transform' : ''}`}
                     >
                         {/* bg icon */}
                         <div className="absolute -right-2 -top-2 opacity-[0.07]">
@@ -176,7 +194,7 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
             >
                 <h3 className="text-sm font-bold text-primary mb-3">주간 목표 진행률</h3>
                 <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                    <span>{stats.weeklyCompleted}회 / {stats.weeklyGoal}회 완료</span>
+                    <span>{stats.weeklyCompleted}회 / {weeklyGoal}회 완료</span>
                     <span className="font-bold text-foreground">{Math.round(progressPercent)}%</span>
                 </div>
                 <div className="h-3 rounded-full bg-secondary overflow-hidden">

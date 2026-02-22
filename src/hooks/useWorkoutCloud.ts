@@ -167,6 +167,43 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       exercises: newExercises,
       memberId: selectedMemberId,
     };
+
+    // ─── 이전 기록 불러오기 ───
+    // workouts 상태에서 같은 운동 이름의 최근 기록을 탐색
+    if (workouts.length > 0) {
+      const previousWeights = new Map<string, { weight: number; reps: number }[]>();
+      const uniqueNames = [...new Set(newExercises.map(e => e.name))];
+
+      for (const name of uniqueNames) {
+        for (const w of workouts) {
+          const match = w.exercises.find(e => e.name === name);
+          if (match && match.sets.length > 0) {
+            previousWeights.set(name, match.sets.map(s => ({ weight: s.weight, reps: s.reps })));
+            break; // 가장 최근 것만
+          }
+        }
+      }
+
+      if (previousWeights.size > 0 && window.confirm('이전 운동 기록이 있습니다.\n저번 무게/횟수를 불러오시겠습니까?')) {
+        for (const ex of newWorkout.exercises) {
+          const prev = previousWeights.get(ex.name);
+          if (prev) {
+            ex.previousSets = prev.map(p => ({
+              id: crypto.randomUUID(),
+              weight: p.weight,
+              reps: p.reps,
+              completed: false,
+            }));
+            ex.sets = ex.sets.map((set, i) => ({
+              ...set,
+              weight: prev[i]?.weight ?? set.weight,
+              reps: prev[i]?.reps ?? set.reps,
+            }));
+          }
+        }
+      }
+    }
+
     setCurrentWorkout(newWorkout);
   };
 
