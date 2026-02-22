@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.junleerx.workoutvibe',
-  appName: 'Workout Vibe Log',
+  appName: 'Juni\'s Gym',
   webDir: 'dist'
 };
 
