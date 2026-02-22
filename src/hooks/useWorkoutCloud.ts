@@ -297,8 +297,8 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     });
   };
 
-  const finishWorkout = async () => {
-    if (!currentWorkout || !user) return;
+  const finishWorkout = async (): Promise<boolean> => {
+    if (!currentWorkout || !user) return false;
 
     const duration = Math.floor((Date.now() - new Date(currentWorkout.date).getTime()) / 1000);
 
@@ -369,6 +369,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
       setCurrentWorkout(null);
       fetchWorkouts();
+      return true;
     } catch (error) {
       console.error('Error saving workout:', error);
       toast({
@@ -376,6 +377,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
         description: '운동 저장에 실패했습니다.',
         variant: 'destructive',
       });
+      return false;
     }
   };
 

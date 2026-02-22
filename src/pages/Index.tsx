@@ -8,6 +8,7 @@ import { CalendarView } from '@/components/CalendarView';
 import { ProgramsView } from '@/components/ProgramsView';
 import { AIWorkoutView } from '@/components/AIWorkoutView';
 import { DashboardView } from '@/components/DashboardView';
+import { WorkoutCelebration } from '@/components/WorkoutCelebration';
 
 import { useWorkoutCloud } from '@/hooks/useWorkoutCloud';
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
@@ -44,6 +45,16 @@ const Index = () => {
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  const handleFinishWorkout = async () => {
+    const success = await finishWorkout();
+    if (success) {
+      setShowCelebration(true);
+      setActiveTab('dashboard'); // Navigate to dashboard safely because it renders Celebration overlay on top
+      setTimeout(() => setShowCelebration(false), 3000);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -77,7 +88,7 @@ const Index = () => {
           </TabsContent>
           <TabsContent value="workout" className="mt-0 outline-none">
             <TabTransition value="workout" activeTab={activeTab}>
-              <WorkoutView currentWorkout={currentWorkout} onStartWorkout={() => startWorkout(selectedMember?.id)} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
+              <WorkoutView currentWorkout={currentWorkout} onStartWorkout={() => startWorkout(selectedMember?.id)} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={handleFinishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
             </TabTransition>
           </TabsContent>
           <TabsContent value="programs" className="mt-0 outline-none">
@@ -125,6 +136,7 @@ const Index = () => {
           </TabsList>
         </Tabs>
       </main>
+      <WorkoutCelebration isVisible={showCelebration} />
     </div>
   );
 };
