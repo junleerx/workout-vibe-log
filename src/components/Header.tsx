@@ -11,7 +11,7 @@ import { useMembers } from '@/hooks/useMembers';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { motion } from 'framer-motion';
 
-type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
+type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
 
 interface HeaderProps {
   activeTab: TabType;

@@ -7,6 +7,7 @@ import { ProgressView } from '@/components/ProgressView';
 import { CalendarView } from '@/components/CalendarView';
 import { ProgramsView } from '@/components/ProgramsView';
 import { AIWorkoutView } from '@/components/AIWorkoutView';
+import { DashboardView } from '@/components/DashboardView';
 
 import { useWorkoutCloud } from '@/hooks/useWorkoutCloud';
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
@@ -14,9 +15,9 @@ import { useCustomExercises } from '@/hooks/useCustomExercises';
 import { useMembers } from '@/hooks/useMembers';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dumbbell, History, LineChart, Calendar, ClipboardList, Sparkles } from 'lucide-react';
+import { Dumbbell, History, LineChart, Calendar, ClipboardList, Sparkles, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-type TabType = 'workout' | 'programs' | 'ai' | 'history' | 'progress' | 'calendar';
+type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'progress' | 'calendar';
 
 const TabTransition = ({ children, value, activeTab }: { children: React.ReactNode, value: string, activeTab: string }) => (
   <AnimatePresence mode="wait">
@@ -42,7 +43,7 @@ const Index = () => {
   const { workouts, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
-  const [activeTab, setActiveTab] = useState<TabType>('workout');
+  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -69,6 +70,11 @@ const Index = () => {
       <Header activeTab={activeTab} onTabChange={setActiveTab} userEmail={user.email} onSignOut={signOut} />
       <main className="container max-w-2xl mx-auto px-4 pt-4 relative z-10">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="space-y-6 pb-6">
+          <TabsContent value="dashboard" className="mt-0 outline-none">
+            <TabTransition value="dashboard" activeTab={activeTab}>
+              <DashboardView workouts={workouts} selectedMember={selectedMember} onNavigateToHistory={() => setActiveTab('history')} />
+            </TabTransition>
+          </TabsContent>
           <TabsContent value="workout" className="mt-0 outline-none">
             <TabTransition value="workout" activeTab={activeTab}>
               <WorkoutView currentWorkout={currentWorkout} onStartWorkout={() => startWorkout(selectedMember?.id)} onAddExercise={addExercise} onRemoveExercise={removeExercise} onAddSet={addSet} onUpdateSet={updateSet} onRemoveSet={removeSet} onFinishWorkout={finishWorkout} onCancelWorkout={cancelWorkout} customExercises={customExercises} />
@@ -108,7 +114,8 @@ const Index = () => {
             </TabTransition>
           </TabsContent>
 
-          <TabsList className="fixed bottom-0 left-0 right-0 h-[72px] pb-safe glass border-t border-white/5 grid grid-cols-6 px-2 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)] bg-background/80 backdrop-blur-2xl">
+          <TabsList className="fixed bottom-0 left-0 right-0 h-[72px] pb-safe glass border-t border-white/5 grid grid-cols-7 px-1 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)] bg-background/80 backdrop-blur-2xl">
+            <TabsTrigger value="dashboard" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><LayoutDashboard className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">대시보드</span></TabsTrigger>
             <TabsTrigger value="workout" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><Dumbbell className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">운동</span></TabsTrigger>
             <TabsTrigger value="programs" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><ClipboardList className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">프로그램</span></TabsTrigger>
             <TabsTrigger value="ai" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><Sparkles className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">AI추천</span></TabsTrigger>
