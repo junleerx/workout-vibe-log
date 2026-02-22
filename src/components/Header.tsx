@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Dumbbell, History, LogOut, User, Calendar, TrendingUp, ClipboardList, Sparkles, Loader2 } from 'lucide-react';
+import { Dumbbell, History, LogOut, User, Calendar, TrendingUp, ClipboardList, Sparkles, Loader2, LineChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,7 +12,7 @@ import { useMembers } from '@/hooks/useMembers';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { motion } from 'framer-motion';
 
-type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'calendar' | 'progress';
+type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'progress';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -30,8 +31,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
     { id: 'programs' as TabType, label: '프로그램', icon: ClipboardList },
     { id: 'ai' as TabType, label: 'AI추천', icon: Sparkles },
     { id: 'history' as TabType, label: '기록', icon: History },
-    { id: 'calendar' as TabType, label: '캘린더', icon: Calendar },
-    { id: 'progress' as TabType, label: '진행', icon: TrendingUp },
+    { id: 'progress' as TabType, label: '통계', icon: LineChart }
   ];
 
   return (

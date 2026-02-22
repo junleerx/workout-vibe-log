@@ -4,7 +4,6 @@ import { Header } from '@/components/Header';
 import { WorkoutView } from '@/components/WorkoutView';
 import { HistoryView } from '@/components/HistoryView';
 import { ProgressView } from '@/components/ProgressView';
-import { CalendarView } from '@/components/CalendarView';
 import { ProgramsView } from '@/components/ProgramsView';
 import { AIWorkoutView } from '@/components/AIWorkoutView';
 import { DashboardView } from '@/components/DashboardView';
@@ -16,9 +15,9 @@ import { useCustomExercises } from '@/hooks/useCustomExercises';
 import { useMembers } from '@/hooks/useMembers';
 import { useAuth } from '@/hooks/useAuth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dumbbell, History, LineChart, Calendar, ClipboardList, Sparkles, LayoutDashboard } from 'lucide-react';
+import { Dumbbell, History, LineChart, ClipboardList, Sparkles, LayoutDashboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'progress' | 'calendar';
+type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'progress';
 
 const TabTransition = ({ children, value, activeTab }: { children: React.ReactNode, value: string, activeTab: string }) => (
   <AnimatePresence mode="wait">
@@ -119,20 +118,14 @@ const Index = () => {
               <ProgressView workouts={workouts} selectedMember={selectedMember} />
             </TabTransition>
           </TabsContent>
-          <TabsContent value="calendar" className="mt-0 outline-none">
-            <TabTransition value="calendar" activeTab={activeTab}>
-              <CalendarView workouts={workouts} selectedMember={selectedMember} />
-            </TabTransition>
-          </TabsContent>
 
-          <TabsList className="fixed bottom-0 left-0 right-0 h-[72px] pb-safe glass border-t border-white/5 grid grid-cols-7 px-1 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)] bg-background/80 backdrop-blur-2xl">
+          <TabsList className="fixed bottom-0 left-0 right-0 h-[72px] pb-safe glass border-t border-white/5 grid grid-cols-6 px-1 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.3)] bg-background/80 backdrop-blur-2xl">
             <TabsTrigger value="dashboard" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><LayoutDashboard className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">대시보드</span></TabsTrigger>
             <TabsTrigger value="workout" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><Dumbbell className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">운동</span></TabsTrigger>
             <TabsTrigger value="programs" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><ClipboardList className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">프로그램</span></TabsTrigger>
             <TabsTrigger value="ai" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><Sparkles className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">AI추천</span></TabsTrigger>
             <TabsTrigger value="history" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><History className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">기록</span></TabsTrigger>
             <TabsTrigger value="progress" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><LineChart className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">통계</span></TabsTrigger>
-            <TabsTrigger value="calendar" className="flex flex-col gap-1 data-[state=active]:text-primary data-[state=active]:bg-primary/10 rounded-xl transition-all duration-300 active:scale-95"><Calendar className="w-5 h-5 mb-0.5" /><span className="text-[10px] font-medium">달력</span></TabsTrigger>
           </TabsList>
         </Tabs>
       </main>

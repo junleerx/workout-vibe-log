@@ -41,8 +41,7 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between px-1">
-                <h3 className="text-lg font-bold text-primary">Choose Date</h3>
+            <div className="flex items-center justify-end px-1 mb-2">
                 <div className="flex items-center gap-3">
                     <button onClick={prevMonth} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
                         <ChevronLeft className="w-5 h-5" />
@@ -56,14 +55,7 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
                 </div>
             </div>
 
-            {/* Weekday indicator pills */}
-            <div className="grid grid-cols-7 gap-2">
-                {weekDays.map(day => (
-                    <div key={day} className="h-7 flex items-center justify-center rounded-full bg-primary/20 text-primary text-[10px] font-black tracking-wider">
-                        {day}
-                    </div>
-                ))}
-            </div>
+
 
             {/* Calendar Grid */}
             <motion.div
@@ -82,10 +74,10 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
                                 <button
                                     onClick={() => onDateClick(day)}
                                     className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${isSelected
-                                            ? 'bg-primary text-primary-foreground shadow-[0_0_15px_rgba(251,191,36,0.5)] scale-110 z-10'
-                                            : isCurrentMonth
-                                                ? 'text-foreground hover:bg-secondary'
-                                                : 'text-muted-foreground/30'
+                                        ? 'bg-primary text-primary-foreground shadow-[0_0_15px_rgba(251,191,36,0.5)] scale-110 z-10'
+                                        : isCurrentMonth
+                                            ? 'text-foreground hover:bg-secondary'
+                                            : 'text-muted-foreground/30'
                                         }`}
                                 >
                                     {format(day, 'd')}
