@@ -160,7 +160,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
                         </span>
                       )}
                       {exercise.targetTime && (
-                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-brand-red/10 text-brand-red">
+                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-accent/10 text-accent">
                           <Clock className="w-2.5 h-2.5" />
                           {exercise.targetTime}초
                         </span>
@@ -193,7 +193,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
                               <span className="text-muted-foreground text-[10px]">회</span>
                               <Button
                                 variant="ghost" size="icon"
-                                className="h-6 w-6 text-brand-green hover:text-brand-green/80"
+                                className="h-6 w-6 text-amber-500 hover:text-amber-500/80"
                                 onClick={() => saveEditing(set.id)}
                               >
                                 <Check className="w-3.5 h-3.5" />
@@ -212,7 +212,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
                               {set.weight > 0 && <span className="text-primary font-semibold">{toDisplay(set.weight)}{unit}</span>}
                               {set.reps > 0 && <span>× {set.reps}회</span>}
                               {set.weight === 0 && set.reps === 0 && <span className="italic">기록 없음</span>}
-                              {set.completed && <span className="text-brand-green">✓</span>}
+                              {set.completed && <span className="text-amber-500">✓</span>}
                               {onUpdateSavedSet && (
                                 <Button
                                   variant="ghost" size="icon"

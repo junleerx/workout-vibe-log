@@ -56,10 +56,10 @@ export const exerciseTemplates: ExerciseTemplate[] = [
 ];
 
 export const categoryColors: Record<string, string> = {
-  '가슴': 'bg-brand-red/15 text-brand-red border-brand-red/20',
-  '등': 'bg-brand-blue/15 text-brand-blue border-brand-blue/20',
+  '가슴': 'bg-accent/15 text-accent border-accent/20',
+  '등': 'bg-primary/15 text-primary border-primary/20',
   '어깨': 'bg-primary/20 text-primary border-primary/30',
-  '하체': 'bg-brand-green/15 text-brand-green border-brand-green/20',
+  '하체': 'bg-amber-500/15 text-amber-500 border-amber-500/20',
   '팔': 'bg-secondary text-secondary-foreground border-border',
   '복근': 'bg-secondary text-secondary-foreground border-border',
   '전신': 'bg-primary/20 text-primary border-primary/30',
