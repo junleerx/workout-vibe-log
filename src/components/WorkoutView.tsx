@@ -209,7 +209,7 @@ export function WorkoutView({
       {/* 탭 바(h-16) 위에 배치해 겹치지 않도록 bottom-20 */}
       <div className="fixed bottom-20 left-0 right-0 p-4 glass border-t border-border/30 z-50">
         <div className="container flex gap-3">
-          <Button type="button" variant="outline" className="flex-1" onClick={onCancelWorkout}>
+          <Button type="button" variant="outline" className="flex-1" onClick={() => { if (window.confirm('진행 중인 운동을 취소하시겠습니까? 기록이 저장되지 않습니다.')) onCancelWorkout(); }}>
             취소
           </Button>
           <Button

@@ -54,7 +54,11 @@ export function ExerciseCard({
         <Button
           variant="ghost"
           size="icon"
-          onClick={onRemoveExercise}
+          onClick={() => {
+            if (window.confirm(`'${exercise.name}' 운동을 삭제하시겠습니까?`)) {
+              onRemoveExercise();
+            }
+          }}
           className="text-muted-foreground hover:text-destructive"
         >
           <Trash2 className="w-4 h-4" />
