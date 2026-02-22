@@ -59,8 +59,8 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
         <div className="text-center">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
-            <Calendar className="w-12 h-12 text-muted-foreground" />
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+            <Calendar className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-2">운동 기록이 없습니다</h2>
           <p className="text-muted-foreground">첫 운동을 시작해보세요!</p>
@@ -102,7 +102,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="font-semibold text-sm">
+                  <p className="font-semibold text-sm text-primary">
                     {format(new Date(workout.date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })}
                   </p>
                   <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
@@ -118,7 +118,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
                   {/* Exercise name pills */}
                   <div className="flex flex-wrap gap-1 mt-2">
                     {workout.exercises.slice(0, 4).map((ex) => (
-                      <span key={ex.id} className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                      <span key={ex.id} className={`text-[10px] px-2 py-0.5 rounded-full border ${categoryColors[ex.category] || 'bg-secondary text-muted-foreground border-transparent'}`}>
                         {ex.name}
                       </span>
                     ))}

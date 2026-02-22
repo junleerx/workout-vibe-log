@@ -140,8 +140,8 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] p-6">
         <div className="text-center">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary flex items-center justify-center">
-            <Dumbbell className="w-12 h-12 text-muted-foreground" />
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
+            <Dumbbell className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-2">진행 상황 없음</h2>
           <p className="text-muted-foreground">
@@ -176,16 +176,16 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
           <>
             {/* Stats Cards */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-secondary/50 rounded-lg p-4">
-                <p className="text-xs text-muted-foreground mb-1">최근 무게</p>
-                <p className="text-2xl font-bold">{toDisplay(stats.latestWeight)} {unit}</p>
+              <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                <p className="text-xs text-primary/80 mb-1 font-semibold">최근 무게</p>
+                <p className="text-2xl font-bold text-primary">{toDisplay(stats.latestWeight)} {unit}</p>
               </div>
-              <div className="bg-secondary/50 rounded-lg p-4">
-                <p className="text-xs text-muted-foreground mb-1">최근 반복 횟수</p>
-                <p className="text-2xl font-bold">{stats.latestReps} 회</p>
+              <div className="bg-accent/10 border border-accent/20 rounded-xl p-4">
+                <p className="text-xs text-accent/80 mb-1 font-semibold">최근 반복 횟수</p>
+                <p className="text-2xl font-bold text-accent">{stats.latestReps} 회</p>
               </div>
-              <div className="bg-secondary/50 rounded-lg p-4 col-span-2">
-                <p className="text-xs text-muted-foreground mb-1">무게 변화</p>
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 col-span-2">
+                <p className="text-xs text-amber-500/80 mb-1 font-semibold">무게 변화</p>
                 <div className="flex items-center gap-2">
                   {getTrendIcon(stats.weightChange)}
                   <span className="text-2xl font-bold">
