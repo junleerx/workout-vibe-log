@@ -43,7 +43,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
       <div className="mx-auto max-w-5xl rounded-2xl glass card-shadow px-4 py-3 flex items-center justify-between transition-all duration-300">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl overflow-hidden glow-effect flex-shrink-0">
-            <img src="./logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />
+            <img src="/logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60 tracking-tight leading-none">
