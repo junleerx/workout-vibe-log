@@ -109,13 +109,10 @@
 
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden;
-    padding-top: var(--sa-top);
-    padding-bottom: var(--sa-bottom);
   }
 
   #root {
     @apply min-h-screen flex flex-col relative;
-    padding-top: var(--sa-top);
     padding-bottom: var(--sa-bottom);
   }
 
