@@ -35,6 +35,13 @@
     --input: 0 0% 88%;
     --ring: 38 92% 55%;
 
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    /* ─── iOS Safe Area Variables ─── */
+    --sa-top: env(safe-area-inset-top, 0px);
+    --sa-bottom: env(safe-area-inset-bottom, 0px);
+
     --radius: 1rem;
     /* Kept from new UI */
 
@@ -101,11 +108,15 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Outfit', sans-serif;
-    /* Smooth Apple-like scrolling */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary overflow-x-hidden;
+    padding-top: var(--sa-top);
+    padding-bottom: var(--sa-bottom);
+  }
+
+  #root {
+    @apply min-h-screen flex flex-col relative;
+    padding-top: var(--sa-top);
+    padding-bottom: var(--sa-bottom);
   }
 
   /* Better scrollbar for dark/light theme */

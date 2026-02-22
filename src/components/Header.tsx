@@ -38,7 +38,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 z-50 pt-[calc(env(safe-area-inset-top)+12px)] pb-3 px-4 sm:px-6"
+      className="sticky top-0 z-50 pt-[calc(var(--sa-top)+12px)] pb-3 px-4 sm:px-6"
     >
       <div className="mx-auto max-w-5xl rounded-2xl glass card-shadow px-4 py-3 flex items-center justify-between transition-all duration-300">
         <div className="flex items-center gap-3">
