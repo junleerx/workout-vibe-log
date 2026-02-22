@@ -1,16 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
+import { Dumbbell, Sparkles } from 'lucide-react';
 
 interface WorkoutCelebrationProps {
     isVisible: boolean;
 }
-
-const FlameLogo = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" className={className}>
-        <path fill="#EF6C57" d="M13 2.139S6 8.151 6 18.152C6 30 18 36 18 36s12-6 12-17.848C30 8.151 18 0 18 0s-5 2.139-5 2.139z" />
-        <path fill="#FDD35D" d="M19 1.139C19 1.139 12 6.641 12 16.643c0 9.215 9 15.228 9 15.228s-4-6.012-4-9.018C17 19.847 21 16.841 21 16.841s2 6.012 2 8.016c0 5 4 2.399 4 2.399s1-5.12 1-9.125c0-6-8-17-9-17z" />
-    </svg>
-);
 
 export function WorkoutCelebration({ isVisible }: WorkoutCelebrationProps) {
     return (
@@ -48,10 +41,11 @@ export function WorkoutCelebration({ isVisible }: WorkoutCelebrationProps) {
                             {/* Main Icon */}
                             <motion.div
                                 animate={{
-                                    scale: [1, 1.15, 1],
+                                    rotate: [0, 15, -15, 0],
+                                    scale: [1, 1.2, 1],
                                     filter: [
                                         "drop-shadow(0 0 0px rgba(251, 191, 36, 0))",
-                                        "drop-shadow(0 0 30px rgba(239, 108, 87, 0.8))",
+                                        "drop-shadow(0 0 20px rgba(251, 191, 36, 0.8))",
                                         "drop-shadow(0 0 0px rgba(251, 191, 36, 0))"
                                     ]
                                 }}
@@ -60,9 +54,9 @@ export function WorkoutCelebration({ isVisible }: WorkoutCelebrationProps) {
                                     repeat: Infinity,
                                     ease: "easeInOut"
                                 }}
-                                className="relative z-10 w-40 h-40 flex items-center justify-center"
+                                className="relative z-10 w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center border-4 border-amber-400 shadow-[0_0_40px_rgba(251,191,36,0.5)]"
                             >
-                                <FlameLogo className="w-32 h-32" />
+                                <Dumbbell className="w-16 h-16 text-white" />
                             </motion.div>
 
                             {/* Bursting particles */}

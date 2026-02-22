@@ -6,6 +6,7 @@ import { Dumbbell, Clock, Flame, Target, Timer, ChevronRight, Pencil } from 'luc
 import { format, parseISO, startOfWeek, endOfWeek, isWithinInterval, subDays, isSameDay, differenceInCalendarDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { DashboardCalendar } from './DashboardCalendar';
 
 interface DashboardViewProps {
     workouts: Workout[];
@@ -207,133 +208,13 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
                 </div>
             </motion.div>
 
-            {/* ─── this week activity chart ─── */}
+            {/* ─── Calendar & Activities (User Reference Design) ─── */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45, duration: 0.4 }}
-                className="bg-card rounded-2xl p-5 card-shadow border border-border/30"
             >
-                <h3 className="text-sm font-bold text-primary mb-4">이번 주 활동</h3>
-                <div className="relative h-[180px]">
-                    {/* Y‑axis labels */}
-                    <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-muted-foreground w-8 pr-1 text-right">
-                        <span>{maxActivity}</span>
-                        <span>{Math.round(maxActivity * 0.66)}</span>
-                        <span>{Math.round(maxActivity * 0.33)}</span>
-                        <span>0</span>
-                    </div>
-
-                    {/* grid lines */}
-                    <div className="absolute left-9 right-0 top-0 bottom-6 flex flex-col justify-between pointer-events-none">
-                        {[0, 1, 2, 3].map(i => (
-                            <div key={i} className="border-t border-border/20 w-full" />
-                        ))}
-                    </div>
-
-                    {/* bars */}
-                    <div className="absolute left-9 right-0 top-0 bottom-6 flex items-end justify-around px-1">
-                        {stats.dailyActivity.map((val, i) => {
-                            const pct = (val / maxActivity) * 100;
-                            const isToday = i === (new Date().getDay() + 6) % 7;
-                            return (
-                                <div key={i} className="flex flex-col items-center gap-1 w-full max-w-[36px]">
-                                    {val > 0 && (
-                                        <span className="text-[10px] font-bold text-foreground/70">{val}분</span>
-                                    )}
-                                    <motion.div
-                                        className={`w-full rounded-lg ${isToday ? 'bg-gradient-to-t from-primary to-accent' : 'bg-primary/30'}`}
-                                        style={{ minHeight: val > 0 ? 8 : 3 }}
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${Math.max(pct, 2)}%` }}
-                                        transition={{ delay: 0.6 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                    />
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* X‑axis labels */}
-                    <div className="absolute left-9 right-0 bottom-0 flex justify-around text-[10px] text-muted-foreground px-1">
-                        {dayLabels.map((d, i) => {
-                            const isToday = i === (new Date().getDay() + 6) % 7;
-                            return (
-                                <span key={d} className={`w-full max-w-[36px] text-center ${isToday ? 'text-primary font-bold' : ''}`}>
-                                    {d}
-                                </span>
-                            );
-                        })}
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* ─── recent workouts ─── */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55, duration: 0.4 }}
-                className="bg-card rounded-2xl p-5 card-shadow border border-border/30"
-            >
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-primary">최근 운동</h3>
-                    {onNavigateToHistory && (
-                        <button
-                            onClick={onNavigateToHistory}
-                            className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primary transition-colors"
-                        >
-                            전체보기
-                            <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
-                    )}
-                </div>
-
-                {stats.recent.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-6 text-sm">운동 기록이 없습니다</p>
-                ) : (
-                    <div className="space-y-3">
-                        {stats.recent.map((workout, i) => {
-                            const totalVolume = workout.exercises.reduce(
-                                (acc, ex) => acc + ex.sets.reduce((setAcc, s) => setAcc + s.weight * s.reps, 0), 0
-                            );
-                            // derive workout name from primary category
-                            const categories = workout.exercises.map(e => e.category);
-                            const mainCat = categories.sort((a, b) =>
-                                categories.filter(c => c === b).length - categories.filter(c => c === a).length
-                            )[0] || '운동';
-
-                            return (
-                                <motion.div
-                                    key={workout.id}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.6 + i * 0.06 }}
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 hover:bg-secondary/80 transition-colors"
-                                >
-                                    <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-                                        <Dumbbell className="w-5 h-5 text-primary" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-sm truncate">{mainCat} 운동</p>
-                                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-                                            {workout.duration && (
-                                                <span className="flex items-center gap-0.5">
-                                                    <Timer className="w-3 h-3" />
-                                                    {formatDurationShort(workout.duration)}
-                                                </span>
-                                            )}
-                                            <span>{workout.exercises.length}종목</span>
-                                        </div>
-                                    </div>
-                                    <div className="text-right flex-shrink-0">
-                                        <p className="text-xs text-muted-foreground">
-                                            {format(parseISO(workout.date), 'M/d', { locale: ko })}
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                )}
+                <DashboardCalendar workouts={workouts} onNavigateToHistory={onNavigateToHistory} />
             </motion.div>
         </div>
     );
