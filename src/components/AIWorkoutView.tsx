@@ -155,7 +155,7 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
             <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
               AI 운동 추천
             </h2>
-            <p className="text-sm text-muted-foreground">오늘 컨디션에 딱 맞는 크로스핏/하록스 루틴을 만들어보세요</p>
+            <p className="text-sm text-muted-foreground">오늘 컨디션에 딱 맞는 크로스핏/하이록스 루틴을 만들어보세요</p>
           </div>
 
           {/* Workout Type */}
