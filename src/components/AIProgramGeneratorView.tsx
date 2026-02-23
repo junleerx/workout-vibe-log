@@ -28,7 +28,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
     const [daysPerWeek, setDaysPerWeek] = useState<number>(4);
     const [goal, setGoal] = useState<string>('근비대 (Muscle Building)');
     const [level, setLevel] = useState<string>('중급');
-    const [focusAreas, setFocusAreas] = useState<string[]>(['전신']);
+    const [focusArea, setFocusArea] = useState<string>('전신');
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
@@ -36,7 +36,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
         setLoading(true);
         try {
             const { data, error } = await supabase.functions.invoke('generate-macrocycle', {
-                body: { weeks, daysPerWeek, goal, level, focusAreas },
+                body: { weeks, daysPerWeek, goal, level, focusAreas: [focusArea] },
             });
 
             if (error) throw error;
@@ -74,10 +74,6 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
         } finally {
             setLoading(false);
         }
-    };
-
-    const toggleFocus = (area: string) => {
-        setFocusAreas(prev => prev.includes(area) ? prev.filter(a => a !== area) : [...prev, area]);
     };
 
     return (
@@ -168,8 +164,8 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                         {['상체', '하체', '전신', '코어', '유산소/컨디셔닝'].map((area) => (
                             <button
                                 key={area}
-                                onClick={() => toggleFocus(area)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${focusAreas.includes(area) ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
+                                onClick={() => setFocusArea(area)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${focusArea === area ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary/50 text-muted-foreground hover:bg-primary/20 hover:text-primary'
                                     }`}
                             >
                                 {area}

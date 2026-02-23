@@ -70,21 +70,17 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
   const [workoutType, setWorkoutType] = useState<string>('circuit');
   const [difficulty, setDifficulty] = useState<string>('intermediate');
   const [duration, setDuration] = useState<string>('30');
-  const [focusAreas, setFocusAreas] = useState<string[]>(['전신']);
+  const [focusArea, setFocusArea] = useState<string>('전신');
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<GeneratedProgram | null>(null);
   const { toast } = useToast();
-
-  const toggleFocus = (area: string) => {
-    setFocusAreas(prev => prev.includes(area) ? prev.filter(a => a !== area) : [...prev, area]);
-  };
 
   const handleGenerate = async () => {
     setLoading(true);
     setGenerated(null);
     try {
       const { data, error } = await supabase.functions.invoke('generate-workout', {
-        body: { workoutType, difficulty, duration: parseInt(duration), focusAreas },
+        body: { workoutType, difficulty, duration: parseInt(duration), focusAreas: [focusArea] },
       });
 
       if (error) throw error;
@@ -228,8 +224,8 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
                 <button
                   key={area.id}
                   type="button"
-                  onClick={() => toggleFocus(area.id)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${focusAreas.includes(area.id)
+                  onClick={() => setFocusArea(area.id)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${focusArea === area.id
                     ? 'bg-primary text-primary-foreground shadow-md'
                     : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
                     }`}
@@ -243,7 +239,7 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
           {/* Generate Button */}
           <Button
             onClick={handleGenerate}
-            disabled={loading || focusAreas.length === 0}
+            disabled={loading || !focusArea}
             className="w-full h-12 rounded-xl text-base font-bold gap-2"
           >
             {loading ? (
