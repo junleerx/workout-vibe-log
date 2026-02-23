@@ -12,7 +12,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { weeks, daysPerWeek, goal, level, focusAreas } = await req.json();
+    const { weeks, daysPerWeek, goal, level } = await req.json();
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
@@ -26,7 +26,6 @@ serve(async (req: Request) => {
     - Frequency: ${daysPerWeek} Days / Week
     - Primary Goal: ${goal}
     - Fitness Level: ${level}
-    - Focus Areas: ${focusAreas?.join(", ") || "Full Body"}
 
     Output Format: JSON only.
     Schema:
