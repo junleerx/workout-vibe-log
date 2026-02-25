@@ -29,9 +29,9 @@ interface ExerciseSelectorProps {
 
 const categories: ExerciseCategory[] = ['가슴', '등', '어깨', '하체', '팔', '복근', '전신'];
 
-export function ExerciseSelector({ 
-  onSelect, 
-  onClose, 
+export function ExerciseSelector({
+  onSelect,
+  onClose,
   customExercises = [],
   onAddCustomExercise,
 }: ExerciseSelectorProps) {
@@ -60,7 +60,7 @@ export function ExerciseSelector({
 
   const handleAddCustomExercise = async () => {
     if (!newExerciseName.trim() || !onAddCustomExercise) return;
-    
+
     setIsAdding(true);
     const exercise = await onAddCustomExercise(newExerciseName.trim(), newExerciseCategory);
     if (exercise) {
@@ -100,8 +100,8 @@ export function ExerciseSelector({
                     </div>
                     <div>
                       <label className="text-sm font-medium mb-2 block">카테고리</label>
-                      <Select 
-                        value={newExerciseCategory} 
+                      <Select
+                        value={newExerciseCategory}
                         onValueChange={(value) => setNewExerciseCategory(value as ExerciseCategory)}
                       >
                         <SelectTrigger>
@@ -148,11 +148,10 @@ export function ExerciseSelector({
           <button
             type="button"
             onClick={() => setSelectedCategory(null)}
-            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-              !selectedCategory
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${!selectedCategory
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary text-muted-foreground hover:text-foreground'
-            }`}
+              }`}
           >
             전체
           </button>
@@ -161,18 +160,17 @@ export function ExerciseSelector({
               type="button"
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                selectedCategory === category
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === category
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-secondary text-muted-foreground hover:text-foreground'
-              }`}
+                }`}
             >
               {category}
             </button>
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2">
+        <div className="flex-1 overflow-y-auto space-y-2 pb-32">
           {filteredExercises.map((exercise, index) => (
             <button
               type="button"
@@ -190,15 +188,14 @@ export function ExerciseSelector({
                 )}
               </div>
               <span
-                className={`px-2 py-1 text-xs font-medium rounded-full border ${
-                  categoryColors[exercise.category]
-                }`}
+                className={`px-2 py-1 text-xs font-medium rounded-full border ${categoryColors[exercise.category]
+                  }`}
               >
                 {exercise.category}
               </span>
             </button>
           ))}
-          
+
           {filteredExercises.length === 0 && (
             <div className="text-center py-8">
               <p className="text-muted-foreground">검색 결과가 없습니다.</p>

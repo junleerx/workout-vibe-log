@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Workout, Exercise, WorkoutSet } from '@/types/workout';
 import { ProgramExercise } from '@/types/program';
@@ -15,6 +15,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const isSaving = useRef(false);
 
   // Fetch workouts from database
   const fetchWorkouts = useCallback(async () => {
@@ -299,6 +300,9 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
   const finishWorkout = async (): Promise<boolean> => {
     if (!currentWorkout || !user) return false;
+    if (isSaving.current) return false;
+
+    isSaving.current = true;
 
     const duration = Math.floor((Date.now() - new Date(currentWorkout.date).getTime()) / 1000);
 
@@ -378,6 +382,8 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
         variant: 'destructive',
       });
       return false;
+    } finally {
+      isSaving.current = false;
     }
   };
 

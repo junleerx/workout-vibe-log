@@ -117,6 +117,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
                   {!converting && <span className="ml-auto text-xs text-muted-foreground">현재: {unit.toUpperCase()}</span>}
                 </DropdownMenuItem>
                 <div className="h-px bg-border my-1" />
+
                 <DropdownMenuItem onClick={onSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   로그아웃

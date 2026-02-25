@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Workout } from '@/types/workout';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, parseISO, isToday } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Dumbbell, Timer, Flame } from 'lucide-react';
@@ -11,6 +12,7 @@ interface DashboardCalendarProps {
 }
 
 export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCalendarProps) {
+    const { unit, toDisplay } = useWeightUnit();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -131,7 +133,7 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
                                         <div className="flex-1 min-w-0 py-1">
                                             <div className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground mb-1">
                                                 <Flame className="w-3 h-3 text-accent" />
-                                                Volume {totalVolume.toLocaleString()} Kg
+                                                Volume {toDisplay(totalVolume).toLocaleString()} {unit}
                                             </div>
                                             <h4 className="font-bold text-base text-foreground truncate">{mainCategory} 운동</h4>
                                             <p className="text-xs text-muted-foreground mt-0.5">
