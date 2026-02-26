@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy, Folder, FolderPlus, FolderOpen, MoreVertical } from 'lucide-react';
+import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy, Folder, FolderPlus, FolderOpen, MoreVertical, Check, X } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
 import { WorkoutProgram, ProgramExercise, DAYS_OF_WEEK } from '@/types/program';
@@ -84,6 +84,8 @@ export function ProgramsView({
   const [activeFolder, setActiveFolder] = useState<string>('전체');
   const [isFolderManageOpen, setIsFolderManageOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+  const [editingFolder, setEditingFolder] = useState<string | null>(null);
+  const [editFolderName, setEditFolderName] = useState('');
 
   const saveFolders = (newFolders: string[]) => {
     setFolders(newFolders);
@@ -117,6 +119,35 @@ export function ProgramsView({
       });
       saveProgramFolders(newMapping);
     }
+  };
+
+  const handleRenameFolder = (oldName: string) => {
+    const newName = editFolderName.trim();
+    if (!newName || newName === oldName) {
+      setEditingFolder(null);
+      return;
+    }
+    if (folders.includes(newName)) {
+      alert('이미 존재하는 폴더 이름입니다.');
+      return;
+    }
+
+    // Update folders
+    const newFolders = folders.map(f => f === oldName ? newName : f);
+    saveFolders(newFolders);
+
+    // Update active folder
+    if (activeFolder === oldName) setActiveFolder(newName);
+
+    // Update mapping
+    const newMapping = { ...programFolders };
+    Object.keys(newMapping).forEach(key => {
+      if (newMapping[key] === oldName) {
+        newMapping[key] = newName;
+      }
+    });
+    saveProgramFolders(newMapping);
+    setEditingFolder(null);
   };
 
   const handleMoveToFolder = (programId: string, folderName: string | null) => {
@@ -753,13 +784,39 @@ export function ProgramsView({
               )}
               {folders.map(folder => (
                 <div key={folder} className="flex items-center justify-between px-3 py-2 bg-secondary/40 border border-border/40 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Folder className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-medium">{folder}</span>
-                  </div>
-                  <Button variant="ghost" size="icon" className="w-7 h-7 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteFolder(folder)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
+                  {editingFolder === folder ? (
+                    <div className="flex items-center gap-2 flex-1 mr-2">
+                      <Folder className="w-4 h-4 text-primary shrink-0" />
+                      <Input
+                        value={editFolderName}
+                        onChange={(e) => setEditFolderName(e.target.value)}
+                        className="h-7 text-sm px-2 flex-1"
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder(folder); if (e.key === 'Escape') setEditingFolder(null); }}
+                        autoFocus
+                      />
+                      <Button variant="ghost" size="icon" className="w-7 h-7 shrink-0 text-primary" onClick={() => handleRenameFolder(folder)}>
+                        <Check className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="w-7 h-7 shrink-0 text-muted-foreground" onClick={() => setEditingFolder(null)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 flex-1 truncate">
+                        <Folder className="w-4 h-4 text-primary shrink-0" />
+                        <span className="text-sm font-medium truncate">{folder}</span>
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <Button variant="ghost" size="icon" className="w-7 h-7 text-muted-foreground hover:text-foreground" onClick={() => { setEditingFolder(folder); setEditFolderName(folder); }}>
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="w-7 h-7 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteFolder(folder)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
