@@ -45,10 +45,19 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
             .eq('program_id', program.id)
             .order('order_index', { ascending: true });
 
+          let parsedDesc = program.description || '';
+          let folder: string | null = null;
+          const match = parsedDesc.match(/^\[📁(.*?)\]\s*(.*)$/us);
+          if (match) {
+            folder = match[1];
+            parsedDesc = match[2];
+          }
+
           return {
             id: program.id,
             name: program.name,
-            description: program.description || undefined,
+            description: parsedDesc || undefined,
+            folder: folder,
             daysOfWeek: program.days_of_week || [],
             workoutStyle: (program.workout_style as WorkoutProgram['workoutStyle']) || undefined,
             timeLimit: program.time_limit || undefined,
@@ -98,17 +107,20 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     workoutStyle: string | undefined,
     timeLimit: number | undefined,
     targetRounds: number | undefined,
-    exercises: Omit<ProgramExercise, 'id'>[]
+    exercises: Omit<ProgramExercise, 'id'>[],
+    folder: string | null = null
   ) => {
     if (!user) return;
 
     try {
+      const dbDescription = folder ? `[📁${folder}] ${description || ''}`.trim() : (description || null);
+
       const { data: programData, error: programError } = await supabase
         .from('workout_programs')
         .insert({
           user_id: user.id,
           name,
-          description: description || null,
+          description: dbDescription,
           days_of_week: daysOfWeek,
           workout_style: workoutStyle || null,
           time_limit: timeLimit || null,
@@ -167,16 +179,19 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     workoutStyle: string | undefined,
     timeLimit: number | undefined,
     targetRounds: number | undefined,
-    exercises: Omit<ProgramExercise, 'id'>[]
+    exercises: Omit<ProgramExercise, 'id'>[],
+    folder: string | null = null
   ) => {
     if (!user) return;
 
     try {
+      const dbDescription = folder ? `[📁${folder}] ${description || ''}`.trim() : (description || null);
+
       const { error: programError } = await supabase
         .from('workout_programs')
         .update({
           name,
-          description: description || null,
+          description: dbDescription,
           days_of_week: daysOfWeek,
           workout_style: workoutStyle || null,
           time_limit: timeLimit || null,

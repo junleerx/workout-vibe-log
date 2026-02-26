@@ -21,7 +21,8 @@ interface ProgramsViewProps {
     workoutStyle: string | undefined,
     timeLimit: number | undefined,
     targetRounds: number | undefined,
-    exercises: Omit<ProgramExercise, 'id'>[]
+    exercises: Omit<ProgramExercise, 'id'>[],
+    folder?: string | null
   ) => void;
   onUpdateProgram: (
     id: string,
@@ -31,7 +32,8 @@ interface ProgramsViewProps {
     workoutStyle: string | undefined,
     timeLimit: number | undefined,
     targetRounds: number | undefined,
-    exercises: Omit<ProgramExercise, 'id'>[]
+    exercises: Omit<ProgramExercise, 'id'>[],
+    folder?: string | null
   ) => void;
   onDeleteProgram: (programId: string) => void;
   onStartFromProgram: (exercises: ProgramExercise[]) => void;
@@ -106,15 +108,21 @@ export function ProgramsView({
     setNewFolderName('');
   };
 
+  const activeAllFolders = Array.from(new Set([
+    ...folders,
+    ...programs.map(p => p.folder).filter(Boolean)
+  ])) as string[];
+
   const handleDeleteFolder = (folderName: string) => {
     if (window.confirm(`"${folderName}" 폴더를 삭제하시겠습니까? (안에 있는 프로그램들은 '미분류'로 이동됩니다)`)) {
       saveFolders(folders.filter(f => f !== folderName));
       if (activeFolder === folderName) setActiveFolder('전체');
 
       const newMapping = { ...programFolders };
-      Object.keys(newMapping).forEach(key => {
-        if (newMapping[key] === folderName) {
-          delete newMapping[key];
+      programs.forEach(p => {
+        if ((p.folder || newMapping[p.id]) === folderName) {
+          delete newMapping[p.id];
+          onUpdateProgram(p.id, p.name, p.description || '', p.daysOfWeek, p.workoutStyle, p.timeLimit, p.targetRounds, p.exercises.map(({ id, ...rest }) => rest), null);
         }
       });
       saveProgramFolders(newMapping);
@@ -127,23 +135,20 @@ export function ProgramsView({
       setEditingFolder(null);
       return;
     }
-    if (folders.includes(newName)) {
+    if (activeAllFolders.includes(newName)) {
       alert('이미 존재하는 폴더 이름입니다.');
       return;
     }
 
-    // Update folders
     const newFolders = folders.map(f => f === oldName ? newName : f);
     saveFolders(newFolders);
-
-    // Update active folder
     if (activeFolder === oldName) setActiveFolder(newName);
 
-    // Update mapping
     const newMapping = { ...programFolders };
-    Object.keys(newMapping).forEach(key => {
-      if (newMapping[key] === oldName) {
-        newMapping[key] = newName;
+    programs.forEach(p => {
+      if ((p.folder || newMapping[p.id]) === oldName) {
+        newMapping[p.id] = newName;
+        onUpdateProgram(p.id, p.name, p.description || '', p.daysOfWeek, p.workoutStyle, p.timeLimit, p.targetRounds, p.exercises.map(({ id, ...rest }) => rest), newName);
       }
     });
     saveProgramFolders(newMapping);
@@ -158,12 +163,18 @@ export function ProgramsView({
       delete newMapping[programId];
     }
     saveProgramFolders(newMapping);
+
+    const program = programs.find((p) => p.id === programId);
+    if (program) {
+      onUpdateProgram(program.id, program.name, program.description || '', program.daysOfWeek, program.workoutStyle, program.timeLimit, program.targetRounds, program.exercises.map(({ id, ...rest }) => rest), folderName);
+    }
   };
 
   const filteredPrograms = programs.filter(p => {
+    const pFolder = p.folder || programFolders[p.id];
     if (activeFolder === '전체') return true;
-    if (activeFolder === '미분류') return !programFolders[p.id];
-    return programFolders[p.id] === activeFolder;
+    if (activeFolder === '미분류') return !pFolder;
+    return pFolder === activeFolder;
   });
 
   const toggleHideTemplate = (name: string) => {
@@ -336,12 +347,14 @@ export function ProgramsView({
     if (!name.trim()) return;
     if (editingId) {
       if (window.confirm('프로그램을 이대로 수정하시겠습니까?')) {
-        onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
+        const editingProgram = programs.find((p) => p.id === editingId);
+        const folder = editingProgram?.folder || programFolders[editingId] || null;
+        onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises, folder);
       } else {
         return; // 수정 취소
       }
     } else {
-      onCreateProgram(name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises);
+      onCreateProgram(name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises, activeFolder !== '전체' && activeFolder !== '미분류' ? activeFolder : null);
     }
     closeDialog();
   };
@@ -737,7 +750,7 @@ export function ProgramsView({
         >
           전체
         </button>
-        {folders.map(folder => (
+        {activeAllFolders.map(folder => (
           <button
             key={folder}
             onClick={() => setActiveFolder(folder)}
@@ -782,10 +795,10 @@ export function ProgramsView({
             </div>
 
             <div className="space-y-2 mt-4">
-              {folders.length === 0 && (
+              {activeAllFolders.length === 0 && (
                 <p className="text-sm text-center text-muted-foreground py-4 bg-secondary/20 rounded-xl">생성된 폴더가 없습니다</p>
               )}
-              {folders.map(folder => (
+              {activeAllFolders.map(folder => (
                 <div key={folder} className="flex items-center justify-between px-3 py-2 bg-secondary/40 border border-border/40 rounded-xl">
                   {editingFolder === folder ? (
                     <div className="flex items-center gap-2 flex-1 mr-2">
@@ -875,15 +888,15 @@ export function ProgramsView({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleMoveToFolder(program.id, null)}
-                          className={!programFolders[program.id] ? 'bg-primary/10 text-primary font-medium' : ''}
+                          className={!(program.folder || programFolders[program.id]) ? 'bg-primary/10 text-primary font-medium' : ''}
                         >
                           미분류
                         </DropdownMenuItem>
-                        {folders.map(folder => (
+                        {activeAllFolders.map(folder => (
                           <DropdownMenuItem
                             key={folder}
                             onClick={() => handleMoveToFolder(program.id, folder)}
-                            className={programFolders[program.id] === folder ? 'bg-primary/10 text-primary font-medium' : ''}
+                            className={(program.folder || programFolders[program.id]) === folder ? 'bg-primary/10 text-primary font-medium' : ''}
                           >
                             <Folder className="w-3.5 h-3.5 mr-2" />
                             {folder}
@@ -899,7 +912,8 @@ export function ProgramsView({
                       program.workoutStyle,
                       program.timeLimit,
                       program.targetRounds,
-                      program.exercises.map(({ id, ...rest }) => rest)
+                      program.exercises.map(({ id, ...rest }) => rest),
+                      program.folder || programFolders[program.id] || null
                     )}>
                       <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                     </Button>
