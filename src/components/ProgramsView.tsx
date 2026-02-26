@@ -771,9 +771,12 @@ export function ProgramsView({
               <Input
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="새 폹더 이름"
+                placeholder="새 폴더 이름"
                 className="h-9 rounded-xl flex-1"
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAddFolder(); }}
+                onKeyDown={(e) => {
+                  if (e.nativeEvent.isComposing) return;
+                  if (e.key === 'Enter') handleAddFolder();
+                }}
               />
               <Button size="sm" onClick={handleAddFolder} className="h-9 rounded-xl whitespace-nowrap px-4">추가</Button>
             </div>
@@ -791,7 +794,11 @@ export function ProgramsView({
                         value={editFolderName}
                         onChange={(e) => setEditFolderName(e.target.value)}
                         className="h-7 text-sm px-2 flex-1"
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder(folder); if (e.key === 'Escape') setEditingFolder(null); }}
+                        onKeyDown={(e) => {
+                          if (e.nativeEvent.isComposing) return;
+                          if (e.key === 'Enter') handleRenameFolder(folder);
+                          if (e.key === 'Escape') setEditingFolder(null);
+                        }}
                         autoFocus
                       />
                       <Button variant="ghost" size="icon" className="w-7 h-7 shrink-0 text-primary" onClick={() => handleRenameFolder(folder)}>
