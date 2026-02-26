@@ -66,7 +66,7 @@ export function WorkoutView({
             <Play className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-2">오늘의 운동</h2>
-          <p className="text-muted-foreground">새로운 운동을 시작해보세요!</p>
+          <p className="text-muted-foreground break-keep">새로운 운동을 시작해보세요!</p>
         </div>
         <Button type="button" variant="glow" size="lg" onClick={onStartWorkout}>
           <Play className="w-5 h-5" />

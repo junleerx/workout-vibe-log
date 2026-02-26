@@ -154,7 +154,7 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory }:
                 <h2 className="text-2xl font-bold">
                     {selectedMember?.name || '회원'}님, 안녕하세요! 👋
                 </h2>
-                <p className="text-muted-foreground text-sm mt-1">오늘도 좋은 운동 되세요</p>
+                <p className="text-muted-foreground text-sm mt-1 break-keep">오늘도 좋은 운동 되세요</p>
             </div>
 
             {/* ─── stat cards ─── */}

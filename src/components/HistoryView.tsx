@@ -63,7 +63,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
             <Calendar className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-2">운동 기록이 없습니다</h2>
-          <p className="text-muted-foreground">첫 운동을 시작해보세요!</p>
+          <p className="text-muted-foreground break-keep">첫 운동을 시작해보세요!</p>
         </div>
       </div>
     );

@@ -84,7 +84,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                 <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
                     AI 장기 프로그램 생성
                 </h2>
-                <p className="text-sm text-muted-foreground">목표에 맞는 다주간(Multi-week) 훈련 계획을 AI가 자동으로 설계합니다.</p>
+                <p className="text-sm text-muted-foreground break-keep">목표에 맞는 다주간(Multi-week) 훈련 계획을 AI가 자동으로 설계합니다.</p>
             </div>
 
             <div className="space-y-6">

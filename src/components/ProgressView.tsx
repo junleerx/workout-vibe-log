@@ -144,7 +144,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
             <Dumbbell className="w-12 h-12 text-primary" />
           </div>
           <h2 className="text-2xl font-bold mb-2">진행 상황 없음</h2>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground break-keep">
             {selectedMember?.name || '회원'}님의 운동 기록이 없습니다.
           </p>
         </div>

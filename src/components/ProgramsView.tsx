@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy } from 'lucide-react';
+import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy, Folder, FolderPlus, FolderOpen, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
+
 import { WorkoutProgram, ProgramExercise, DAYS_OF_WEEK } from '@/types/program';
 import { exerciseTemplates } from '@/data/exercises';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
@@ -71,6 +73,67 @@ export function ProgramsView({
     try { return JSON.parse(localStorage.getItem('hidden_templates') || '[]'); } catch { return []; }
   });
   const [managetab, setManagetab] = useState<'custom' | 'builtin'>('custom');
+
+  // 폴더 관리 상태
+  const [folders, setFolders] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('program_folders') || '[]'); } catch { return []; }
+  });
+  const [programFolders, setProgramFolders] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('program_folder_mapping') || '{}'); } catch { return {}; }
+  });
+  const [activeFolder, setActiveFolder] = useState<string>('전체');
+  const [isFolderManageOpen, setIsFolderManageOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+
+  const saveFolders = (newFolders: string[]) => {
+    setFolders(newFolders);
+    localStorage.setItem('program_folders', JSON.stringify(newFolders));
+  };
+  const saveProgramFolders = (newMapping: Record<string, string>) => {
+    setProgramFolders(newMapping);
+    localStorage.setItem('program_folder_mapping', JSON.stringify(newMapping));
+  };
+
+  const handleAddFolder = () => {
+    if (!newFolderName.trim()) return;
+    if (folders.includes(newFolderName.trim())) {
+      alert('이미 존재하는 폴더 이름입니다.');
+      return;
+    }
+    saveFolders([...folders, newFolderName.trim()]);
+    setNewFolderName('');
+  };
+
+  const handleDeleteFolder = (folderName: string) => {
+    if (window.confirm(`"${folderName}" 폴더를 삭제하시겠습니까? (안에 있는 프로그램들은 '미분류'로 이동됩니다)`)) {
+      saveFolders(folders.filter(f => f !== folderName));
+      if (activeFolder === folderName) setActiveFolder('전체');
+
+      const newMapping = { ...programFolders };
+      Object.keys(newMapping).forEach(key => {
+        if (newMapping[key] === folderName) {
+          delete newMapping[key];
+        }
+      });
+      saveProgramFolders(newMapping);
+    }
+  };
+
+  const handleMoveToFolder = (programId: string, folderName: string | null) => {
+    const newMapping = { ...programFolders };
+    if (folderName) {
+      newMapping[programId] = folderName;
+    } else {
+      delete newMapping[programId];
+    }
+    saveProgramFolders(newMapping);
+  };
+
+  const filteredPrograms = programs.filter(p => {
+    if (activeFolder === '전체') return true;
+    if (activeFolder === '미분류') return !programFolders[p.id];
+    return programFolders[p.id] === activeFolder;
+  });
 
   const toggleHideTemplate = (name: string) => {
     setHiddenTemplates((prev) => {
@@ -276,7 +339,7 @@ export function ProgramsView({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">운동 프로그램</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">루틴을 만들고 요일별로 관리하세요</p>
+          <p className="text-sm text-muted-foreground mt-0.5 break-keep">루틴을 만들고 요일별로 관리하세요</p>
         </div>
         <div className="flex gap-2">
           {/* Manage Exercise List */}
@@ -635,22 +698,91 @@ export function ProgramsView({
         </div>
       </div>
 
+      {/* Folders UI */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <button
+          onClick={() => setActiveFolder('전체')}
+          className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${activeFolder === '전체' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}`}
+        >
+          전체
+        </button>
+        {folders.map(folder => (
+          <button
+            key={folder}
+            onClick={() => setActiveFolder(folder)}
+            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${activeFolder === folder ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}`}
+          >
+            {folder}
+          </button>
+        ))}
+        <button
+          onClick={() => setActiveFolder('미분류')}
+          className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${activeFolder === '미분류' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}`}
+        >
+          미분류
+        </button>
+        <button
+          onClick={() => setIsFolderManageOpen(true)}
+          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-secondary/30 text-muted-foreground hover:bg-secondary/80 border border-dashed border-border transition-colors ml-1"
+        >
+          <FolderPlus className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Folder Management Dialog */}
+      <Dialog open={isFolderManageOpen} onOpenChange={setIsFolderManageOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>폴더 관리</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex gap-2">
+              <Input
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                placeholder="새 폹더 이름"
+                className="h-9 rounded-xl flex-1"
+                onKeyDown={(e) => { if (e.key === 'Enter') handleAddFolder(); }}
+              />
+              <Button size="sm" onClick={handleAddFolder} className="h-9 rounded-xl whitespace-nowrap px-4">추가</Button>
+            </div>
+
+            <div className="space-y-2 mt-4">
+              {folders.length === 0 && (
+                <p className="text-sm text-center text-muted-foreground py-4 bg-secondary/20 rounded-xl">생성된 폴더가 없습니다</p>
+              )}
+              {folders.map(folder => (
+                <div key={folder} className="flex items-center justify-between px-3 py-2 bg-secondary/40 border border-border/40 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Folder className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium">{folder}</span>
+                  </div>
+                  <Button variant="ghost" size="icon" className="w-7 h-7 text-destructive hover:bg-destructive/10" onClick={() => handleDeleteFolder(folder)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Empty State */}
       {
-        programs.length === 0 && (
+        filteredPrograms.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
               <Target className="w-8 h-8 text-primary" />
             </div>
             <h3 className="font-semibold mb-1">프로그램이 없습니다</h3>
-            <p className="text-sm text-muted-foreground">운동 프로그램을 만들어<br />일관된 루틴을 유지하세요</p>
+            <p className="text-sm text-muted-foreground break-keep">운동 프로그램을 만들어<br />일관된 루틴을 유지하세요</p>
           </div>
         )
       }
 
       {/* Program Cards */}
       <div className="grid gap-4">
-        {programs.map((program) => (
+        {filteredPrograms.map((program) => (
           <Card key={program.id} className="overflow-hidden border-border/30 bg-card/80 backdrop-blur-sm gradient-border hover-lift">
             <CardContent className="p-0">
               {/* Card Header */}
@@ -668,6 +800,34 @@ export function ProgramsView({
                     )}
                   </div>
                   <div className="flex gap-0.5 -mr-1">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title="폴더 이동">
+                          <FolderOpen className="w-3.5 h-3.5 text-muted-foreground" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuLabel className="text-xs">폴더 선택</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleMoveToFolder(program.id, null)}
+                          className={!programFolders[program.id] ? 'bg-primary/10 text-primary font-medium' : ''}
+                        >
+                          미분류
+                        </DropdownMenuItem>
+                        {folders.map(folder => (
+                          <DropdownMenuItem
+                            key={folder}
+                            onClick={() => handleMoveToFolder(program.id, folder)}
+                            className={programFolders[program.id] === folder ? 'bg-primary/10 text-primary font-medium' : ''}
+                          >
+                            <Folder className="w-3.5 h-3.5 mr-2" />
+                            {folder}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title="복제" onClick={() => onCreateProgram(
                       `${program.name} (복사)`,
                       program.description || '',
