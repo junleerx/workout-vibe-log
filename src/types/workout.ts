@@ -19,6 +19,7 @@ export interface Exercise {
     groupRestTime?: number; // 라운드 간 휴식 시간 (초)
     targetDistance?: number; // 목표 거리 (m)
     targetTime?: number;     // 목표 시간 (초)
+    aiRecommendation?: string; // AI가 제안해 준 점진적 과부하 코멘트
 }
 
 export interface Workout {

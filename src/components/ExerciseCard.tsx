@@ -1,7 +1,7 @@
 import { Exercise, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
 import { useState } from 'react';
-import { Plus, Trash2, Check, MapPin, Clock, Thermometer, Flame } from 'lucide-react';
+import { Plus, Trash2, Check, MapPin, Clock, Thermometer, Flame, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { PlateCalculator } from './PlateCalculator';
@@ -52,6 +52,12 @@ export function ExerciseCard({
               </span>
             )}
           </div>
+          {exercise.aiRecommendation && (
+            <div className="mt-2 text-xs font-medium text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg flex items-start gap-1.5 leading-snug">
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
+              <span>{exercise.aiRecommendation}</span>
+            </div>
+          )}
         </div>
         <Button
           variant="ghost"

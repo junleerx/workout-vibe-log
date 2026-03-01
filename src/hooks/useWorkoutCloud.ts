@@ -233,7 +233,8 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
             });
 
             if (aiRec?.description) {
-              // AI의 코칭 팁이 있다면 (나중에 UI에 띄워줄 수도 있음, 여기선 콘솔이나 toast로 대체)
+              // AI의 코칭 팁이 있다면
+              ex.aiRecommendation = aiRec.description;
               console.log(`[AI Coaching for ${ex.name}]: ${aiRec.description}`);
             }
           }
