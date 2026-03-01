@@ -23,16 +23,16 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
     // Generate days for the grid
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(monthStart);
-    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday start
-    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 0 }); // Sunday start
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
     const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
-    const weekDays = ['월', '화', '수', '목', '금', '토', '일'];
+    const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
-    // 날짜 밀림을 방지하기 위해 UTC 스트링에서 T이전의 날짜 부분만 뽑아 로컬 Date로 만들 거나 안전하게 처리
+    // 날짜 밀림을 방지하기 위해 '-'로 분리하여 로컬 Date를 생성합니다
     const getLocalDate = (isoString: string) => {
-        const d = new Date(isoString);
-        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const parts = isoString.split('T')[0].split('-');
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
     };
 
     const selectedDayWorkouts = useMemo(() => {

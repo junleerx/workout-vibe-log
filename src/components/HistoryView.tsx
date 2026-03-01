@@ -16,8 +16,8 @@ interface HistoryViewProps {
 
 // UTC 날짜 문자열을 안전하게 로컬 날짜로 변환하는 함수
 const getLocalDate = (isoString: string) => {
-  const d = new Date(isoString);
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const parts = isoString.split('T')[0].split('-');
+  return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
 };
 
 function formatDuration(seconds: number): string {

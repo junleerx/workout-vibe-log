@@ -4,6 +4,7 @@ import { Workout, Exercise, WorkoutSet } from '@/types/workout';
 import { ProgramExercise } from '@/types/program';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { format } from 'date-fns';
 
 interface UseWorkoutCloudOptions {
   memberId?: string | null;
@@ -359,7 +360,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
         .from('workouts')
         .insert({
           user_id: user.id,
-          date: currentWorkout.date.split('T')[0],
+          date: format(new Date(currentWorkout.date), 'yyyy-MM-dd'),
           duration,
           total_volume: totalVolume,
           total_sets: totalSets,
