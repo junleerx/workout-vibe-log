@@ -186,7 +186,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       }
 
       if (previousWeights.size > 0 && window.confirm('이전 운동 기록이 있습니다.\n저번 무게/횟수를 불러오시겠습니까?')) {
-        const applyOverload = window.confirm('💡 전문 코치 AI에게 점진적 과부하 추천을 받을까요?\n\n최근 기록(무게/횟수/RIR/컨디션)을 분석하여\n각 운동별 특성에 맞게 가장 완벽한 파운드(lbs)/횟수 처방을 받아옵니다.');
+        const applyOverload = window.confirm('💡 전문 코치인 아놀드AI에게 점진적 과부하 추천을 받을까요?\n\n최근 기록(무게/횟수/RIR/컨디션)을 분석하여\n각 운동별 특성에 맞게 가장 완벽한 무게/횟수 처방을 받아옵니다.');
 
         let aiRecommendations: any[] = [];
         if (applyOverload) {
