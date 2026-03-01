@@ -98,10 +98,10 @@ const Index = () => {
           <TabsContent value="ai" className="mt-0 outline-none">
             <TabTransition value="ai" activeTab={activeTab}>
               <AIWorkoutView
-                onSaveAsProgram={(name, desc, days, style, limit, rounds, exs) => createProgram(name, desc, days, style, limit, rounds, exs)}
+                onSaveAsProgram={(name, desc, days, style, limit, rounds, exs, note) => createProgram(name, desc, days, style, limit, rounds, exs, null, note)}
                 onSaveMultiplePrograms={async (multi) => {
                   for (const p of multi) {
-                    await createProgram(p.name, p.description, p.daysOfWeek, undefined, undefined, undefined, p.exercises);
+                    await createProgram(p.name, p.description, p.daysOfWeek, undefined, undefined, undefined, p.exercises, null, p.note);
                   }
                 }}
                 onStartWorkout={(exs) => { startWorkoutFromProgram(selectedMember?.id || '', exs); setActiveTab('workout'); }}

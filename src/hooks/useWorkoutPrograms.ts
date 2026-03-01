@@ -47,10 +47,20 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
 
           let parsedDesc = program.description || '';
           let folder: string | null = null;
-          const match = parsedDesc.match(/^\[📁(.*?)\]\s*(.*)$/us);
-          if (match) {
-            folder = match[1];
-            parsedDesc = match[2];
+          let note: string | null = null;
+
+          // 1. 노트 추출 (마커가 뒤에 있을 경우)
+          const noteMatch = parsedDesc.match(/(.*?)(?:\[📝\](.*))?$/us);
+          if (noteMatch && noteMatch[2]) {
+            parsedDesc = noteMatch[1].trim();
+            note = noteMatch[2].trim();
+          }
+
+          // 2. 폴더 추출
+          const folderMatch = parsedDesc.match(/^\[📁(.*?)\]\s*(.*)$/us);
+          if (folderMatch) {
+            folder = folderMatch[1];
+            parsedDesc = folderMatch[2];
           }
 
           return {
@@ -58,6 +68,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
             name: program.name,
             description: parsedDesc || undefined,
             folder: folder,
+            note: note || undefined,
             daysOfWeek: program.days_of_week || [],
             workoutStyle: (program.workout_style as WorkoutProgram['workoutStyle']) || undefined,
             timeLimit: program.time_limit || undefined,
@@ -108,12 +119,20 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     timeLimit: number | undefined,
     targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[],
-    folder: string | null = null
+    folder: string | null = null,
+    note?: string | null
   ) => {
     if (!user) return;
 
     try {
-      const dbDescription = folder ? `[📁${folder}] ${description || ''}`.trim() : (description || null);
+      let dbDescription = description || '';
+      if (folder) {
+        dbDescription = `[📁${folder}] ${dbDescription}`;
+      }
+      if (note) {
+        dbDescription = `${dbDescription} [📝] ${note}`;
+      }
+      dbDescription = dbDescription.trim() || null;
 
       const { data: programData, error: programError } = await supabase
         .from('workout_programs')
@@ -180,12 +199,20 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     timeLimit: number | undefined,
     targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[],
-    folder: string | null = null
+    folder: string | null = null,
+    note?: string | null
   ) => {
     if (!user) return;
 
     try {
-      const dbDescription = folder ? `[📁${folder}] ${description || ''}`.trim() : (description || null);
+      let dbDescription = description || '';
+      if (folder) {
+        dbDescription = `[📁${folder}] ${dbDescription}`;
+      }
+      if (note) {
+        dbDescription = `${dbDescription} [📝] ${note}`;
+      }
+      dbDescription = dbDescription.trim() || null;
 
       const { error: programError } = await supabase
         .from('workout_programs')

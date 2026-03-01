@@ -26,7 +26,8 @@ interface AIWorkoutViewProps {
     workoutStyle: string | undefined,
     timeLimit: number | undefined,
     targetRounds: number | undefined,
-    exercises: Omit<ProgramExercise, 'id'>[]
+    exercises: Omit<ProgramExercise, 'id'>[],
+    note?: string | null
   ) => void;
   onSaveMultiplePrograms: (
     programs: {
@@ -34,6 +35,7 @@ interface AIWorkoutViewProps {
       description: string;
       daysOfWeek: string[];
       exercises: Omit<ProgramExercise, 'id'>[];
+      note?: string | null;
     }[]
   ) => void;
   onStartWorkout: (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number }[]) => void;

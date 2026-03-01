@@ -22,7 +22,8 @@ interface ProgramsViewProps {
     timeLimit: number | undefined,
     targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[],
-    folder?: string | null
+    folder?: string | null,
+    note?: string | null
   ) => void;
   onUpdateProgram: (
     id: string,
@@ -33,7 +34,8 @@ interface ProgramsViewProps {
     timeLimit: number | undefined,
     targetRounds: number | undefined,
     exercises: Omit<ProgramExercise, 'id'>[],
-    folder?: string | null
+    folder?: string | null,
+    note?: string | null
   ) => void;
   onDeleteProgram: (programId: string) => void;
   onStartFromProgram: (exercises: ProgramExercise[]) => void;
@@ -57,6 +59,7 @@ export function ProgramsView({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [note, setNote] = useState('');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [workoutStyle, setWorkoutStyle] = useState<'classic' | 'amrap' | 'emom' | 'rft' | undefined>(undefined);
   const [timeLimit, setTimeLimit] = useState<number | undefined>(undefined);
@@ -122,7 +125,7 @@ export function ProgramsView({
       programs.forEach(p => {
         if ((p.folder || newMapping[p.id]) === folderName) {
           delete newMapping[p.id];
-          onUpdateProgram(p.id, p.name, p.description || '', p.daysOfWeek, p.workoutStyle, p.timeLimit, p.targetRounds, p.exercises.map(({ id, ...rest }) => rest), null);
+          onUpdateProgram(p.id, p.name, p.description || '', p.daysOfWeek, p.workoutStyle, p.timeLimit, p.targetRounds, p.exercises.map(({ id, ...rest }) => rest), null, p.note);
         }
       });
       saveProgramFolders(newMapping);
@@ -148,7 +151,7 @@ export function ProgramsView({
     programs.forEach(p => {
       if ((p.folder || newMapping[p.id]) === oldName) {
         newMapping[p.id] = newName;
-        onUpdateProgram(p.id, p.name, p.description || '', p.daysOfWeek, p.workoutStyle, p.timeLimit, p.targetRounds, p.exercises.map(({ id, ...rest }) => rest), newName);
+        onUpdateProgram(p.id, p.name, p.description || '', p.daysOfWeek, p.workoutStyle, p.timeLimit, p.targetRounds, p.exercises.map(({ id, ...rest }) => rest), newName, p.note);
       }
     });
     saveProgramFolders(newMapping);
@@ -166,7 +169,7 @@ export function ProgramsView({
 
     const program = programs.find((p) => p.id === programId);
     if (program) {
-      onUpdateProgram(program.id, program.name, program.description || '', program.daysOfWeek, program.workoutStyle, program.timeLimit, program.targetRounds, program.exercises.map(({ id, ...rest }) => rest), folderName);
+      onUpdateProgram(program.id, program.name, program.description || '', program.daysOfWeek, program.workoutStyle, program.timeLimit, program.targetRounds, program.exercises.map(({ id, ...rest }) => rest), folderName, program.note);
     }
   };
 
@@ -335,6 +338,7 @@ export function ProgramsView({
     setEditingId(program.id);
     setName(program.name);
     setDescription(program.description || '');
+    setNote(program.note || '');
     setSelectedDays(program.daysOfWeek);
     setWorkoutStyle(program.workoutStyle as any);
     setTimeLimit(program.timeLimit);
@@ -349,12 +353,12 @@ export function ProgramsView({
       if (window.confirm('프로그램을 이대로 수정하시겠습니까?')) {
         const editingProgram = programs.find((p) => p.id === editingId);
         const folder = editingProgram?.folder || programFolders[editingId] || null;
-        onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises, folder);
+        onUpdateProgram(editingId, name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises, folder, note);
       } else {
         return; // 수정 취소
       }
     } else {
-      onCreateProgram(name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises, activeFolder !== '전체' && activeFolder !== '미분류' ? activeFolder : null);
+      onCreateProgram(name, description, selectedDays, workoutStyle, timeLimit, targetRounds, programExercises, activeFolder !== '전체' && activeFolder !== '미분류' ? activeFolder : null, note);
     }
     closeDialog();
   };
@@ -364,6 +368,7 @@ export function ProgramsView({
     setEditingId(null);
     setName('');
     setDescription('');
+    setNote('');
     setSelectedDays([]);
     setWorkoutStyle(undefined);
     setTimeLimit(undefined);
@@ -452,15 +457,10 @@ export function ProgramsView({
               </DialogHeader>
               <div className="space-y-5 py-2">
                 {/* Name */}
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-muted-foreground">프로그램 이름</label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 월/수 상체 루틴" className="rounded-xl" />
-                </div>
-
-                {/* Description */}
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-muted-foreground">설명 (선택)</label>
-                  <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="프로그램에 대한 메모..." className="rounded-xl resize-none" rows={2} />
+                <div className="space-y-4">
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="프로그램 이름 (예: 데스캠프 1주차)" className="h-10 text-base" />
+                  <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="간단한 설명 (선택사항)" className="h-20 resize-none text-sm" />
+                  <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="이 프로그램에 대한 개인적인 메모나 팁을 적어주세요 (선택사항, 팝업/화면에 표시됨)" className="h-20 resize-none text-sm bg-secondary/30" />
                 </div>
 
                 {/* Days */}
@@ -913,7 +913,8 @@ export function ProgramsView({
                       program.timeLimit,
                       program.targetRounds,
                       program.exercises.map(({ id, ...rest }) => rest),
-                      program.folder || programFolders[program.id] || null
+                      program.folder || programFolders[program.id] || null,
+                      program.note
                     )}>
                       <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                     </Button>

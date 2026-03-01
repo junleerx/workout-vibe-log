@@ -27,6 +27,7 @@ export interface WorkoutProgram {
         name: string;
         description?: string;
         folder?: string | null;
+        note?: string;
         daysOfWeek: string[];
         workoutStyle?: 'classic' | 'amrap' | 'emom' | 'rft';
         timeLimit?: number; // AMRAP, EMOM용 제한 시간 (분)
