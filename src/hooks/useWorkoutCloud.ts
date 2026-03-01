@@ -101,7 +101,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     setCurrentWorkout(newWorkout);
   };
 
-  const startWorkoutFromProgram = (selectedMemberId: string, exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number; groupId?: string; groupRounds?: number; groupRestTime?: number }[]) => {
+  const startWorkoutFromProgram = async (selectedMemberId: string, exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number; groupId?: string; groupRounds?: number; groupRestTime?: number }[]) => {
     const newExercises: Exercise[] = [];
 
     // groupId별로 그룹핑해서 각 그룹을 groupRounds만큼 반복 확장 (서킷/크로스핏 블록 처리)
@@ -170,42 +170,71 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     };
 
     // ─── 이전 기록 불러오기 ───
-    // workouts 상태에서 같은 운동 이름의 최근 기록을 탐색
     if (workouts.length > 0) {
-      const previousWeights = new Map<string, { weight: number; reps: number }[]>();
+      const previousWeights = new Map<string, { weight: number; reps: number; completed?: boolean; rir?: number; isPainful?: boolean }[]>();
       const uniqueNames = [...new Set(newExercises.map(e => e.name))];
 
       for (const name of uniqueNames) {
         for (const w of workouts) {
           const match = w.exercises.find(e => e.name === name);
           if (match && match.sets.length > 0) {
-            previousWeights.set(name, match.sets.map(s => ({ weight: s.weight, reps: s.reps })));
+            previousWeights.set(name, match.sets.map(s => ({ weight: s.weight, reps: s.reps, completed: s.completed, rir: s.rir, isPainful: s.isPainful })));
             break; // 가장 최근 것만
           }
         }
       }
 
       if (previousWeights.size > 0 && window.confirm('이전 운동 기록이 있습니다.\n저번 무게/횟수를 불러오시겠습니까?')) {
-        const applyOverload = window.confirm('💡 점진적 과부하(Progressive Overload)를 적용할까요?\n\n이전 기록에서 모든 세트의 무게를 +2.5kg씩 올려서 오늘의 목표치를 설정합니다.\n(취소 시 저번과 동일한 무게로 설정됩니다)');
+        const applyOverload = window.confirm('💡 전문 코치 AI에게 점진적 과부하 추천을 받을까요?\n\n최근 기록(무게/횟수/RIR/컨디션)을 분석하여\n각 운동별 특성에 맞게 가장 완벽한 파운드(lbs)/횟수 처방을 받아옵니다.');
+
+        let aiRecommendations: any[] = [];
+        if (applyOverload) {
+          toast({ title: 'AI 분석 중...', description: '최근 기록을 기반으로 최적의 훈련 중량을 10초 내로 계산합니다.', duration: 5000 });
+          try {
+            const payload = Array.from(previousWeights.entries()).map(([name, sets]) => ({ exerciseName: name, sets }));
+            const { data, error } = await supabase.functions.invoke('generate-overload', {
+              body: { exercises: payload }
+            });
+            if (error) throw error;
+            aiRecommendations = data || [];
+            toast({ title: '분석 완료', description: 'AI의 점진적 과부하 처방이 반영되었습니다!' });
+          } catch (e) {
+            console.error('AI overload failed', e);
+            toast({ title: 'AI 분석 실패', description: '일시적인 오류로 이전 무게를 그대로 적용합니다.', variant: 'destructive' });
+          }
+        }
 
         for (const ex of newWorkout.exercises) {
           const prev = previousWeights.get(ex.name);
+          const aiRec = aiRecommendations.find(r => r.exerciseName === ex.name);
+
           if (prev) {
             ex.previousSets = prev.map(p => ({
               id: crypto.randomUUID(),
               weight: p.weight,
               reps: p.reps,
               completed: false,
+              rir: p.rir,
+              isPainful: p.isPainful
             }));
+
             ex.sets = ex.sets.map((set, i) => {
-              const prevWeight = prev[i]?.weight ?? set.weight;
-              const prevReps = prev[i]?.reps ?? set.reps;
+              // AI 추천이 해당 세트 인덱스에 존재하면 그 값을, 아니면 이전 기록을 사용
+              const recommendedSet = aiRec?.sets?.[i];
+              const prevWeight = recommendedSet?.weight ?? prev[i]?.weight ?? set.weight;
+              const prevReps = recommendedSet?.reps ?? prev[i]?.reps ?? set.reps;
+
               return {
                 ...set,
-                weight: prevWeight > 0 && applyOverload ? prevWeight + 2.5 : prevWeight,
+                weight: prevWeight,
                 reps: prevReps,
               };
             });
+
+            if (aiRec?.description) {
+              // AI의 코칭 팁이 있다면 (나중에 UI에 띄워줄 수도 있음, 여기선 콘솔이나 toast로 대체)
+              console.log(`[AI Coaching for ${ex.name}]: ${aiRec.description}`);
+            }
           }
         }
       }

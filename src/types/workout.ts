@@ -3,6 +3,8 @@ export interface WorkoutSet {
     reps: number;
     weight: number;
     completed: boolean;
+    rir?: number;
+    isPainful?: boolean;
 }
 
 export interface Exercise {

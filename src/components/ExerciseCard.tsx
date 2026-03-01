@@ -1,6 +1,7 @@
 import { Exercise, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Plus, Trash2, Check, MapPin, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, Trash2, Check, MapPin, Clock, Thermometer, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { PlateCalculator } from './PlateCalculator';
@@ -108,8 +109,21 @@ export function ExerciseCard({
                 placeholder="0"
               />
             </div>
-            <div className="col-span-2 flex gap-1">
-              {/* 체크 버튼 클릭 시 completed 상태를 반전시켜 부모에게 전달합니다 */}
+            <div className="col-span-2 flex gap-1 items-center justify-end">
+              <button
+                type="button"
+                onClick={() => onUpdateSet(set.id, {
+                  rir: set.rir === undefined ? 2 : undefined, // 임시 토글용
+                })}
+                className={`p-1.5 rounded-lg transition-all ${set.rir !== undefined || set.isPainful
+                  ? 'bg-orange-500/20 text-orange-500'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-orange-500/20'
+                  }`}
+                title="컨디션(RIR/통증) 기록"
+              >
+                <Thermometer className="w-4 h-4" />
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -133,6 +147,36 @@ export function ExerciseCard({
                 </button>
               )}
             </div>
+
+            {/* 컨디션 기록 확장 영역 */}
+            {(set.rir !== undefined || set.isPainful) && (
+              <div className="col-span-12 mt-1 bg-black/20 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 border border-orange-500/20">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">RIR (여유 횟수)</span>
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3, 4].map(r => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => onUpdateSet(set.id, { rir: r })}
+                        className={`w-6 h-6 rounded-md text-xs font-bold transition-all ${set.rir === r ? 'bg-orange-500 text-white' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}`}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onUpdateSet(set.id, { isPainful: !set.isPainful })}
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-bold transition-all ${set.isPainful ? 'bg-red-500/20 text-red-500 border border-red-500/50' : 'bg-secondary/50 text-muted-foreground hover:bg-red-500/10'}`}
+                >
+                  <Flame className="w-3 h-3" />
+                  <span>통증/자세 무너짐</span>
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
