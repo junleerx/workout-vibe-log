@@ -14,6 +14,12 @@ interface HistoryViewProps {
   onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
 }
 
+// UTC 날짜 문자열을 안전하게 로컬 날짜로 변환하는 함수
+const getLocalDate = (isoString: string) => {
+  const d = new Date(isoString);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+};
+
 function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -103,7 +109,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="font-semibold text-sm text-primary">
-                    {format(new Date(workout.date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })}
+                    {format(getLocalDate(workout.date), 'yyyy년 M월 d일 (EEEE)', { locale: ko })}
                   </p>
                   <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                     {workout.duration && (

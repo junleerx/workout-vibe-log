@@ -27,10 +27,16 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
     const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
     const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
-    const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    const weekDays = ['월', '화', '수', '목', '금', '토', '일'];
+
+    // 날짜 밀림을 방지하기 위해 UTC 스트링에서 T이전의 날짜 부분만 뽑아 로컬 Date로 만들 거나 안전하게 처리
+    const getLocalDate = (isoString: string) => {
+        const d = new Date(isoString);
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    };
 
     const selectedDayWorkouts = useMemo(() => {
-        return workouts.filter(w => isSameDay(parseISO(w.date), selectedDate));
+        return workouts.filter(w => isSameDay(getLocalDate(w.date), selectedDate));
     }, [workouts, selectedDate]);
 
     function formatDurationShort(seconds: number): string {
@@ -65,11 +71,18 @@ export function DashboardCalendar({ workouts, onNavigateToHistory }: DashboardCa
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-card rounded-3xl p-5 card-shadow border border-border/30"
             >
+                <div className="grid grid-cols-7 gap-y-4 gap-x-2 text-center mb-2">
+                    {weekDays.map(day => (
+                        <div key={day} className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            {day}
+                        </div>
+                    ))}
+                </div>
                 <div className="grid grid-cols-7 gap-y-4 gap-x-2">
                     {calendarDays.map((day, i) => {
                         const isSelected = isSameDay(day, selectedDate);
                         const isCurrentMonth = isSameMonth(day, monthStart);
-                        const hasWorkout = workouts.some(w => isSameDay(parseISO(w.date), day));
+                        const hasWorkout = workouts.some(w => isSameDay(getLocalDate(w.date), day));
 
                         return (
                             <div key={day.toString()} className="flex justify-center relative">
