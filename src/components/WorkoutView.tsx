@@ -38,6 +38,7 @@ export function WorkoutView({
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [activeRestTime, setActiveRestTime] = useState(90);
+  const [timerKey, setTimerKey] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const { unit, toDisplay } = useWeightUnit();
 
@@ -167,8 +168,18 @@ export function WorkoutView({
               <ExerciseCard
                 exercise={exercise}
                 onAddSet={() => onAddSet(exercise.id)}
-                onRemoveSet={(setId) => onRemoveSet(exercise.id, setId)}
-                onUpdateSet={(setId, updates) => handleUpdateSet(exercise.id, setId, updates)}
+                onRemoveSet={(setId: string) => onRemoveSet(exercise.id, setId)}
+                onUpdateSet={(setId: string, updates: Partial<WorkoutSet>) => {
+                  if (updates.completed === true) {
+                    const currentSet = exercise.sets.find(s => s.id === setId);
+                    if (currentSet && !currentSet.completed) {
+                      setActiveRestTime(exercise.groupRestTime || 60);
+                      setTimerKey(prev => prev + 1);
+                      setShowTimer(true);
+                    }
+                  }
+                  onUpdateSet(exercise.id, setId, updates);
+                }}
                 onRemoveExercise={() => onRemoveExercise(exercise.id)}
               />
 
@@ -181,6 +192,7 @@ export function WorkoutView({
                     className="rounded-full shadow-sm border-orange-500/30 text-orange-600 bg-orange-500/5 hover:bg-orange-500/10 hover:text-orange-700 font-bold px-6 h-10"
                     onClick={() => {
                       setActiveRestTime(exercise.groupRestTime!);
+                      setTimerKey(prev => prev + 1);
                       setShowTimer(true);
                     }}
                   >
@@ -236,6 +248,7 @@ export function WorkoutView({
 
       {showTimer && (
         <RestTimer
+          key={timerKey}
           initialSeconds={activeRestTime}
           onClose={() => setShowTimer(false)}
         />

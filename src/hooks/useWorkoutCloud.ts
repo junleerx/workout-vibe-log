@@ -186,6 +186,8 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       }
 
       if (previousWeights.size > 0 && window.confirm('이전 운동 기록이 있습니다.\n저번 무게/횟수를 불러오시겠습니까?')) {
+        const applyOverload = window.confirm('💡 점진적 과부하(Progressive Overload)를 적용할까요?\n\n이전 기록에서 모든 세트의 무게를 +2.5kg씩 올려서 오늘의 목표치를 설정합니다.\n(취소 시 저번과 동일한 무게로 설정됩니다)');
+
         for (const ex of newWorkout.exercises) {
           const prev = previousWeights.get(ex.name);
           if (prev) {
@@ -195,11 +197,15 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
               reps: p.reps,
               completed: false,
             }));
-            ex.sets = ex.sets.map((set, i) => ({
-              ...set,
-              weight: prev[i]?.weight ?? set.weight,
-              reps: prev[i]?.reps ?? set.reps,
-            }));
+            ex.sets = ex.sets.map((set, i) => {
+              const prevWeight = prev[i]?.weight ?? set.weight;
+              const prevReps = prev[i]?.reps ?? set.reps;
+              return {
+                ...set,
+                weight: prevWeight > 0 && applyOverload ? prevWeight + 2.5 : prevWeight,
+                reps: prevReps,
+              };
+            });
           }
         }
       }
