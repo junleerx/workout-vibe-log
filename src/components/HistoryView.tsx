@@ -265,57 +265,57 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
           </div>
         );
       })}
-    </div>
 
-    {/* Delete Confirmation Dialog */}
-    <AlertDialog open={!!deleteConfirmWorkout} onOpenChange={(open) => !open && setDeleteConfirmWorkout(null)}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>운동 기록 삭제</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <div>
-              <strong>{deleteConfirmWorkout && format(new Date(deleteConfirmWorkout.date), 'yyyy년 M월 d일', { locale: ko })}</strong>의 운동 기록을 삭제하시겠습니까?
-            </div>
-            {deleteConfirmWorkout && deleteConfirmWorkout.exercises.length > 0 && (
-              <div className="text-xs text-muted-foreground">
-                <div className="font-semibold mt-2">포함된 운동:</div>
-                <ul className="list-disc list-inside">
-                  {deleteConfirmWorkout.exercises.slice(0, 3).map((ex) => (
-                    <li key={ex.id}>{ex.name}</li>
-                  ))}
-                  {deleteConfirmWorkout.exercises.length > 3 && (
-                    <li>외 {deleteConfirmWorkout.exercises.length - 3}개</li>
-                  )}
-                </ul>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmWorkout} onOpenChange={(open) => !open && setDeleteConfirmWorkout(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>운동 기록 삭제</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <div>
+                <strong>{deleteConfirmWorkout && format(new Date(deleteConfirmWorkout.date), 'yyyy년 M월 d일', { locale: ko })}</strong>의 운동 기록을 삭제하시겠습니까?
               </div>
-            )}
-            <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 p-2 rounded">
-              💡 삭제 후 8초 이내에 되돌리기를 클릭하면 복구할 수 있습니다.
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              if (deleteConfirmWorkout) {
-                onDeleteWorkout(deleteConfirmWorkout.id);
-                setDeleteConfirmWorkout(null);
-              }
-            }}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            삭제
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+              {deleteConfirmWorkout && deleteConfirmWorkout.exercises.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  <div className="font-semibold mt-2">포함된 운동:</div>
+                  <ul className="list-disc list-inside">
+                    {deleteConfirmWorkout.exercises.slice(0, 3).map((ex) => (
+                      <li key={ex.id}>{ex.name}</li>
+                    ))}
+                    {deleteConfirmWorkout.exercises.length > 3 && (
+                      <li>외 {deleteConfirmWorkout.exercises.length - 3}개</li>
+                    )}
+                  </ul>
+                </div>
+              )}
+              <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 p-2 rounded">
+                💡 삭제 후 8초 이내에 되돌리기를 클릭하면 복구할 수 있습니다.
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteConfirmWorkout) {
+                  onDeleteWorkout(deleteConfirmWorkout.id);
+                  setDeleteConfirmWorkout(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-    {/* Export Dialog */}
-    <ExportDialog
-      isOpen={exportDialogOpen}
-      onOpenChange={setExportDialogOpen}
-      workouts={workouts}
-    />
+      {/* Export Dialog */}
+      <ExportDialog
+        isOpen={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        workouts={workouts}
+      />
+    </div>
   );
 }
