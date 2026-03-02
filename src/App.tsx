@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import ProfileSelect from "./pages/ProfileSelect";
 import { MembersProvider } from "./context/MembersContext";
+import { SyncStatusBadge } from "./components/SyncStatusBadge";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <SyncStatusBadge />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

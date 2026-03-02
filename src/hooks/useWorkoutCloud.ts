@@ -430,6 +430,13 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
   const deleteWorkout = async (workoutId: string) => {
     try {
+      // Find the workout to be deleted for undo support
+      const workoutToDelete = workouts.find(w => w.id === workoutId);
+      if (!workoutToDelete) {
+        throw new Error('Workout not found');
+      }
+
+      // First, hard delete from database
       const { error } = await supabase
         .from('workouts')
         .delete()
@@ -437,11 +444,103 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
       if (error) throw error;
 
+      // Update local state immediately
       setWorkouts(workouts.filter((w) => w.id !== workoutId));
 
-      toast({
-        title: '삭제 완료',
-        description: '운동 기록이 삭제되었습니다.',
+      // Then, backup to deleted_workouts table for undo functionality
+      if (user) {
+        await supabase
+          .from('deleted_workouts')
+          .insert({
+            user_id: user.id,
+            original_workout_id: workoutId,
+            workout_data: JSON.stringify(workoutToDelete),
+            deleted_at: new Date().toISOString(),
+          });
+      }
+
+      // Show undo toast with restoration option
+      const { dismiss } = toast({
+        title: '운동 삭제됨',
+        description: `${new Date(workoutToDelete.date).toLocaleDateString('ko-KR')} 운동이 삭제되었습니다.`,
+        action: {
+          label: '되돌리기',
+          onClick: async () => {
+            // Restore from deleted_workouts
+            try {
+              // Re-add workout
+              const { error: reInsertError } = await supabase
+                .from('workouts')
+                .insert({
+                  id: workoutToDelete.id,
+                  user_id: user!.id,
+                  date: workoutToDelete.date,
+                  duration: workoutToDelete.duration || 0,
+                  member_id: workoutToDelete.memberId,
+                  total_volume: 0,
+                  total_sets: 0,
+                });
+
+              if (reInsertError) throw reInsertError;
+
+              // Re-add exercises and sets
+              for (const exercise of workoutToDelete.exercises) {
+                const { data: exData, error: exError } = await supabase
+                  .from('workout_exercises')
+                  .insert({
+                    workout_id: workoutToDelete.id,
+                    exercise_id: exercise.id,
+                    exercise_name: exercise.name,
+                    muscle_group: exercise.category,
+                  })
+                  .select()
+                  .single();
+
+                if (exError) throw exError;
+
+                if (exercise.sets.length > 0) {
+                  const setsData = exercise.sets.map((set, idx) => ({
+                    workout_exercise_id: exData.id,
+                    set_number: idx + 1,
+                    weight: set.weight,
+                    reps: set.reps,
+                    completed: set.completed,
+                  }));
+
+                  const { error: setError } = await supabase
+                    .from('exercise_sets')
+                    .insert(setsData);
+
+                  if (setError) throw setError;
+                }
+              }
+
+              // Clear from trash
+              await supabase
+                .from('deleted_workouts')
+                .delete()
+                .eq('original_workout_id', workoutId);
+
+              // Update local state
+              setWorkouts(prev => [workoutToDelete, ...prev]);
+
+              toast({
+                title: '복구 완료',
+                description: '운동이 복구되었습니다.',
+              });
+
+              dismiss();
+            } catch (error) {
+              console.error('Error restoring workout:', error);
+              toast({
+                title: '오류',
+                description: '운동을 복구하지 못했습니다.',
+                variant: 'destructive',
+              });
+            }
+          },
+        },
+        duration: 8000,
       });
     } catch (error) {
       console.error('Error deleting workout:', error);

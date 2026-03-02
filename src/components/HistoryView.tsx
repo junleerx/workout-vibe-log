@@ -1,12 +1,23 @@
 import { useState } from 'react';
 import { Workout, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X } from 'lucide-react';
+import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
+import { ExportDialog } from './ExportDialog';
 
 interface HistoryViewProps {
   workouts: Workout[];
@@ -30,6 +41,8 @@ function formatDuration(seconds: number): string {
 export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: HistoryViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [deleteConfirmWorkout, setDeleteConfirmWorkout] = useState<Workout | null>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const { unit, toDisplay, toKg } = useWeightUnit();
 
   // editing state: { [setId]: { weight, reps } }
@@ -77,15 +90,26 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
 
   return (
     <div className="space-y-4 pb-6">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="운동 이름으로 검색..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 rounded-xl glass border-border/30 focus:ring-2 focus:ring-primary/30 transition-shadow"
-        />
+      {/* Search and Export */}
+      <div className="flex gap-2 items-end">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="운동 이름으로 검색..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 rounded-xl glass border-border/30 focus:ring-2 focus:ring-primary/30 transition-shadow"
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setExportDialogOpen(true)}
+          className="rounded-xl"
+          title="운동 기록 내보내기"
+        >
+          <Download className="w-4 h-4" />
+        </Button>
       </div>
 
       {filtered.length === 0 && (
@@ -140,7 +164,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
                   <Button
                     variant="ghost" size="icon"
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                    onClick={(e) => { e.stopPropagation(); if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) onDeleteWorkout(workout.id); }}
+                    onClick={(e) => { e.stopPropagation(); setDeleteConfirmWorkout(workout); }}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
@@ -242,5 +266,56 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
         );
       })}
     </div>
+
+    {/* Delete Confirmation Dialog */}
+    <AlertDialog open={!!deleteConfirmWorkout} onOpenChange={(open) => !open && setDeleteConfirmWorkout(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>운동 기록 삭제</AlertDialogTitle>
+          <AlertDialogDescription className="space-y-2">
+            <div>
+              <strong>{deleteConfirmWorkout && format(new Date(deleteConfirmWorkout.date), 'yyyy년 M월 d일', { locale: ko })}</strong>의 운동 기록을 삭제하시겠습니까?
+            </div>
+            {deleteConfirmWorkout && deleteConfirmWorkout.exercises.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                <div className="font-semibold mt-2">포함된 운동:</div>
+                <ul className="list-disc list-inside">
+                  {deleteConfirmWorkout.exercises.slice(0, 3).map((ex) => (
+                    <li key={ex.id}>{ex.name}</li>
+                  ))}
+                  {deleteConfirmWorkout.exercises.length > 3 && (
+                    <li>외 {deleteConfirmWorkout.exercises.length - 3}개</li>
+                  )}
+                </ul>
+              </div>
+            )}
+            <div className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950 p-2 rounded">
+              💡 삭제 후 8초 이내에 되돌리기를 클릭하면 복구할 수 있습니다.
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>취소</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (deleteConfirmWorkout) {
+                onDeleteWorkout(deleteConfirmWorkout.id);
+                setDeleteConfirmWorkout(null);
+              }
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            삭제
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* Export Dialog */}
+    <ExportDialog
+      isOpen={exportDialogOpen}
+      onOpenChange={setExportDialogOpen}
+      workouts={workouts}
+    />
   );
 }
