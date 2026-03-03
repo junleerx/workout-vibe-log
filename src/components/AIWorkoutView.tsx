@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Zap, RotateCw, Save, Play, Loader2, History } from 'lucide-react';
+import { Sparkles, Zap, RotateCw, Save, Play, Loader2, History, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { ProgramExercise } from '@/types/program';
 import { AIProgramGeneratorView } from './AIProgramGeneratorView';
+import { AIChatView } from './AIChatView';
 import { Workout } from '@/types/workout';
 
 interface GeneratedProgram {
@@ -70,7 +71,7 @@ const FOCUS_AREAS = [
 
 export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStartWorkout, recentWorkouts = [] }: AIWorkoutViewProps) {
   const { unit, toDisplay } = useWeightUnit();
-  const [mode, setMode] = useState<'wod' | 'plan'>('wod');
+  const [mode, setMode] = useState<'wod' | 'plan' | 'chat'>('wod');
   const [workoutType, setWorkoutType] = useState<string>('circuit');
   const [difficulty, setDifficulty] = useState<string>('intermediate');
   const [duration, setDuration] = useState<string>('30');
@@ -143,17 +144,26 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
           onClick={() => setMode('wod')}
           className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${mode === 'wod' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          단일 운동(WOD)
+          WOD
         </button>
         <button
           onClick={() => setMode('plan')}
           className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${mode === 'plan' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
         >
-          장기 프로그램
+          프로그램
+        </button>
+        <button
+          onClick={() => setMode('chat')}
+          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1 ${mode === 'chat' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <MessageCircle className="w-3.5 h-3.5" />
+          채팅
         </button>
       </div>
 
-      {mode === 'plan' ? (
+      {mode === 'chat' ? (
+        <AIChatView recentWorkouts={recentWorkouts} />
+      ) : mode === 'plan' ? (
         <AIProgramGeneratorView
           onSavePrograms={onSaveMultiplePrograms}
           onCancel={() => setMode('wod')}
