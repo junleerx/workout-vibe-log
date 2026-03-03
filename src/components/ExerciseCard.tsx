@@ -1,7 +1,7 @@
 import { Exercise, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
 import { useState } from 'react';
-import { Plus, Trash2, Check, MapPin, Clock, Thermometer, Flame, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Check, MapPin, Clock, Thermometer, Flame, Sparkles, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { PlateCalculator } from './PlateCalculator';
@@ -156,31 +156,45 @@ export function ExerciseCard({
 
             {/* 컨디션 기록 확장 영역 */}
             {(set.rir !== undefined || set.isPainful) && (
-              <div className="col-span-12 mt-1 bg-black/20 rounded-lg p-2 flex flex-wrap items-center justify-between gap-2 border border-orange-500/20">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">RIR (여유 횟수)</span>
-                  <div className="flex gap-1">
-                    {[0, 1, 2, 3, 4].map(r => (
-                      <button
-                        key={r}
-                        type="button"
-                        onClick={() => onUpdateSet(set.id, { rir: r })}
-                        className={`w-6 h-6 rounded-md text-xs font-bold transition-all ${set.rir === r ? 'bg-orange-500 text-white' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}`}
-                      >
-                        {r}
-                      </button>
-                    ))}
+              <div className="col-span-12 mt-1 bg-black/20 rounded-lg p-2.5 flex flex-col gap-2.5 border border-orange-500/20">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">RIR</span>
+                    <div className="flex gap-1">
+                      {[0, 1, 2, 3, 4].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => onUpdateSet(set.id, { rir: r })}
+                          className={`w-6 h-6 rounded-md text-xs font-bold transition-all ${set.rir === r ? 'bg-orange-500 text-white' : 'bg-secondary/50 text-muted-foreground hover:bg-secondary'}`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onUpdateSet(set.id, { isPainful: !set.isPainful })}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-bold transition-all ${set.isPainful ? 'bg-red-500/20 text-red-500 border border-red-500/50' : 'bg-secondary/50 text-muted-foreground hover:bg-red-500/10'}`}
+                  >
+                    <Flame className="w-3 h-3" />
+                    <span>통증/자세 무너짐</span>
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => onUpdateSet(set.id, { isPainful: !set.isPainful })}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-bold transition-all ${set.isPainful ? 'bg-red-500/20 text-red-500 border border-red-500/50' : 'bg-secondary/50 text-muted-foreground hover:bg-red-500/10'}`}
-                >
-                  <Flame className="w-3 h-3" />
-                  <span>통증/자세 무너짐</span>
-                </button>
+                {/* 세트 메모 */}
+                <div className="flex items-start gap-2">
+                  <MessageSquare className="w-3.5 h-3.5 text-muted-foreground mt-1.5 flex-shrink-0" />
+                  <input
+                    type="text"
+                    value={set.notes || ''}
+                    onChange={(e) => onUpdateSet(set.id, { notes: e.target.value })}
+                    placeholder="메모 (예: 폼 무너짐, 허리 불편)"
+                    className="flex-1 bg-secondary/40 rounded-md px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-orange-500/50 border border-transparent focus:border-orange-500/30"
+                  />
+                </div>
               </div>
             )}
           </div>

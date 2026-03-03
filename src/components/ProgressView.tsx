@@ -24,8 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TrendingUp, TrendingDown, Minus, Dumbbell } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { TrendingUp, TrendingDown, Minus, Dumbbell, Trophy, Sparkles } from 'lucide-react';
+import { format, parseISO, startOfMonth, endOfMonth, isWithinInterval, subMonths } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface ProgressViewProps {
@@ -55,6 +56,53 @@ const chartConfig: ChartConfig = {
 export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
   const [selectedExercise, setSelectedExercise] = useState<string>('');
   const { unit, toDisplay } = useWeightUnit();
+
+  // ─── 전체 PR 목록 ───
+  const allPRs = useMemo(() => {
+    const prMap: Record<string, { weight: number; date: string }> = {};
+    workouts
+      .slice()
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .forEach(w => {
+        w.exercises.forEach(ex => {
+          const maxW = Math.max(...ex.sets.filter(s => s.weight > 0).map(s => s.weight), 0);
+          if (maxW > 0 && (!prMap[ex.name] || maxW > prMap[ex.name].weight)) {
+            prMap[ex.name] = { weight: maxW, date: w.date };
+          }
+        });
+      });
+    return Object.entries(prMap)
+      .map(([name, { weight, date }]) => ({ name, weight, date }))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 10);
+  }, [workouts]);
+
+  // ─── 이번달 vs 지난달 인사이트 ───
+  const monthlyInsight = useMemo(() => {
+    const now = new Date();
+    const thisMonthStart = startOfMonth(now);
+    const thisMonthEnd = endOfMonth(now);
+    const lastMonthStart = startOfMonth(subMonths(now, 1));
+    const lastMonthEnd = endOfMonth(subMonths(now, 1));
+
+    const thisMonth = workouts.filter(w => isWithinInterval(parseISO(w.date), { start: thisMonthStart, end: thisMonthEnd }));
+    const lastMonth = workouts.filter(w => isWithinInterval(parseISO(w.date), { start: lastMonthStart, end: lastMonthEnd }));
+
+    const thisVolume = thisMonth.reduce((acc, w) => acc + w.exercises.reduce((a, ex) => a + ex.sets.reduce((s, set) => s + set.weight * set.reps, 0), 0), 0);
+    const lastVolume = lastMonth.reduce((acc, w) => acc + w.exercises.reduce((a, ex) => a + ex.sets.reduce((s, set) => s + set.weight * set.reps, 0), 0), 0);
+
+    const volumeChange = lastVolume > 0 ? ((thisVolume - lastVolume) / lastVolume * 100) : 0;
+    const countChange = thisMonth.length - lastMonth.length;
+
+    return {
+      thisMonthCount: thisMonth.length,
+      lastMonthCount: lastMonth.length,
+      countChange,
+      volumeChange,
+      thisMonthLabel: format(now, 'M월', { locale: ko }),
+      lastMonthLabel: format(subMonths(now, 1), 'M월', { locale: ko }),
+    };
+  }, [workouts]);
 
   // Get unique exercises from all workouts
   const availableExercises = useMemo(() => {
@@ -154,9 +202,63 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
 
   return (
     <div className="space-y-6">
+
+      {/* ─── 이번달 vs 지난달 인사이트 ─── */}
+      <div className="bg-card rounded-2xl p-4 card-shadow border border-border/30">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-bold">이달의 현황</h3>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-secondary/50 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground mb-1">{monthlyInsight.thisMonthLabel} 운동 횟수</p>
+            <p className="text-2xl font-black text-primary">{monthlyInsight.thisMonthCount}<span className="text-sm font-normal text-muted-foreground ml-1">회</span></p>
+            <p className={`text-xs mt-1 font-medium ${monthlyInsight.countChange >= 0 ? 'text-primary' : 'text-destructive'}`}>
+              {monthlyInsight.countChange > 0 ? `+${monthlyInsight.countChange}` : monthlyInsight.countChange} vs {monthlyInsight.lastMonthLabel}
+            </p>
+          </div>
+          <div className="bg-secondary/50 rounded-xl p-3">
+            <p className="text-[11px] text-muted-foreground mb-1">볼륨 변화</p>
+            <div className="flex items-center gap-1 mt-1">
+              {monthlyInsight.volumeChange >= 0
+                ? <TrendingUp className="w-5 h-5 text-primary" />
+                : <TrendingDown className="w-5 h-5 text-destructive" />}
+              <span className={`text-2xl font-black ${monthlyInsight.volumeChange >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                {monthlyInsight.volumeChange >= 0 ? '+' : ''}{monthlyInsight.volumeChange.toFixed(0)}%
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">전월 대비</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── PR 목록 ─── */}
+      {allPRs.length > 0 && (
+        <div className="bg-card rounded-2xl p-4 card-shadow border border-amber-500/20">
+          <div className="flex items-center gap-2 mb-3">
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <h3 className="text-sm font-bold text-amber-600 dark:text-amber-400">개인 최고 기록 (PR)</h3>
+          </div>
+          <div className="space-y-2">
+            {allPRs.map((pr, i) => (
+              <div key={pr.name} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-muted-foreground w-5 text-center">{i + 1}</span>
+                  <span className="text-sm font-medium">{pr.name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{format(parseISO(pr.date), 'M/d')}</span>
+                  <span className="font-bold text-sm text-amber-500">{toDisplay(pr.weight)}{unit}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-card rounded-xl p-4 card-shadow">
         <h3 className="text-lg font-bold mb-4">
-          {selectedMember?.name || '회원'} 진행 상황
+          {selectedMember?.name || '회원'} 운동별 추이
         </h3>
 
         <Select value={selectedExercise} onValueChange={setSelectedExercise}>

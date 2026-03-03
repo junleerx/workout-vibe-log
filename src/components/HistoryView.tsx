@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Workout, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
 import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { format } from 'date-fns';
+import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, subMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
+
+type DateFilter = 'all' | 'this-week' | 'this-month' | 'last-month';
 
 interface HistoryViewProps {
   workouts: Workout[];
@@ -30,16 +32,37 @@ function formatDuration(seconds: number): string {
 export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: HistoryViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const { unit, toDisplay, toKg } = useWeightUnit();
 
-  // editing state: { [setId]: { weight, reps } }
   const [editingSetId, setEditingSetId] = useState<string | null>(null);
   const [editWeight, setEditWeight] = useState('');
   const [editReps, setEditReps] = useState('');
 
-  const filtered = workouts.filter((w) =>
-    !search || w.exercises.some((ex) => ex.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = useMemo(() => {
+    const now = new Date();
+    return workouts.filter((w) => {
+      // 텍스트 검색
+      if (search && !w.exercises.some((ex) => ex.name.toLowerCase().includes(search.toLowerCase()))) return false;
+      // 날짜 필터
+      if (dateFilter === 'all') return true;
+      const d = parseISO(w.date);
+      if (dateFilter === 'this-week') return isWithinInterval(d, { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) });
+      if (dateFilter === 'this-month') return isWithinInterval(d, { start: startOfMonth(now), end: endOfMonth(now) });
+      if (dateFilter === 'last-month') {
+        const lm = subMonths(now, 1);
+        return isWithinInterval(d, { start: startOfMonth(lm), end: endOfMonth(lm) });
+      }
+      return true;
+    });
+  }, [workouts, search, dateFilter]);
+
+  const DATE_FILTER_LABELS: { id: DateFilter; label: string }[] = [
+    { id: 'all', label: '전체' },
+    { id: 'this-week', label: '이번 주' },
+    { id: 'this-month', label: '이번 달' },
+    { id: 'last-month', label: '지난 달' },
+  ];
 
   const startEditing = (set: WorkoutSet) => {
     setEditingSetId(set.id);
@@ -88,8 +111,21 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
         />
       </div>
 
+      {/* 날짜 필터 */}
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        {DATE_FILTER_LABELS.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setDateFilter(f.id)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${dateFilter === f.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {filtered.length === 0 && (
-        <p className="text-center text-muted-foreground py-10">검색 결과가 없습니다.</p>
+        <p className="text-center text-muted-foreground py-10">해당 기간의 기록이 없습니다.</p>
       )}
 
       {filtered.map((workout) => {

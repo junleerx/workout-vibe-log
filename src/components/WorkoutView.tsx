@@ -4,9 +4,11 @@ import { CustomExercise } from '@/types/member';
 import { ExerciseCard } from './ExerciseCard';
 import { ExerciseSelector } from './ExerciseSelector';
 import { Button } from '@/components/ui/button';
-import { Plus, Play, Square, Timer } from 'lucide-react';
+import { Plus, Play, Square, Timer, Settings2 } from 'lucide-react';
 import { RestTimer } from './RestTimer';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Slider } from '@/components/ui/slider';
 
 interface WorkoutViewProps {
   currentWorkout: Workout | null;
@@ -20,6 +22,7 @@ interface WorkoutViewProps {
   onCancelWorkout: () => void;
   customExercises?: CustomExercise[];
   onAddCustomExercise?: (name: string, category: string) => Promise<CustomExercise | undefined>;
+  workouts?: Workout[];
 }
 
 export function WorkoutView({
@@ -34,12 +37,19 @@ export function WorkoutView({
   onCancelWorkout,
   customExercises = [],
   onAddCustomExercise,
+  workouts = [],
 }: WorkoutViewProps) {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [activeRestTime, setActiveRestTime] = useState(90);
   const [timerKey, setTimerKey] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  const [showRestSettings, setShowRestSettings] = useState(false);
+  const [defaultRestTime, setDefaultRestTime] = useState(() => {
+    const saved = localStorage.getItem('defaultRestTime');
+    return saved ? parseInt(saved) : 90;
+  });
+  const [tempRestTime, setTempRestTime] = useState(defaultRestTime);
   const { unit, toDisplay } = useWeightUnit();
 
   useEffect(() => {
@@ -81,7 +91,7 @@ export function WorkoutView({
   const handleUpdateSet = (exerciseId: string, setId: string, updates: Partial<WorkoutSet>) => {
     onUpdateSet(exerciseId, setId, updates);
     if (updates.completed === true) {
-      setActiveRestTime(90); // 기본 세트 휴식시간 (추후 설정 연동 가능)
+      setActiveRestTime(defaultRestTime);
       setShowTimer(true);
     }
   };
@@ -101,6 +111,18 @@ export function WorkoutView({
 
   return (
     <div className="pb-32">
+      {/* 상단 진행 스탯 + 휴식시간 설정 */}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs text-muted-foreground font-medium">진행 중</span>
+        <button
+          type="button"
+          onClick={() => { setTempRestTime(defaultRestTime); setShowRestSettings(true); }}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors bg-secondary/50 px-2.5 py-1.5 rounded-lg"
+        >
+          <Settings2 className="w-3.5 h-3.5" />
+          휴식 {defaultRestTime}초
+        </button>
+      </div>
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-card rounded-xl p-4 card-shadow">
           <div className="flex items-center gap-2 text-muted-foreground mb-1">
@@ -253,6 +275,59 @@ export function WorkoutView({
           onClose={() => setShowTimer(false)}
         />
       )}
+
+      {/* ─── 휴식 시간 기본값 설정 Sheet ─── */}
+      <Sheet open={showRestSettings} onOpenChange={setShowRestSettings}>
+        <SheetContent side="bottom" className="rounded-t-3xl pb-safe">
+          <SheetHeader className="mb-6">
+            <SheetTitle>기본 휴식 시간 설정</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-6 px-1">
+            <div className="text-center">
+              <span className="text-5xl font-black text-primary">
+                {tempRestTime >= 60
+                  ? `${Math.floor(tempRestTime / 60)}분 ${tempRestTime % 60 > 0 ? `${tempRestTime % 60}초` : ''}`
+                  : `${tempRestTime}초`}
+              </span>
+            </div>
+            <Slider
+              min={15}
+              max={300}
+              step={15}
+              value={[tempRestTime]}
+              onValueChange={([v]) => setTempRestTime(v)}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground px-1">
+              <span>15초</span>
+              <span>2분</span>
+              <span>5분</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[60, 90, 120, 180].map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTempRestTime(t)}
+                  className={`py-2 rounded-xl text-xs font-bold transition-all ${tempRestTime === t ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}
+                >
+                  {t < 60 ? `${t}초` : `${t / 60}분`}
+                </button>
+              ))}
+            </div>
+            <Button
+              className="w-full h-12 text-base font-bold"
+              onClick={() => {
+                setDefaultRestTime(tempRestTime);
+                localStorage.setItem('defaultRestTime', String(tempRestTime));
+                setShowRestSettings(false);
+              }}
+            >
+              저장
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

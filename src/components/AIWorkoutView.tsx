@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, Zap, RotateCw, Save, Play, Loader2 } from 'lucide-react';
+import { Sparkles, Zap, RotateCw, Save, Play, Loader2, History } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { ProgramExercise } from '@/types/program';
 import { AIProgramGeneratorView } from './AIProgramGeneratorView';
+import { Workout } from '@/types/workout';
 
 interface GeneratedProgram {
   name: string;
@@ -39,6 +40,7 @@ interface AIWorkoutViewProps {
     }[]
   ) => void;
   onStartWorkout: (exercises: { exerciseName: string; muscleGroup: string; targetSets?: number; targetReps?: number; targetWeight?: number; targetDistance?: number; targetTime?: number }[]) => void;
+  recentWorkouts?: Workout[];
 }
 
 const WORKOUT_TYPES = [
@@ -66,7 +68,7 @@ const FOCUS_AREAS = [
   { id: '코어', label: '코어' },
 ] as const;
 
-export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStartWorkout }: AIWorkoutViewProps) {
+export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStartWorkout, recentWorkouts = [] }: AIWorkoutViewProps) {
   const { unit, toDisplay } = useWeightUnit();
   const [mode, setMode] = useState<'wod' | 'plan'>('wod');
   const [workoutType, setWorkoutType] = useState<string>('circuit');
@@ -80,9 +82,21 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
   const handleGenerate = async () => {
     setLoading(true);
     setGenerated(null);
+
+    // 최근 운동 컨텍스트 요약 (최근 5개)
+    const recentContext = recentWorkouts.slice(0, 5).map(w => ({
+      date: w.date.slice(0, 10),
+      exercises: w.exercises.map(ex => ({
+        name: ex.name,
+        category: ex.category,
+        maxWeight: Math.max(...ex.sets.filter(s => s.weight > 0).map(s => s.weight), 0),
+        totalSets: ex.sets.filter(s => s.completed).length,
+      })),
+    }));
+
     try {
       const { data, error } = await supabase.functions.invoke('generate-workout', {
-        body: { workoutType, difficulty, duration: parseInt(duration), focusAreas: [focusArea] },
+        body: { workoutType, difficulty, duration: parseInt(duration), focusAreas: [focusArea], recentHistory: recentContext },
       });
 
       if (error) throw error;
@@ -154,6 +168,12 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
               AI 운동 추천
             </h2>
             <p className="text-sm text-muted-foreground break-keep">오늘 컨디션에 딱 맞는 크로스핏/하이록스 루틴을 만들어보세요</p>
+            {recentWorkouts.length > 0 && (
+              <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full">
+                <History className="w-3.5 h-3.5" />
+                최근 {Math.min(recentWorkouts.length, 5)}회 운동 기록 반영
+              </div>
+            )}
           </div>
 
           {/* Workout Type */}

@@ -5,6 +5,7 @@ export interface WorkoutSet {
     completed: boolean;
     rir?: number;
     isPainful?: boolean;
+    notes?: string;
 }
 
 export interface Exercise {
