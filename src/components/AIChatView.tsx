@@ -33,7 +33,6 @@ export function AIChatView({ recentWorkouts = [] }: AIChatViewProps) {
   const workoutContext = recentWorkouts.slice(0, 10).map(w => ({
     date: w.date.slice(0, 10),
     duration: w.duration,
-    totalVolume: w.totalVolume,
     exercises: w.exercises.map(ex => ({
       name: ex.name,
       category: ex.category,
@@ -70,8 +69,9 @@ export function AIChatView({ recentWorkouts = [] }: AIChatViewProps) {
       if (data.error) throw new Error(data.error);
 
       setMessages(prev => [...prev, { role: 'ai', content: data.reply }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'ai', content: '오류가 발생했어요. 다시 시도해주세요.' }]);
+    } catch (err: any) {
+      console.error("AI Chat Error Details:", err);
+      setMessages(prev => [...prev, { role: 'ai', content: `오류가 발생했어요: ${err?.message || '알 수 없는 오류'}. 다시 시도해주세요.` }]);
     } finally {
       setLoading(false);
     }
@@ -135,11 +135,10 @@ export function AIChatView({ recentWorkouts = [] }: AIChatViewProps) {
               </div>
             )}
             <div
-              className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                msg.role === 'user'
-                  ? 'bg-primary text-primary-foreground rounded-br-md'
-                  : 'bg-secondary text-foreground rounded-bl-md'
-              }`}
+              className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user'
+                ? 'bg-primary text-primary-foreground rounded-br-md'
+                : 'bg-secondary text-foreground rounded-bl-md'
+                }`}
             >
               {msg.content}
             </div>
