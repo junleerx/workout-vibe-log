@@ -14,6 +14,7 @@ import { Slider } from '@/components/ui/slider';
 interface DashboardViewProps {
     workouts: Workout[];
     selectedMember: Member | null;
+    isLoading?: boolean;
     onNavigateToHistory?: () => void;
     onNavigateToWorkout?: () => void;
     onNavigateToAI?: () => void;
@@ -29,7 +30,7 @@ function formatDurationShort(seconds: number): string {
 // 근육군 카테고리 그룹
 const MUSCLE_GROUPS = ['가슴', '등', '어깨', '하체', '팔', '복근', '전신'] as const;
 
-export function DashboardView({ workouts, selectedMember, onNavigateToHistory, onNavigateToWorkout, onNavigateToAI }: DashboardViewProps) {
+export function DashboardView({ workouts, selectedMember, isLoading, onNavigateToHistory, onNavigateToWorkout, onNavigateToAI }: DashboardViewProps) {
     const { unit, toDisplay } = useWeightUnit();
     const [showGoalSheet, setShowGoalSheet] = useState(false);
 
@@ -143,6 +144,15 @@ export function DashboardView({ workouts, selectedMember, onNavigateToHistory, o
             onClick: () => { setTempGoal(weeklyGoal); setShowGoalSheet(true); },
         },
     ];
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 opacity-50 space-y-4">
+                <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                <p className="text-sm font-medium text-muted-foreground animate-pulse">운동 기록을 불러오는 중...</p>
+            </div>
+        );
+    }
 
     // ─── 빈 상태 (첫 방문) ───
     if (workouts.length === 0) {

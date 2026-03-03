@@ -74,7 +74,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
-  const { workouts, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
+  const { workouts, loading: workoutsLoading, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -119,6 +119,7 @@ const Index = () => {
               <DashboardView
                 workouts={workouts}
                 selectedMember={selectedMember}
+                isLoading={authLoading || workoutsLoading}
                 onNavigateToHistory={() => setActiveTab('records')}
                 onNavigateToWorkout={() => setActiveTab('workout')}
                 onNavigateToAI={() => setActiveTab('ai')}
