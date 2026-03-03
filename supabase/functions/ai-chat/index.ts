@@ -2,88 +2,67 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
-  // CORS 처리
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS")
+    return new Response(null, { headers: corsHeaders });
 
   try {
-    const { message, history, userProfile } = await req.json();
+    const { messages, workoutContext } = await req.json();
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is missing");
-    }
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    // 시스템 프롬프트 (페르소나 설정)
-    const systemPrompt = `당신은 최고 수준의 헬스 트레이너 '아놀드AI'입니다.
-유저의 신체 정보, 목표, 최근 운동 기록 등을 바탕으로 개인 맞춤형 조언을 제공합니다.
-말투는 항상 친절하고 동기를 부여하는 전문 트레이너의 말투를 사용하세요.
-때로는 이모지를 섞어서 대화를 부드럽게 이끌어 주세요.
-전문적인 운동 용어를 쉽게 풀어 설명해 주는 것을 좋아합니다.
+    const workoutCount = workoutContext?.length ?? 0;
+    const systemPrompt = `너는 개인 운동 코치 AI야. 사용자의 실제 운동 기록을 분석하여 정확하고 개인화된 답변을 해줘.
 
-다음은 유저의 현재 상태 및 정보입니다 (이 정보를 바탕으로 대화하세요):
-${JSON.stringify(userProfile, null, 2)}
-`;
+[사용자 운동 기록 (최근 ${workoutCount}회)]
+${workoutCount > 0 ? JSON.stringify(workoutContext, null, 2) : "기록 없음"}
 
-    // 사용자 메시지 형태 변환 (Gemini API 포맷에 맞춤)
-    // history는 [{ role: 'user' | 'assistant', content: string }] 형태라고 가정
-    const contents = [];
+답변 규칙:
+- 기록에 있는 실제 수치(무게, 횟수, 날짜 등)를 적극 활용해 구체적으로 답해줘
+- 불필요한 서두 없이 바로 핵심만 답해줘
+- 한국어로 답변
+- 운동과 무관한 질문에는 "운동 관련 질문만 답변할 수 있어요 💪"라고 해줘`;
 
-    if (history && Array.isArray(history)) {
-      history.forEach((msg) => {
-        contents.push({
-          role: msg.role === "assistant" ? "model" : "user",
-          parts: [{ text: msg.content }],
-        });
-      });
-    }
+    // messages: [{role: 'user'|'assistant', content: string}]
+    const contents = messages.map((m: { role: string; content: string }) => ({
+      role: m.role === "user" ? "user" : "model",
+      parts: [{ text: m.content }],
+    }));
 
-    // 이번에 새로 입력한 메시지 추가
-    contents.push({
-      role: "user",
-      parts: [{ text: message }],
-    });
-
-    // Gemini API 호출
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt }]
-          },
-          contents: contents,
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents,
         }),
       }
     );
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("Gemini API Error:", errorData);
-      throw new Error(`Gemini API Error: ${JSON.stringify(errorData)}`);
+      throw new Error(`Gemini API error: ${errorData.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "죄송합니다만, 답변을 생성하지 못했습니다.";
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) throw new Error("No reply from Gemini");
 
-    return new Response(JSON.stringify({ reply: replyText }), {
+    return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
     });
-  } catch (error) {
-    console.error("ai-chat edge function error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "알 수 없는 에러가 발생했습니다." }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+  } catch (e) {
+    console.error("ai-chat error:", e);
+    return new Response(
+      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
