@@ -232,10 +232,12 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
               };
             });
 
-            if (aiRec?.description) {
-              // AI의 코칭 팁이 있다면
-              ex.aiRecommendation = aiRec.description;
-              console.log(`[AI Coaching for ${ex.name}]: ${aiRec.description}`);
+            if (aiRec?.tip || aiRec?.description) {
+              // AI의 코칭 팁이 있다면 (tip과 action 활용)
+              const tip = aiRec.tip || aiRec.description;
+              const actionText = aiRec.action ? `[${aiRec.action}] ` : '';
+              ex.aiRecommendation = `${actionText}${tip}`;
+              console.log(`[AI Coaching for ${ex.name}]: ${ex.aiRecommendation}`);
             }
           }
         }
