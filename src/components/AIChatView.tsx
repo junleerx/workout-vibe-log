@@ -71,7 +71,15 @@ export function AIChatView({ recentWorkouts = [] }: AIChatViewProps) {
       setMessages(prev => [...prev, { role: 'ai', content: data.reply }]);
     } catch (err: any) {
       console.error("AI Chat Error Details:", err);
-      setMessages(prev => [...prev, { role: 'ai', content: `오류가 발생했어요: ${err?.message || '알 수 없는 오류'}. 다시 시도해주세요.` }]);
+      const errorMessage = err?.message || '';
+
+      let userFriendlyMessage = `오류가 발생했어요: ${errorMessage || '알 수 없는 오류'}. 다시 시도해주세요.`;
+
+      if (errorMessage.includes('Quota exceeded') || errorMessage.includes('429')) {
+        userFriendlyMessage = '아놀드AI가 너무 많은 질문을 받아 생각할 시간이 필요합니다 😅 (Google Gemini 무료 제공 횟수 초과). 1~2분 정도만 여유를 두고 다시 질문해 주세요!';
+      }
+
+      setMessages(prev => [...prev, { role: 'ai', content: userFriendlyMessage }]);
     } finally {
       setLoading(false);
     }
