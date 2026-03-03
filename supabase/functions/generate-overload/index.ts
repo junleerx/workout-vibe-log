@@ -17,7 +17,7 @@ serve(async (req) => {
         if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
         const prompt = `
-You are a strength coach. Analyze the workout log and prescribe the next session.
+You are a top-tier strength coach. Analyze the workout log and prescribe the next session.
 
 Rules (apply in order):
 
@@ -30,6 +30,10 @@ Rules (apply in order):
 4. WEIGHT JUMP: barbell/machine ≤5% (2.5lb unit), dumbbell ≤4% (5lb unit), round DOWN
 
 5. AUTOREGULATION: avgRIR≥3 → aggressive jump | avgRIR=0 → maintain
+
+6. TONE (CRITICAL): The "tip" MUST be written in natural, engaging, and stylish Korean. Avoid stiff or robotic translations. Keep it supportive and motivating like a premium personal trainer. Use emojis occasionally.
+Good example: "완벽하게 목표를 달성하셨네요! 이제 한 단계 더 무거운 중량으로 한계에 도전해 볼까요? 단단한 복압 유지가 제일 중요해요 🔥"
+Bad example: "모든 세트에서 목표 횟수를 달성했으므로 중량을 올립니다. 견고한 자세와 복압 유지를 최우선으로 해주세요."
 
 Workout log:
 
@@ -45,7 +49,7 @@ Return ONLY a JSON array. No markdown.
 
   "sets": [{"reps": number, "weight": number}],
 
-  "tip": string (1-2 sentences in KOREAN: reason + cue)
+  "tip": string (1-2 sentences of engaging Korean coaching tip)
 
 }]
 `;

@@ -192,7 +192,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
         let aiRecommendations: any[] = [];
         if (applyOverload) {
           setIsAIGenerating(true);
-          toast({ title: 'AI 분석 중...', description: '최근 기록을 기반으로 최적의 훈련 중량을 10초 내로 계산합니다.', duration: 5000 });
+          toast({ title: '아놀드AI 분석 중...', description: '최근 기록을 기반으로 최적의 훈련 중량을 10초 내로 계산합니다.', duration: 5000 });
           try {
             const payload = Array.from(previousWeights.entries()).map(([name, sets]) => ({ exerciseName: name, sets }));
             const { data, error } = await supabase.functions.invoke('generate-overload', {
@@ -200,7 +200,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
             });
             if (error) throw error;
             aiRecommendations = data || [];
-            toast({ title: '분석 완료', description: 'AI의 점진적 과부하 처방이 반영되었습니다!' });
+            toast({ title: '분석 완료', description: '아놀드AI의 점진적 과부하 처방이 반영되었습니다!' });
           } catch (e) {
             console.error('AI overload failed', e);
             toast({ title: 'AI 분석 실패', description: '일시적인 오류로 이전 무게를 그대로 적용합니다.', variant: 'destructive' });
@@ -237,9 +237,15 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
             });
 
             if (aiRec?.tip || aiRec?.description) {
-              // AI의 코칭 팁이 있다면 (tip과 action 활용)
               const tip = aiRec.tip || aiRec.description;
-              const actionText = aiRec.action ? `[${aiRec.action}] ` : '';
+              let actionKorean = '';
+              switch (aiRec.action) {
+                case 'increase_weight': actionKorean = '🔥 중량 UP'; break;
+                case 'increase_reps': actionKorean = '📈 볼륨 UP'; break;
+                case 'maintain': actionKorean = '✨ 폼 유지'; break;
+                case 'deload': actionKorean = '🌿 디로딩'; break;
+              }
+              const actionText = actionKorean ? `[${actionKorean}] ` : (aiRec.action ? `[${aiRec.action}] ` : '');
               ex.aiRecommendation = `${actionText}${tip}`;
               console.log(`[AI Coaching for ${ex.name}]: ${ex.aiRecommendation}`);
             }
