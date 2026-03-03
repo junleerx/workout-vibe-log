@@ -39,11 +39,12 @@ const TabTransition = ({ children, value, activeTab }: { children: React.ReactNo
 );
 
 // 기록 + 통계를 하나의 탭으로 묶는 내부 컴포넌트
-function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSet }: {
+function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram }: {
   workouts: Workout[];
   selectedMember: any;
   onDeleteWorkout: (id: string) => void;
   onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
+  onSaveAsProgram?: (workout: Workout, name: string) => Promise<void>;
 }) {
   const [inner, setInner] = useState<'history' | 'progress'>('history');
   return (
@@ -63,7 +64,7 @@ function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSe
         </button>
       </div>
       {inner === 'history'
-        ? <HistoryView workouts={workouts} onDeleteWorkout={onDeleteWorkout} onUpdateSavedSet={onUpdateSavedSet} />
+        ? <HistoryView workouts={workouts} onDeleteWorkout={onDeleteWorkout} onUpdateSavedSet={onUpdateSavedSet} onSaveAsProgram={onSaveAsProgram} />
         : <ProgressView workouts={workouts} selectedMember={selectedMember} />
       }
     </div>
@@ -87,6 +88,37 @@ const Index = () => {
       setSummaryWorkout(snapshot);
       setActiveTab('dashboard');
     }
+  };
+
+  const handleSaveAsProgram = async (workout: Workout, name: string) => {
+    const exercises = workout.exercises.map((ex, i) => {
+      const maxWeight = Math.max(0, ...ex.sets.map(s => s.weight));
+      const validSets = ex.sets.filter(s => s.reps > 0);
+      const avgReps = validSets.length > 0 ? Math.round(validSets.reduce((sum, s) => sum + s.reps, 0) / validSets.length) : 0;
+
+      return {
+        exerciseName: ex.name,
+        muscleGroup: ex.category,
+        orderIndex: i,
+        targetSets: ex.sets.length,
+        targetReps: avgReps,
+        targetWeight: maxWeight,
+        targetDistance: ex.targetDistance,
+        targetTime: ex.targetTime,
+        groupId: ex.groupId,
+        groupRounds: ex.groupRounds,
+        groupRestTime: ex.groupRestTime,
+        sets: [],
+      };
+    });
+
+    const dateStr = workout.date.split('T')[0];
+    await createProgram(
+      name,
+      `${dateStr} 운동 기록 기반`,
+      [], undefined, undefined, undefined, exercises
+    );
+    setActiveTab('programs');
   };
 
   useEffect(() => {
@@ -203,6 +235,7 @@ const Index = () => {
                 selectedMember={selectedMember}
                 onDeleteWorkout={deleteWorkout}
                 onUpdateSavedSet={updateSavedSet}
+                onSaveAsProgram={handleSaveAsProgram}
               />
             </TabTransition>
           </TabsContent>

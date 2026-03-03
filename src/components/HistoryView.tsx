@@ -14,6 +14,7 @@ interface HistoryViewProps {
   workouts: Workout[];
   onDeleteWorkout: (workoutId: string) => void;
   onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
+  onSaveAsProgram?: (workout: Workout, name: string) => Promise<void>;
 }
 
 // UTC 날짜 문자열을 안전하게 로컬 날짜로 변환하는 함수
@@ -29,7 +30,7 @@ function formatDuration(seconds: number): string {
   return `${minutes}분`;
 }
 
-export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: HistoryViewProps) {
+export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram }: HistoryViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
@@ -82,6 +83,14 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
     const newReps = parseInt(editReps) || 0;
     await onUpdateSavedSet(setId, { weight: newWeight, reps: newReps });
     setEditingSetId(null);
+  };
+
+  const handleSaveProgram = (workout: Workout) => {
+    if (!onSaveAsProgram) return;
+    const name = window.prompt('이 운동 기록을 어떤 이름의 프로그램으로 저장할까요?', '새 프로그램');
+    if (name) {
+      onSaveAsProgram(workout, name);
+    }
   };
 
   if (workouts.length === 0) {
@@ -173,6 +182,16 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet }: His
                 </div>
                 <div className="flex items-center gap-1 ml-2">
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  {onSaveAsProgram && (
+                    <Button
+                      variant="ghost" size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-primary"
+                      onClick={(e) => { e.stopPropagation(); handleSaveProgram(workout); }}
+                      title="프로그램으로 저장"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /><line x1="12" x2="12" y1="7" y2="13" /><line x1="15" x2="9" y1="10" y2="10" /></svg>
+                    </Button>
+                  )}
                   <Button
                     variant="ghost" size="icon"
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
