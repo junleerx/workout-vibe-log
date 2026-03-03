@@ -11,6 +11,7 @@ interface UseWorkoutProgramsOptions {
 export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {}) {
   const [programs, setPrograms] = useState<WorkoutProgram[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchedMemberId, setFetchedMemberId] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -18,8 +19,11 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
     if (!user) {
       setPrograms([]);
       setLoading(false);
+      setFetchedMemberId(null);
       return;
     }
+
+    setLoading(true);
 
     try {
       let query = supabase
@@ -104,6 +108,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
       });
     } finally {
       setLoading(false);
+      setFetchedMemberId(memberId || null);
     }
   }, [user, toast, memberId]);
 
@@ -302,7 +307,7 @@ export function useWorkoutPrograms({ memberId }: UseWorkoutProgramsOptions = {})
 
   return {
     programs,
-    loading,
+    loading: loading || (memberId !== undefined && memberId !== null && memberId !== fetchedMemberId),
     createProgram,
     updateProgram,
     deleteProgram,

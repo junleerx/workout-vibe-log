@@ -14,6 +14,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchedMemberId, setFetchedMemberId] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const isSaving = useRef(false);
@@ -24,8 +25,11 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     if (!user || !memberId) {
       setWorkouts([]);
       setLoading(false);
+      setFetchedMemberId(null);
       return;
     }
+
+    setLoading(true);
 
     try {
       let query = supabase
@@ -86,6 +90,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
       });
     } finally {
       setLoading(false);
+      setFetchedMemberId(memberId);
     }
   }, [user, toast, memberId]);
 
@@ -498,7 +503,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   return {
     workouts,
     currentWorkout,
-    loading,
+    loading: loading || (memberId !== fetchedMemberId),
     isAIGenerating,
     startWorkout,
     startWorkoutFromProgram,
