@@ -73,7 +73,7 @@ function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSe
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
+  const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember, loading: membersLoading } = useMembers();
   const { workouts, loading: workoutsLoading, isAIGenerating, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
@@ -140,7 +140,7 @@ const Index = () => {
               <DashboardView
                 workouts={workouts}
                 selectedMember={selectedMember}
-                isLoading={authLoading || workoutsLoading}
+                isLoading={authLoading || workoutsLoading || membersLoading}
                 onNavigateToHistory={() => setActiveTab('records')}
                 onNavigateToWorkout={() => setActiveTab('workout')}
                 onNavigateToAI={() => setActiveTab('ai')}
