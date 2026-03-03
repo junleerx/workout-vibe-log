@@ -62,7 +62,7 @@ ${workoutCount > 0 ? JSON.stringify(workoutContext, null, 2) : "기록 없음"}
     console.error("ai-chat error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
