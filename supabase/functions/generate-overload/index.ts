@@ -45,7 +45,7 @@ Return ONLY a JSON array. No markdown.
 
   "sets": [{"reps": number, "weight": number}],
 
-  "tip": string (1-2 sentences: reason + cue)
+  "tip": string (1-2 sentences in KOREAN: reason + cue)
 
 }]
 `;
