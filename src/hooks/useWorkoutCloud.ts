@@ -17,6 +17,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   const { user } = useAuth();
   const { toast } = useToast();
   const isSaving = useRef(false);
+  const [isAIGenerating, setIsAIGenerating] = useState(false);
 
   // Fetch workouts from database
   const fetchWorkouts = useCallback(async () => {
@@ -190,6 +191,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
         let aiRecommendations: any[] = [];
         if (applyOverload) {
+          setIsAIGenerating(true);
           toast({ title: 'AI 분석 중...', description: '최근 기록을 기반으로 최적의 훈련 중량을 10초 내로 계산합니다.', duration: 5000 });
           try {
             const payload = Array.from(previousWeights.entries()).map(([name, sets]) => ({ exerciseName: name, sets }));
@@ -202,6 +204,8 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
           } catch (e) {
             console.error('AI overload failed', e);
             toast({ title: 'AI 분석 실패', description: '일시적인 오류로 이전 무게를 그대로 적용합니다.', variant: 'destructive' });
+          } finally {
+            setIsAIGenerating(false);
           }
         }
 
@@ -489,6 +493,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     workouts,
     currentWorkout,
     loading,
+    isAIGenerating,
     startWorkout,
     startWorkoutFromProgram,
     addExercise,

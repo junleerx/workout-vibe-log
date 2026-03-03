@@ -74,7 +74,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember } = useMembers();
-  const { workouts, loading: workoutsLoading, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
+  const { workouts, loading: workoutsLoading, isAIGenerating, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -107,6 +107,27 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 relative">
+      {/* ─── AI 분석 중 로딩 오버레이 ─── */}
+      <AnimatePresence>
+        {isAIGenerating && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md"
+          >
+            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin mb-6" />
+            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
+              AI 분석 중...
+            </h3>
+            <p className="text-sm text-muted-foreground text-center px-6">
+              최근 기록(무게/횟수/컨디션)을 바탕으로<br />
+              최적의 점진적 과부하를 계산하고 있습니다.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
         <img src="/logo-patch.jpg" alt="" className="w-[500px] h-[500px] object-contain opacity-[0.25]" />
       </div>
