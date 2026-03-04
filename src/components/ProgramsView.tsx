@@ -689,7 +689,7 @@ export function ProgramsView({
                             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3 flex-wrap">
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
-                                <Input type="number" placeholder="예: 3" value={ex.targetSets || ''} onChange={(e) => handleUpdateExercise(index, { targetSets: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetSets ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                <NumberInput min={0} value={ex.targetSets || 0} onChange={(val) => handleUpdateExercise(index, { targetSets: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetSets ? 'opacity-70' : ''}`} />
                               </div>
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
