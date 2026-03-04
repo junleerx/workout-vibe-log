@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { RateLimiter } from "../_shared/rateLimit.ts";
+import { verifyAuth } from "../_shared/auth.ts";
 
 const rateLimiter = new RateLimiter(10 * 60 * 1000, 5); // 5 requests per 10 minutes per IP
 
@@ -14,9 +15,19 @@ serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response(null, { headers: corsHeaders });
 
+  // JWT Verification
+  const userId = await verifyAuth(req);
+  if (!userId) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
+
   // Rate Limiting
   const clientIp = req.headers.get("x-forwarded-for") || "unknown";
-  if (!rateLimiter.check(clientIp)) {
+  const clientIdentifier = `${clientIp}-${userId}`;
+  if (!(await rateLimiter.check(clientIdentifier))) {
     return new Response(JSON.stringify({ error: "Too many requests. Please wait a few minutes before trying again. 😅" }), {
       status: 429,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
