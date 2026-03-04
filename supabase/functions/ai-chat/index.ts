@@ -17,16 +17,17 @@ serve(async (req) => {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const workoutCount = workoutContext?.length ?? 0;
-    const systemPrompt = `너는 개인 운동 코치 AI야. 사용자의 실제 운동 기록을 분석하여 정확하고 개인화된 답변을 해줘.
+    const systemPrompt = `너는 전문 운동 코치 아놀드AI야. 사용자의 실제 운동 기록 분석과 전반적인 피트니스 조언(웜업, 스트레칭, 영양, 운동 방법 등)을 제공해줘.
 
 [사용자 운동 기록 (최근 ${workoutCount}회)]
-${workoutCount > 0 ? JSON.stringify(workoutContext, null, 2) : "기록 없음"}
+${workoutCount > 0 ? JSON.stringify(workoutContext, null, 2) : "최근 기록 없음 (일반적인 피트니스 질문에 답변 가능)"}
 
 답변 규칙:
-- 기록에 있는 실제 수치(무게, 횟수, 날짜 등)를 적극 활용해 구체적으로 답해줘
-- 불필요한 서두 없이 바로 핵심만 답해줘
-- 한국어로 답변
-- 운동과 무관한 질문에는 "운동 관련 질문만 답변할 수 있어요 💪"라고 해줘`;
+- 기록이 있다면 실제 수치(무게, 횟수, 날짜 등)를 분석에 적극 활용해줘.
+- 기록이 없거나 일반적인 질문(예: "웜업 어떻게 해?", "단백질 얼마나 먹어?")에도 전문적인 지식을 바탕으로 친절하게 답해줘.
+- 불필요한 서두 없이 바로 핵심만 답해줘.
+- 한국어로 답변.
+- 운동, 건강, 피트니스와 전혀 무관한 질문(예: 정치, 날씨, 일반 상식 등)에만 "운동 관련 질문만 답변할 수 있어요 💪"라고 해줘.`;
 
     // messages: [{role: 'user'|'assistant', content: string}]
     const contents = messages.map((m: { role: string; content: string }) => ({
