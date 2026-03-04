@@ -2,7 +2,6 @@ import * as React from "react"
 import { Plus, Minus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 
 export interface NumberInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
@@ -59,20 +58,18 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
       if (isNaN(parsed)) parsed = min || 0;
       if (min !== undefined && parsed < min) parsed = min;
       if (max !== undefined && parsed > max) parsed = max;
-      
+
       setInputValue(parsed.toString());
       onChange(parsed);
-      
+
       if (onBlur) onBlur(e);
     };
 
     return (
-      <div className={cn("flex items-center space-x-1", className)}>
-        <Button
+      <div className={cn("flex items-center w-full h-9 rounded-lg border border-input bg-background/50 overflow-hidden shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring", className)}>
+        <button
           type="button"
-          variant="outline"
-          size="icon"
-          className="h-8 w-8 shrink-0 touch-manipulation"
+          className="h-full flex items-center justify-center px-2 bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed shrink-0 transition-colors"
           onClick={() => handleDecrement()}
           onMouseDown={() => startHold('dec')}
           onMouseUp={stopHold}
@@ -81,15 +78,16 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           onTouchEnd={stopHold}
           disabled={min !== undefined && value <= min}
         >
-          <Minus className="h-4 w-4" />
-        </Button>
-        <div className="relative w-full">
+          <Minus className="h-3.5 w-3.5" />
+        </button>
+        <div className="relative flex-1 h-full min-w-[20px]">
           <input
             type="number"
             className={cn(
-              "flex h-8 w-full rounded-md border border-input bg-background/50 px-2 py-1 text-center text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+              "flex h-full w-full bg-transparent px-1 text-center text-sm font-semibold focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
               suffix ? "pr-6" : ""
             )}
+            style={{ minWidth: 0 }}
             ref={ref}
             value={inputValue}
             onChange={handleInputChange}
@@ -97,16 +95,14 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
             {...props}
           />
           {suffix && (
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            <span className="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
               {suffix}
             </span>
           )}
         </div>
-        <Button
+        <button
           type="button"
-          variant="outline"
-          size="icon"
-          className="h-8 w-8 shrink-0 touch-manipulation"
+          className="h-full flex items-center justify-center px-2 bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed shrink-0 transition-colors"
           onClick={() => handleIncrement()}
           onMouseDown={() => startHold('inc')}
           onMouseUp={stopHold}
@@ -115,8 +111,8 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
           onTouchEnd={stopHold}
           disabled={max !== undefined && value >= max}
         >
-          <Plus className="h-4 w-4" />
-        </Button>
+          <Plus className="h-3.5 w-3.5" />
+        </button>
       </div>
     )
   }
