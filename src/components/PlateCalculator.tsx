@@ -40,10 +40,10 @@ export function PlateCalculator({ weight, unit }: PlateCalculatorProps) {
             <DialogTrigger asChild>
                 <button
                     type="button"
-                    className="absolute right-2 p-1.5 text-muted-foreground hover:text-primary transition-colors focus:outline-none"
+                    className="p-1 text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-colors focus:outline-none rounded-md"
                     title="원판 계산기"
                 >
-                    <Calculator className="w-4 h-4" />
+                    <Calculator className="w-3.5 h-3.5" />
                 </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md border-white/10 glass max-w-[90vw] rounded-2xl w-[90vw]">

@@ -88,8 +88,11 @@ export function ExerciseCard({
             className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-primary/10' : 'bg-secondary/50'
               }`}
           >
-            <div className="col-span-2 text-sm font-semibold text-muted-foreground">
-              {index + 1}
+            <div className="col-span-2 flex items-center gap-1 min-w-0">
+              <span className="text-sm font-semibold text-muted-foreground shrink-0 w-3 text-center">{index + 1}</span>
+              {set.weight > 0 && (
+                <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
+              )}
             </div>
             <div className="col-span-4 relative flex items-center">
               <NumberInput
@@ -101,11 +104,6 @@ export function ExerciseCard({
                 step={2.5}
                 min={0}
               />
-              {set.weight > 0 && (
-                <div className="absolute right-0 top-10 z-10">
-                  <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
-                </div>
-              )}
             </div>
             <div className="col-span-4">
               <NumberInput
