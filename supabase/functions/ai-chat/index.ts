@@ -27,7 +27,7 @@ serve(async (req) => {
   // Rate Limiting
   const clientIp = req.headers.get("x-forwarded-for") || "unknown";
   const clientIdentifier = `${clientIp}-${userId}`;
-  if (!(await rateLimiter.check(clientIdentifier))) {
+  if (!rateLimiter.check(clientIdentifier)) {
     return new Response(JSON.stringify({ error: "Too many requests. Please wait a few minutes before trying again. 😅" }), {
       status: 429,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
