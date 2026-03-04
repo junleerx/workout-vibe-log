@@ -3,6 +3,7 @@ import { categoryColors } from '@/data/exercises';
 import { useState } from 'react';
 import { Plus, Trash2, Check, MapPin, Clock, Thermometer, Flame, Sparkles, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NumberInput } from '@/components/ui/number-input';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { PlateCalculator } from './PlateCalculator';
 
@@ -91,28 +92,30 @@ export function ExerciseCard({
               {index + 1}
             </div>
             <div className="col-span-4 relative flex items-center">
-              <input
-                type="number"
-                value={set.weight ? toDisplay(set.weight) : ''}
-                onChange={(e) =>
-                  onUpdateSet(set.id, { weight: toKg(parseFloat(e.target.value) || 0) })
+              <NumberInput
+                value={set.weight ? toDisplay(set.weight) : 0}
+                onChange={(val) =>
+                  onUpdateSet(set.id, { weight: toKg(val) || 0 })
                 }
-                className="w-full bg-muted/50 rounded-lg pl-3 pr-8 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="0"
+                className="w-full text-xs h-9"
+                step={2.5}
+                min={0}
               />
               {set.weight > 0 && (
-                <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
+                <div className="absolute right-0 top-10 z-10">
+                  <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
+                </div>
               )}
             </div>
             <div className="col-span-4">
-              <input
-                type="number"
-                value={set.reps || ''}
-                onChange={(e) =>
-                  onUpdateSet(set.id, { reps: parseInt(e.target.value) || 0 })
+              <NumberInput
+                value={set.reps || 0}
+                onChange={(val) =>
+                  onUpdateSet(set.id, { reps: val || 0 })
                 }
-                className="w-full bg-muted/50 rounded-lg px-3 py-2 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="0"
+                className="w-full text-xs h-9"
+                step={1}
+                min={0}
               />
             </div>
             <div className="col-span-2 flex gap-1 items-center justify-end">

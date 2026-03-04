@@ -149,8 +149,8 @@ export function ExerciseSelector({
             type="button"
             onClick={() => setSelectedCategory(null)}
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${!selectedCategory
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-muted-foreground hover:text-foreground'
               }`}
           >
             전체
@@ -161,8 +161,8 @@ export function ExerciseSelector({
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === category
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
             >
               {category}
@@ -170,31 +170,37 @@ export function ExerciseSelector({
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2 pb-32">
-          {filteredExercises.map((exercise, index) => (
-            <button
-              type="button"
-              key={`${exercise.name}-${index}`}
-              onClick={() => {
-                onSelect(exercise.name, exercise.category);
-                onClose();
-              }}
-              className="w-full flex items-center justify-between p-4 bg-card rounded-xl hover:bg-secondary transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{exercise.name}</span>
-                {'isCustom' in exercise && exercise.isCustom && (
-                  <span className="text-xs text-muted-foreground">(커스텀)</span>
-                )}
+        <div className="flex-1 overflow-y-auto space-y-4 pb-32">
+          {categories.map((category) => {
+            const categoryExercises = filteredExercises.filter(ex => ex.category === category);
+            if (categoryExercises.length === 0) return null;
+
+            return (
+              <div key={category} className="space-y-2">
+                <h3 className={`text-sm font-bold px-2 py-1 ${categoryColors[category]} bg-opacity-10 dark:bg-opacity-20 inline-block rounded-md mb-1`}>
+                  {category}
+                </h3>
+                {categoryExercises.map((exercise, index) => (
+                  <button
+                    type="button"
+                    key={`${exercise.name}-${index}`}
+                    onClick={() => {
+                      onSelect(exercise.name, exercise.category);
+                      onClose();
+                    }}
+                    className="w-full flex items-center justify-between p-4 bg-card rounded-xl hover:bg-secondary transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{exercise.name}</span>
+                      {'isCustom' in exercise && exercise.isCustom && (
+                        <span className="text-xs text-muted-foreground">(커스텀)</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
               </div>
-              <span
-                className={`px-2 py-1 text-xs font-medium rounded-full border ${categoryColors[exercise.category]
-                  }`}
-              >
-                {exercise.category}
-              </span>
-            </button>
-          ))}
+            );
+          })}
 
           {filteredExercises.length === 0 && (
             <div className="text-center py-8">

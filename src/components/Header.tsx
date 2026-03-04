@@ -12,7 +12,7 @@ import { useMembers } from '@/hooks/useMembers';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { motion } from 'framer-motion';
 
-type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'history' | 'progress';
+type TabType = 'dashboard' | 'workout' | 'programs' | 'ai' | 'records';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -30,8 +30,7 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
     { id: 'workout' as TabType, label: '운동', icon: Dumbbell },
     { id: 'programs' as TabType, label: '프로그램', icon: ClipboardList },
     { id: 'ai' as TabType, label: 'AI추천', icon: Sparkles },
-    { id: 'history' as TabType, label: '기록', icon: History },
-    { id: 'progress' as TabType, label: '통계', icon: LineChart }
+    { id: 'records' as TabType, label: '기록', icon: History }
   ];
 
   return (

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { NumberInput } from '@/components/ui/number-input';
 import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy, Folder, FolderPlus, FolderOpen, MoreVertical, Check, X } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
@@ -692,11 +693,11 @@ export function ProgramsView({
                               </div>
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
-                                <Input type="number" placeholder="예: 10" value={ex.targetReps || ''} onChange={(e) => handleUpdateExercise(index, { targetReps: Number(e.target.value) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetReps ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                <NumberInput min={0} value={ex.targetReps || 0} onChange={(val) => handleUpdateExercise(index, { targetReps: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetReps ? 'opacity-70' : ''}`} />
                               </div>
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게({unit})</span>
-                                <Input type="number" placeholder="자유" value={ex.targetWeight ? toDisplay(ex.targetWeight) : ''} onChange={(e) => handleUpdateExercise(index, { targetWeight: toKg(Number(e.target.value)) || 0 })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetWeight ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                <NumberInput step={2.5} min={0} value={ex.targetWeight ? toDisplay(ex.targetWeight) : 0} onChange={(val) => handleUpdateExercise(index, { targetWeight: toKg(val) || 0 })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetWeight ? 'opacity-70' : ''}`} />
                               </div>
                               <div className="space-y-1">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>

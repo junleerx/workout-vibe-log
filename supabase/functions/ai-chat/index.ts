@@ -1,4 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { RateLimiter } from "../_shared/rateLimit.ts";
+
+const rateLimiter = new RateLimiter(10 * 60 * 1000, 5); // 5 requests per 10 minutes per IP
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,6 +13,15 @@ const corsHeaders = {
 serve(async (req) => {
   if (req.method === "OPTIONS")
     return new Response(null, { headers: corsHeaders });
+
+  // Rate Limiting
+  const clientIp = req.headers.get("x-forwarded-for") || "unknown";
+  if (!rateLimiter.check(clientIp)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please wait a few minutes before trying again. 😅" }), {
+      status: 429,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
 
   try {
     const { messages, workoutContext } = await req.json();

@@ -12,7 +12,14 @@ interface UseWorkoutCloudOptions {
 
 export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
+  const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(() => {
+    try {
+      const saved = localStorage.getItem('workout-vibe-autosave');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
   const [fetchedMemberId, setFetchedMemberId] = useState<string | null>(null);
   const { user } = useAuth();
@@ -97,6 +104,14 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   useEffect(() => {
     fetchWorkouts();
   }, [fetchWorkouts]);
+
+  useEffect(() => {
+    if (currentWorkout) {
+      localStorage.setItem('workout-vibe-autosave', JSON.stringify(currentWorkout));
+    } else {
+      localStorage.removeItem('workout-vibe-autosave');
+    }
+  }, [currentWorkout]);
 
   const startWorkout = (selectedMemberId?: string) => {
     const newWorkout: Workout = {
@@ -265,11 +280,26 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
   const addExercise = (name: string, category: Exercise['category']) => {
     if (!currentWorkout) return;
 
+    let prevWeight = 0;
+    let prevReps = 0;
+
+    // Find most recent weight for this exercise from past workouts
+    for (const w of workouts) {
+      const match = w.exercises.find(e => e.name === name);
+      if (match && match.sets.length > 0) {
+        // Find best reference set (first one with weight > 0, or just first set)
+        const validSet = match.sets.find(s => s.weight > 0) || match.sets[0];
+        prevWeight = validSet.weight;
+        prevReps = validSet.reps;
+        break; // Stop at the most recent workout
+      }
+    }
+
     const newExercise: Exercise = {
       id: crypto.randomUUID(),
       name,
       category,
-      sets: [{ id: crypto.randomUUID(), reps: 0, weight: 0, completed: false }],
+      sets: [{ id: crypto.randomUUID(), reps: prevReps, weight: prevWeight, completed: false }],
     };
 
     setCurrentWorkout({

@@ -4,6 +4,7 @@ import { categoryColors } from '@/data/exercises';
 import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, isWithinInterval, subMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
@@ -37,8 +38,11 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
   const { unit, toDisplay, toKg } = useWeightUnit();
 
   const [editingSetId, setEditingSetId] = useState<string | null>(null);
-  const [editWeight, setEditWeight] = useState('');
-  const [editReps, setEditReps] = useState('');
+  const [editWeight, setEditWeight] = useState(0);
+  const [editReps, setEditReps] = useState(0);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filtered = useMemo(() => {
     const now = new Date();
@@ -67,20 +71,20 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
 
   const startEditing = (set: WorkoutSet) => {
     setEditingSetId(set.id);
-    setEditWeight(String(toDisplay(set.weight)));
-    setEditReps(String(set.reps));
+    setEditWeight(toDisplay(set.weight));
+    setEditReps(set.reps);
   };
 
   const cancelEditing = () => {
     setEditingSetId(null);
-    setEditWeight('');
-    setEditReps('');
+    setEditWeight(0);
+    setEditReps(0);
   };
 
   const saveEditing = async (setId: string) => {
     if (!onUpdateSavedSet) return;
-    const newWeight = toKg(parseFloat(editWeight) || 0);
-    const newReps = parseInt(editReps) || 0;
+    const newWeight = toKg(editWeight || 0);
+    const newReps = editReps || 0;
     await onUpdateSavedSet(setId, { weight: newWeight, reps: newReps });
     setEditingSetId(null);
   };
@@ -137,7 +141,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
         <p className="text-center text-muted-foreground py-10">해당 기간의 기록이 없습니다.</p>
       )}
 
-      {filtered.map((workout) => {
+      {filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((workout) => {
         const totalVolume = workout.exercises.reduce(
           (acc, ex) => acc + ex.sets.reduce((s, set) => s + set.weight * set.reps, 0),
           0
@@ -236,20 +240,21 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
                           {editingSetId === set.id ? (
                             /* ─── EDITING MODE ─── */
                             <>
-                              <input
-                                type="number"
+                              <NumberInput
                                 value={editWeight}
-                                onChange={(e) => setEditWeight(e.target.value)}
-                                className="w-16 h-6 px-1.5 text-xs bg-secondary rounded border border-primary/30 text-foreground text-center focus:outline-none focus:ring-1 focus:ring-primary"
-                                step="0.5"
+                                onChange={(val) => setEditWeight(val)}
+                                className="w-24 h-7 text-xs"
+                                step={2.5}
+                                min={0}
                               />
                               <span className="text-muted-foreground text-[10px]">{unit}</span>
                               <span className="text-muted-foreground">×</span>
-                              <input
-                                type="number"
+                              <NumberInput
                                 value={editReps}
-                                onChange={(e) => setEditReps(e.target.value)}
-                                className="w-12 h-6 px-1.5 text-xs bg-secondary rounded border border-primary/30 text-foreground text-center focus:outline-none focus:ring-1 focus:ring-primary"
+                                onChange={(val) => setEditReps(val)}
+                                className="w-24 h-7 text-xs"
+                                step={1}
+                                min={0}
                               />
                               <span className="text-muted-foreground text-[10px]">회</span>
                               <Button
@@ -296,6 +301,30 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
           </div>
         );
       })}
+      {/* Pagination Controls */}
+      {filtered.length > itemsPerPage && (
+        <div className="flex justify-center items-center gap-4 pt-4 border-t border-border/30">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            이전
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {currentPage} / {Math.ceil(filtered.length / itemsPerPage)} 페이지
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(p => Math.min(Math.ceil(filtered.length / itemsPerPage), p + 1))}
+            disabled={currentPage === Math.ceil(filtered.length / itemsPerPage)}
+          >
+            다음
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

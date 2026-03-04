@@ -8,6 +8,7 @@ import { ProgramsView } from '@/components/ProgramsView';
 import { AIWorkoutView } from '@/components/AIWorkoutView';
 import { DashboardView } from '@/components/DashboardView';
 import { WorkoutSummary } from '@/components/WorkoutSummary';
+import { DataExport } from '@/components/DataExport';
 
 import { useWorkoutCloud } from '@/hooks/useWorkoutCloud';
 import { useWorkoutPrograms } from '@/hooks/useWorkoutPrograms';
@@ -38,10 +39,11 @@ const TabTransition = ({ children, value, activeTab }: { children: React.ReactNo
   </AnimatePresence>
 );
 
-// 기록 + 통계를 하나의 탭으로 묶는 내부 컴포넌트
+import { Member } from '@/types/member';
+
 function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram }: {
   workouts: Workout[];
-  selectedMember: any;
+  selectedMember: Member | null | undefined;
   onDeleteWorkout: (id: string) => void;
   onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
   onSaveAsProgram?: (workout: Workout, name: string) => Promise<void>;
@@ -62,6 +64,9 @@ function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSe
         >
           통계 & PR
         </button>
+      </div>
+      <div className="flex justify-end">
+        <DataExport workouts={workouts} />
       </div>
       {inner === 'history'
         ? <HistoryView workouts={workouts} onDeleteWorkout={onDeleteWorkout} onUpdateSavedSet={onUpdateSavedSet} onSaveAsProgram={onSaveAsProgram} />
