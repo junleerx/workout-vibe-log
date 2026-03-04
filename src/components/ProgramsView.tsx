@@ -685,27 +685,27 @@ export function ProgramsView({
                               </Button>
                             </div>
 
-                            {/* Desktop: 5 cols, Mobile: 3 top + 2 bottom for better fit */}
-                            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mt-3 flex-wrap">
-                              <div className="space-y-1">
+                            {/* Desktop: 5 cols, Mobile: flex-wrap with proportional sizing */}
+                            <div className="flex flex-wrap sm:flex-nowrap gap-1.5 mt-3">
+                              <div className="space-y-1 flex-[1.5] min-w-[90px]">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
                                 <NumberInput min={0} value={ex.targetSets || 0} onChange={(val) => handleUpdateExercise(index, { targetSets: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetSets ? 'opacity-70' : ''}`} />
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1 flex-[1.5] min-w-[90px]">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
                                 <NumberInput min={0} value={ex.targetReps || 0} onChange={(val) => handleUpdateExercise(index, { targetReps: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetReps ? 'opacity-70' : ''}`} />
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1 flex-[1.5] min-w-[90px]">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게({unit})</span>
                                 <NumberInput step={2.5} min={0} value={ex.targetWeight ? toDisplay(ex.targetWeight) : 0} onChange={(val) => handleUpdateExercise(index, { targetWeight: toKg(val) || 0 })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetWeight ? 'opacity-70' : ''}`} />
                               </div>
-                              <div className="space-y-1">
+                              <div className="space-y-1 flex-1 min-w-[60px] sm:min-w-0">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
-                                <Input type="number" placeholder="로잉 등" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                <Input type="number" placeholder="로잉" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 px-1 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                               </div>
-                              <div className="space-y-1 col-span-3 sm:col-span-1">
+                              <div className="space-y-1 flex-1 min-w-[60px] sm:min-w-0">
                                 <span className={`text-[10px] font-medium transition-colors ${ex.targetTime ? 'text-primary' : 'text-muted-foreground/60'}`}>시간(초)</span>
-                                <Input type="number" placeholder="예: 60" value={ex.targetTime || ''} onChange={(e) => handleUpdateExercise(index, { targetTime: Number(e.target.value) || undefined })} className={`h-8 rounded-lg text-center text-sm transition-all ${!ex.targetTime ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                <Input type="number" placeholder="초" value={ex.targetTime || ''} onChange={(e) => handleUpdateExercise(index, { targetTime: Number(e.target.value) || undefined })} className={`h-8 px-1 rounded-lg text-center text-sm transition-all ${!ex.targetTime ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
                               </div>
                             </div>
                           </div>
