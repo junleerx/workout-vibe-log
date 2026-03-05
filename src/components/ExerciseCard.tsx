@@ -124,21 +124,7 @@ export function ExerciseCard({
                 </div>
               </div>
 
-              <div className="w-[72px] sm:w-[84px] shrink-0 flex gap-0.5 sm:gap-1 items-center justify-center">
-                <button
-                  type="button"
-                  onClick={() => onUpdateSet(set.id, {
-                    rir: set.rir === undefined ? 2 : undefined, // 임시 토글용
-                  })}
-                  className={`flex items-center justify-center flex-1 h-9 rounded-md sm:rounded-lg transition-all ${set.rir !== undefined || set.isPainful
-                    ? 'bg-orange-500/20 text-orange-500'
-                    : 'bg-muted/50 text-muted-foreground hover:bg-orange-500/20'
-                    }`}
-                  title="컨디션(RIR/통증) 기록"
-                >
-                  <Thermometer className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
-
+              <div className="w-16 sm:w-20 shrink-0 flex gap-0.5 sm:gap-1 items-center justify-center">
                 <button
                   type="button"
                   onClick={() => {
