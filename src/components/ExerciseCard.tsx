@@ -75,66 +75,66 @@ export function ExerciseCard({
       </div>
 
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-2">
-          <div className="w-12 shrink-0">세트</div>
-          <div className="flex-1 min-w-[90px]">무게 ({unit})</div>
-          <div className="flex-1 min-w-[90px]">횟수</div>
-          <div className="w-[88px] shrink-0 text-right">상태</div>
+        <div className="flex items-center gap-1 sm:gap-2 text-[11px] sm:text-xs font-medium text-muted-foreground px-1 pb-1">
+          <div className="w-8 text-center shrink-0">세트</div>
+          <div className="flex-1 text-center">무게({unit})</div>
+          <div className="flex-1 text-center">횟수</div>
+          <div className="w-[72px] sm:w-[84px] shrink-0 text-center">상태</div>
         </div>
 
         {exercise.sets.map((set, index) => (
           <div
             key={set.id}
-            className={`flex flex-wrap sm:flex-nowrap gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-primary/10' : 'bg-secondary/50'
+            className={`flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 rounded-lg transition-colors overflow-x-visible ${set.completed ? 'bg-primary/10' : 'bg-secondary/50'
               }`}
           >
-            <div className="w-12 shrink-0 flex items-center gap-1">
-              <span className="text-sm font-semibold text-muted-foreground w-4 text-center">{index + 1}</span>
+            <div className="w-8 shrink-0 flex flex-col items-center justify-center gap-0.5 relative">
+              <span className="text-sm font-semibold text-muted-foreground">{index + 1}</span>
               {set.weight > 0 && (
-                <div className="scale-[0.85] origin-left border-l pl-1 ml-1 border-muted">
+                <div className="scale-[0.55] sm:scale-[0.65] origin-top absolute top-full mt-0.5 whitespace-nowrap opacity-60 pointer-events-none">
                   <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
                 </div>
               )}
             </div>
 
-            <div className="flex-1 flex gap-2 min-w-[180px]">
-              <div className="flex-1 min-w-[80px]">
+            <div className="flex-1 flex gap-1 sm:gap-2 min-w-0">
+              <div className="flex-1 min-w-0">
                 <NumberInput
                   value={set.weight ? toDisplay(set.weight) : 0}
                   onChange={(val) =>
                     onUpdateSet(set.id, { weight: toKg(val) || 0 })
                   }
-                  className="w-full text-xs h-9"
+                  className="w-full text-xs h-9 px-0"
                   step={2.5}
                   min={0}
                 />
               </div>
-              <div className="flex-1 min-w-[80px]">
+              <div className="flex-1 min-w-0">
                 <NumberInput
                   value={set.reps || 0}
                   onChange={(val) =>
                     onUpdateSet(set.id, { reps: val || 0 })
                   }
-                  className="w-full text-xs h-9"
+                  className="w-full text-xs h-9 px-0"
                   step={1}
                   min={0}
                 />
               </div>
             </div>
 
-            <div className="w-[88px] shrink-0 flex gap-1 items-center justify-end ml-auto">
+            <div className="w-[72px] sm:w-[84px] shrink-0 flex gap-0.5 sm:gap-1 items-center justify-center">
               <button
                 type="button"
                 onClick={() => onUpdateSet(set.id, {
                   rir: set.rir === undefined ? 2 : undefined, // 임시 토글용
                 })}
-                className={`p-1.5 rounded-lg transition-all ${set.rir !== undefined || set.isPainful
+                className={`flex items-center justify-center flex-1 h-9 rounded-md sm:rounded-lg transition-all ${set.rir !== undefined || set.isPainful
                   ? 'bg-orange-500/20 text-orange-500'
                   : 'bg-muted/50 text-muted-foreground hover:bg-orange-500/20'
                   }`}
                 title="컨디션(RIR/통증) 기록"
               >
-                <Thermometer className="w-4 h-4" />
+                <Thermometer className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
 
               <button
@@ -143,20 +143,21 @@ export function ExerciseCard({
                   const newStatus = !set.completed;
                   onUpdateSet(set.id, { completed: newStatus });
                 }}
-                className={`p-1.5 rounded-lg transition-all ${set.completed
+                className={`flex items-center justify-center flex-1 h-9 rounded-md sm:rounded-lg transition-all ${set.completed
                   ? 'bg-primary text-primary-foreground animate-check'
                   : 'bg-muted/50 text-muted-foreground hover:bg-primary/20'
                   }`}
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
+
               {exercise.sets.length > 1 && (
                 <button
                   type="button"
                   onClick={() => onRemoveSet(set.id)}
-                  className="p-1.5 rounded-lg bg-muted/50 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all"
+                  className="flex items-center justify-center w-7 sm:w-8 h-9 rounded-md sm:rounded-lg bg-muted/50 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all shrink-0 ml-0.5"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               )}
             </div>
