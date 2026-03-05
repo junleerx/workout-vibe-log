@@ -75,48 +75,54 @@ export function ExerciseCard({
       </div>
 
       <div className="space-y-2">
-        <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground px-2">
-          <div className="col-span-2">세트</div>
-          <div className="col-span-4">무게 ({unit})</div>
-          <div className="col-span-4">횟수</div>
-          <div className="col-span-2"></div>
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground px-2">
+          <div className="w-12 shrink-0">세트</div>
+          <div className="flex-1 min-w-[90px]">무게 ({unit})</div>
+          <div className="flex-1 min-w-[90px]">횟수</div>
+          <div className="w-[88px] shrink-0 text-right">상태</div>
         </div>
 
         {exercise.sets.map((set, index) => (
           <div
             key={set.id}
-            className={`grid grid-cols-12 gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-primary/10' : 'bg-secondary/50'
+            className={`flex flex-wrap sm:flex-nowrap gap-2 items-center p-2 rounded-lg transition-colors ${set.completed ? 'bg-primary/10' : 'bg-secondary/50'
               }`}
           >
-            <div className="col-span-2 flex items-center gap-1 min-w-0">
-              <span className="text-sm font-semibold text-muted-foreground shrink-0 w-3 text-center">{index + 1}</span>
+            <div className="w-12 shrink-0 flex items-center gap-1">
+              <span className="text-sm font-semibold text-muted-foreground w-4 text-center">{index + 1}</span>
               {set.weight > 0 && (
-                <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
+                <div className="scale-[0.85] origin-left border-l pl-1 ml-1 border-muted">
+                  <PlateCalculator weight={toDisplay(set.weight)} unit={unit} />
+                </div>
               )}
             </div>
-            <div className="col-span-4 relative flex items-center">
-              <NumberInput
-                value={set.weight ? toDisplay(set.weight) : 0}
-                onChange={(val) =>
-                  onUpdateSet(set.id, { weight: toKg(val) || 0 })
-                }
-                className="w-full text-xs h-9"
-                step={2.5}
-                min={0}
-              />
+
+            <div className="flex-1 flex gap-2 min-w-[180px]">
+              <div className="flex-1 min-w-[80px]">
+                <NumberInput
+                  value={set.weight ? toDisplay(set.weight) : 0}
+                  onChange={(val) =>
+                    onUpdateSet(set.id, { weight: toKg(val) || 0 })
+                  }
+                  className="w-full text-xs h-9"
+                  step={2.5}
+                  min={0}
+                />
+              </div>
+              <div className="flex-1 min-w-[80px]">
+                <NumberInput
+                  value={set.reps || 0}
+                  onChange={(val) =>
+                    onUpdateSet(set.id, { reps: val || 0 })
+                  }
+                  className="w-full text-xs h-9"
+                  step={1}
+                  min={0}
+                />
+              </div>
             </div>
-            <div className="col-span-4">
-              <NumberInput
-                value={set.reps || 0}
-                onChange={(val) =>
-                  onUpdateSet(set.id, { reps: val || 0 })
-                }
-                className="w-full text-xs h-9"
-                step={1}
-                min={0}
-              />
-            </div>
-            <div className="col-span-2 flex gap-1 items-center justify-end">
+
+            <div className="w-[88px] shrink-0 flex gap-1 items-center justify-end ml-auto">
               <button
                 type="button"
                 onClick={() => onUpdateSet(set.id, {
