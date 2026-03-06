@@ -400,53 +400,93 @@ export function ProgramsView({
             </div>
 
             <div className="border rounded-2xl overflow-hidden bg-card/50">
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow className="hover:bg-transparent border-b-border/10">
-                    <TableHead className="h-10 text-[11px] py-1 font-bold">종목</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary">Week 1</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">Week 2</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">Week 3</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 font-bold">종목 / TM</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary">
+                      <div>Week 1</div>
+                      <div className="text-[9px] font-normal opacity-60">5s</div>
+                    </TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">
+                      <div>Week 2</div>
+                      <div className="text-[9px] font-normal opacity-60">3s</div>
+                    </TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">
+                      <div>Week 3</div>
+                      <div className="text-[9px] font-normal opacity-60">5/3/1+</div>
+                    </TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-muted-foreground/60">
+                      <div>Week 4</div>
+                      <div className="text-[9px] font-normal opacity-60">Deload</div>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {lifts.map((lift) => {
                     const tm = Math.round(lift.val * 0.9);
-                    const round = (v: number) => Math.round(v * 2) / 2; // Round to 0.5 step
+                    const round = (v: number) => Math.round(v / 2.5) * 2.5;
                     return (
-                      <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10 h-14">
-                        <TableCell className="py-2 text-[11px] font-bold">
-                          {lift.label}
+                      <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10">
+                        <TableCell className="py-2 text-[11px]">
+                          <div className="font-bold">{lift.label}</div>
+                          <div className="text-[9px] opacity-60">TM: {tm > 0 ? tm : '–'}</div>
                         </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center bg-primary/5">
+                        <TableCell className="py-2 text-[10px] text-center bg-primary/5 align-top">
                           {tm > 0 ? (
                             <div className="space-y-1">
+                              <div className="opacity-50 text-[9px]">65%</div>
+                              <div>{round(tm * 0.65)}</div>
+                              <div className="opacity-50 text-[9px]">75%</div>
+                              <div>{round(tm * 0.75)}</div>
+                              <div className="opacity-50 text-[9px]">85%</div>
                               <div className="text-primary font-bold">{round(tm * 0.85)}</div>
-                              <div className="text-[9px] opacity-40 leading-none">Sets of 5</div>
                             </div>
-                          ) : '-'}
+                          ) : '–'}
                         </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center whitespace-nowrap">
+                        <TableCell className="py-2 text-[10px] text-center align-top">
                           {tm > 0 ? (
                             <div className="space-y-1">
-                              <div className="font-bold text-foreground/80">{round(tm * 0.9)}</div>
-                              <div className="text-[9px] opacity-40 leading-none">Sets of 3</div>
+                              <div className="opacity-50 text-[9px]">70%</div>
+                              <div>{round(tm * 0.7)}</div>
+                              <div className="opacity-50 text-[9px]">80%</div>
+                              <div>{round(tm * 0.8)}</div>
+                              <div className="opacity-50 text-[9px]">90%</div>
+                              <div className="font-bold">{round(tm * 0.9)}</div>
                             </div>
-                          ) : '-'}
+                          ) : '–'}
                         </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center whitespace-nowrap">
+                        <TableCell className="py-2 text-[10px] text-center align-top">
                           {tm > 0 ? (
                             <div className="space-y-1">
-                              <div className="font-bold text-foreground/80">{round(tm * 0.95)}</div>
-                              <div className="text-[9px] opacity-40 leading-none">AMRAP</div>
+                              <div className="opacity-50 text-[9px]">75%</div>
+                              <div>{round(tm * 0.75)}</div>
+                              <div className="opacity-50 text-[9px]">85%</div>
+                              <div>{round(tm * 0.85)}</div>
+                              <div className="opacity-50 text-[9px]">95%+</div>
+                              <div className="font-bold">{round(tm * 0.95)}</div>
                             </div>
-                          ) : '-'}
+                          ) : '–'}
+                        </TableCell>
+                        <TableCell className="py-2 text-[10px] text-center opacity-50 align-top">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="opacity-50 text-[9px]">40%</div>
+                              <div>{round(tm * 0.4)}</div>
+                              <div className="opacity-50 text-[9px]">50%</div>
+                              <div>{round(tm * 0.5)}</div>
+                              <div className="opacity-50 text-[9px]">60%</div>
+                              <div>{round(tm * 0.6)}</div>
+                            </div>
+                          ) : '–'}
                         </TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
+              </div>
             </div>
 
             <div className="p-4 rounded-2xl bg-secondary/20 space-y-3">
@@ -998,8 +1038,9 @@ export function ProgramsView({
               <div className="p-4 pb-3">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-bold text-base">{program.name}</h3>
+                      {program.note?.startsWith('531|') && <Badge variant="secondary" className="bg-primary/15 text-primary border-none text-[10px] font-bold">5/3/1 BBB</Badge>}
                       {program.workoutStyle === 'amrap' && <Badge variant="secondary" className="bg-accent/10 text-accent border-none font-bold">🔥 AMRAP {program.timeLimit}분</Badge>}
                       {program.workoutStyle === 'emom' && <Badge variant="secondary" className="bg-primary/10 text-primary border-none font-bold">⏰ EMOM {program.timeLimit}분</Badge>}
                       {program.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 border-none font-bold">🏆 {program.targetRounds} Rounds</Badge>}

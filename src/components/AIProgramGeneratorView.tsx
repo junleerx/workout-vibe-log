@@ -272,10 +272,22 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                                         <TableHeader className="bg-muted/50">
                                             <TableRow className="hover:bg-transparent border-b-muted-foreground/10">
                                                 <TableHead className="h-8 text-[10px] py-1">종목 / TM</TableHead>
-                                                <TableHead className="h-8 text-[10px] py-1 text-center font-bold text-primary">Week 1</TableHead>
-                                                <TableHead className="h-8 text-[10px] py-1 text-center">Week 2</TableHead>
-                                                <TableHead className="h-8 text-[10px] py-1 text-center">Week 3</TableHead>
-                                                <TableHead className="h-8 text-[10px] py-1 text-center text-muted-foreground/60">Week 4 (D)</TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center font-bold text-primary">
+                                                    <div>Week 1</div>
+                                                    <div className="text-[9px] font-normal opacity-60">5s</div>
+                                                </TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center">
+                                                    <div>Week 2</div>
+                                                    <div className="text-[9px] font-normal opacity-60">3s</div>
+                                                </TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center">
+                                                    <div>Week 3</div>
+                                                    <div className="text-[9px] font-normal opacity-60">5/3/1+</div>
+                                                </TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center text-muted-foreground/60">
+                                                    <div>Week 4</div>
+                                                    <div className="text-[9px] font-normal opacity-60">Deload</div>
+                                                </TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -288,22 +300,58 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                                                 const tm = Math.round(lift.val * 0.9);
                                                 const round = (v: number) => Math.round(v / 2.5) * 2.5;
                                                 return (
-                                                    <TableRow key={lift.label} className="hover:bg-transparent border-b-muted-foreground/10 h-10">
+                                                    <TableRow key={lift.label} className="hover:bg-transparent border-b-muted-foreground/10">
                                                         <TableCell className="py-2 text-[10px]">
                                                             <span className="font-bold">{lift.label}</span>
-                                                            <div className="text-[9px] opacity-60">TM: {tm}</div>
+                                                            <div className="text-[9px] opacity-60">TM: {tm > 0 ? tm : '–'}</div>
                                                         </TableCell>
-                                                        <TableCell className="py-2 text-[10px] text-center font-bold bg-primary/5 text-primary">
-                                                            {tm > 0 ? `${round(tm * 0.65)} / ${round(tm * 0.75)} / ${round(tm * 0.85)}` : '-'}
+                                                        <TableCell className="py-2 text-[10px] text-center bg-primary/5 align-top">
+                                                            {tm > 0 ? (
+                                                                <div className="space-y-0.5">
+                                                                    <div className="text-[9px] opacity-50">65%</div>
+                                                                    <div>{round(tm * 0.65)}</div>
+                                                                    <div className="text-[9px] opacity-50">75%</div>
+                                                                    <div>{round(tm * 0.75)}</div>
+                                                                    <div className="text-[9px] opacity-50">85%</div>
+                                                                    <div className="font-bold text-primary">{round(tm * 0.85)}</div>
+                                                                </div>
+                                                            ) : '–'}
                                                         </TableCell>
-                                                        <TableCell className="py-2 text-[10px] text-center whitespace-nowrap">
-                                                            {tm > 0 ? `${round(tm * 0.7)} / ${round(tm * 0.8)} / ${round(tm * 0.9)}` : '-'}
+                                                        <TableCell className="py-2 text-[10px] text-center align-top">
+                                                            {tm > 0 ? (
+                                                                <div className="space-y-0.5">
+                                                                    <div className="text-[9px] opacity-50">70%</div>
+                                                                    <div>{round(tm * 0.7)}</div>
+                                                                    <div className="text-[9px] opacity-50">80%</div>
+                                                                    <div>{round(tm * 0.8)}</div>
+                                                                    <div className="text-[9px] opacity-50">90%</div>
+                                                                    <div className="font-bold">{round(tm * 0.9)}</div>
+                                                                </div>
+                                                            ) : '–'}
                                                         </TableCell>
-                                                        <TableCell className="py-2 text-[10px] text-center whitespace-nowrap">
-                                                            {tm > 0 ? `${round(tm * 0.75)} / ${round(tm * 0.85)} / ${round(tm * 0.95)}` : '-'}
+                                                        <TableCell className="py-2 text-[10px] text-center align-top">
+                                                            {tm > 0 ? (
+                                                                <div className="space-y-0.5">
+                                                                    <div className="text-[9px] opacity-50">75%</div>
+                                                                    <div>{round(tm * 0.75)}</div>
+                                                                    <div className="text-[9px] opacity-50">85%</div>
+                                                                    <div>{round(tm * 0.85)}</div>
+                                                                    <div className="text-[9px] opacity-50">95%+</div>
+                                                                    <div className="font-bold">{round(tm * 0.95)}</div>
+                                                                </div>
+                                                            ) : '–'}
                                                         </TableCell>
-                                                        <TableCell className="py-2 text-[10px] text-center opacity-40 whitespace-nowrap">
-                                                            {tm > 0 ? `${round(tm * 0.4)} / ${round(tm * 0.5)} / ${round(tm * 0.6)}` : '-'}
+                                                        <TableCell className="py-2 text-[10px] text-center opacity-50 align-top">
+                                                            {tm > 0 ? (
+                                                                <div className="space-y-0.5">
+                                                                    <div className="text-[9px] opacity-50">40%</div>
+                                                                    <div>{round(tm * 0.4)}</div>
+                                                                    <div className="text-[9px] opacity-50">50%</div>
+                                                                    <div>{round(tm * 0.5)}</div>
+                                                                    <div className="text-[9px] opacity-50">60%</div>
+                                                                    <div>{round(tm * 0.6)}</div>
+                                                                </div>
+                                                            ) : '–'}
                                                         </TableCell>
                                                     </TableRow>
                                                 );
