@@ -34,6 +34,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
     const [generatedPrograms, setGeneratedPrograms] = useState<any[] | null>(null);
     const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
     const { toast } = useToast();
+    const { unit } = useWeightUnit();
 
     const handleSave = () => {
         if (!generatedPrograms || selectedIndices.length === 0) {
@@ -64,7 +65,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
         setLoading(true);
         try {
             const { data, error } = await supabase.functions.invoke('generate-macrocycle', {
-                body: { weeks, daysPerWeek, goal, level },
+                body: { weeks, daysPerWeek, goal, level, unit },
             });
 
             if (error) throw error;

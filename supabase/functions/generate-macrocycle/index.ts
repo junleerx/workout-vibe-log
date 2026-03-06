@@ -17,9 +17,9 @@ serve(async (req: Request) => {
   }
 
   // JWT Verification
-  const userId = await verifyAuth(req);
+  const { userId, errorData } = await verifyAuth(req);
   if (!userId) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    return new Response(JSON.stringify({ error: `Unauthorized: ${errorData}` }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
@@ -36,7 +36,8 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { weeks, daysPerWeek, goal, level } = await req.json();
+    const { weeks, daysPerWeek, goal, level, unit } = await req.json();
+    const targetUnit = unit || "kg";
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
@@ -50,12 +51,14 @@ serve(async (req: Request) => {
     - Frequency: ${daysPerWeek} Days / Week
     - Primary Goal: ${goal}
     - Fitness Level: ${level}
+    - ONLY USE WEIGHT UNIT: ${targetUnit} 
+    (CRITICAL: Every weight MUST be estimated in ${targetUnit}. Do NOT mention the other unit in descriptions or values. Program description and overviews must explicitly mention the weight format in ${targetUnit}.)
 
     Output Format: JSON only.
     Schema:
     {
       "planName": "string",
-      "planDescription": "string (Why this plan works, overview of the ${weeks} weeks)",
+      "planDescription": "string (Why this plan works, overview of the ${weeks} weeks. Emphasize weight targets are in ${targetUnit})",
       "progressionGuide": "string (How to progress each week, e.g. add weight or reps)",
       "workouts": [
         {
@@ -81,7 +84,7 @@ serve(async (req: Request) => {
     - Create exactly ${daysPerWeek} workout routines (Day 1 to ${daysPerWeek}) representing a typical week in this plan.
     - Accurately distribute daysOfWeek for each workout to build a balanced weekly schedule.
     - Choose effective, proven exercises matching the goal (${goal}).
-    - For targetWeight, provide a realistic recommended starting weight in kg or lbs assuming an average male/female at this level. If it's pure bodyweight, use 0.
+    - For targetWeight, provide a realistic recommended starting weight in NUMERIC VALUE of ${targetUnit} assuming an average male/female at this level. If it's pure bodyweight, use 0.
     - All descriptions must be in Korean. Exercise names can be in English/Korean.
     ${(goal || "").includes("5/3/1 BBB") ? "- CRITICAL: Follow the '5/3/1 Boring But Big (BBB)' protocol strictly. Main lifts should be Squat, Bench Press, Deadlift, Overhead Press (1 per day). Main lifts should use standard 5/3/1 progression logic. The BBB supplemental work MUST be 5 sets of 10 reps (5x10) of the main lift or its opposite, at roughly 50-60% of TM. Include basic accessory work (Push, Pull, Core/Legs) for high reps." : ""}
     `;

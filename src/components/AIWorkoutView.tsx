@@ -97,7 +97,7 @@ export function AIWorkoutView({ onSaveAsProgram, onSaveMultiplePrograms, onStart
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-workout', {
-        body: { workoutType, difficulty, duration: parseInt(duration), focusAreas: [focusArea], recentHistory: recentContext },
+        body: { workoutType, difficulty, duration: parseInt(duration), focusAreas: [focusArea], recentHistory: recentContext, unit },
       });
 
       if (error) throw error;

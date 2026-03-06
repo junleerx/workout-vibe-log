@@ -16,9 +16,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   // JWT Verification
-  const userId = await verifyAuth(req);
+  const { userId, errorData } = await verifyAuth(req);
   if (!userId) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    return new Response(JSON.stringify({ error: `Unauthorized: ${errorData}` }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
@@ -35,7 +35,8 @@ serve(async (req) => {
   }
 
   try {
-    const { workoutType, difficulty, duration, focusAreas } = await req.json();
+    const { workoutType, difficulty, duration, focusAreas, unit } = await req.json();
+    const targetUnit = unit || "kg";
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
@@ -49,12 +50,14 @@ serve(async (req) => {
     - Difficulty: ${difficulty}
     - Duration: ${duration} minutes
     - Focus Areas: ${focusAreas?.join(", ") || "Full Body"}
+    - Weight Unit: ${targetUnit} (REQUIRED FORMAT FOR ALL WEIGHT ENTRIES)
 
     Requirements:
     - Language: Korean (Access to English terms where common in Korea like 버피, 로잉, 박스점프, 더블언더, 쓰러스터 등)
     - Select 4-8 functional exercises appropriate for the type and focus. Include exercises typical of Hyrox (Rowing, SkiErg, Sled Push/Pull, Burpee Broad Jumps, Wall Balls, Lunges) or CrossFit.
     - Specify sets, reps, and approximate weight (or bodyweight).
     - Provide an engaging program name and short description explaining the intent of the workout.
+    - ALL target weights must be converted or estimated in ${targetUnit}. Descriptions must also mention ${targetUnit} instead of kg or lbs based on the input.
 
     Output Format: JSON only.
     Schema:
