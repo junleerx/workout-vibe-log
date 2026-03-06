@@ -7,6 +7,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ProgramExercise } from '@/types/program';
 import { Badge } from '@/components/ui/badge';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface AIProgramGeneratorProps {
     onSavePrograms: (
@@ -33,6 +35,15 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
     const [loading, setLoading] = useState(false);
     const [generatedPrograms, setGeneratedPrograms] = useState<any[] | null>(null);
     const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+
+    // 5/3/1 Specific State
+    const [oneRMs, setOneRMs] = useState({
+        squat: '',
+        bench: '',
+        deadlift: '',
+        ohp: ''
+    });
+
     const { toast } = useToast();
     const { unit } = useWeightUnit();
 
@@ -65,7 +76,14 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
         setLoading(true);
         try {
             const { data, error } = await supabase.functions.invoke('generate-macrocycle', {
-                body: { weeks, daysPerWeek, goal, level, unit },
+                body: {
+                    weeks,
+                    daysPerWeek,
+                    goal,
+                    level,
+                    unit,
+                    oneRMs: goal.includes('5/3/1') ? oneRMs : null
+                },
             });
 
             if (error) throw error;
@@ -181,6 +199,61 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                         ))}
                     </div>
                 </div>
+
+                {/* 1RM Inputs for 5/3/1 */}
+                {goal.includes('5/3/1') && (
+                    <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-4 animate-in fade-in slide-in-from-top-2">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <h3 className="text-sm font-bold text-primary">나의 1RM 설정 (현재 {unit})</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label className="text-[11px] font-semibold opacity-70">스쿼트 (Squat)</Label>
+                                <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={oneRMs.squat}
+                                    onChange={(e) => setOneRMs(prev => ({ ...prev, squat: e.target.value }))}
+                                    className="bg-background/50 h-10 rounded-lg text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-[11px] font-semibold opacity-70">벤치 프레스 (Bench)</Label>
+                                <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={oneRMs.bench}
+                                    onChange={(e) => setOneRMs(prev => ({ ...prev, bench: e.target.value }))}
+                                    className="bg-background/50 h-10 rounded-lg text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-[11px] font-semibold opacity-70">데드리프트 (Deadlift)</Label>
+                                <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={oneRMs.deadlift}
+                                    onChange={(e) => setOneRMs(prev => ({ ...prev, deadlift: e.target.value }))}
+                                    className="bg-background/50 h-10 rounded-lg text-sm"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-[11px] font-semibold opacity-70">밀리터리 프레스 (OHP)</Label>
+                                <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={oneRMs.ohp}
+                                    onChange={(e) => setOneRMs(prev => ({ ...prev, ohp: e.target.value }))}
+                                    className="bg-background/50 h-10 rounded-lg text-sm"
+                                />
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
+                            * 입력하신 1RM의 90%를 훈련 최대중량(Training Max)으로 설정하여 점진적 보조 운동과 본 운동 무게가 자동 계산됩니다.
+                        </p>
+                    </div>
+                )}
 
                 <Button
                     onClick={handleGenerate}

@@ -36,7 +36,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { weeks, daysPerWeek, goal, level, unit } = await req.json();
+    const { weeks, daysPerWeek, goal, level, unit, oneRMs } = await req.json();
     const targetUnit = unit || "kg";
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
@@ -51,6 +51,7 @@ serve(async (req: Request) => {
     - Frequency: ${daysPerWeek} Days / Week
     - Primary Goal: ${goal}
     - Fitness Level: ${level}
+    - ONE REP MAX (1RM) VALUES (if applicable): ${oneRMs ? JSON.stringify(oneRMs) : "Not provided"}
     - ONLY USE WEIGHT UNIT: ${targetUnit} 
     (CRITICAL: Every weight MUST be estimated in ${targetUnit}. Do NOT mention the other unit in descriptions or values. Program description and overviews must explicitly mention the weight format in ${targetUnit}.)
 
@@ -86,7 +87,16 @@ serve(async (req: Request) => {
     - Choose effective, proven exercises matching the goal (${goal}).
     - For targetWeight, provide a realistic recommended starting weight in NUMERIC VALUE of ${targetUnit} assuming an average male/female at this level. If it's pure bodyweight, use 0.
     - All descriptions must be in Korean. Exercise names can be in English/Korean.
-    ${(goal || "").includes("5/3/1 BBB") ? "- CRITICAL: Follow the '5/3/1 Boring But Big (BBB)' protocol strictly. Main lifts should be Squat, Bench Press, Deadlift, Overhead Press (1 per day). Main lifts should use standard 5/3/1 progression logic. The BBB supplemental work MUST be 5 sets of 10 reps (5x10) of the main lift or its opposite, at roughly 50-60% of TM. Include basic accessory work (Push, Pull, Core/Legs) for high reps." : ""}
+    ${(goal || "").includes("5/3/1 BBB") ? `
+    - CRITICAL: Follow the '5/3/1 Boring But Big (BBB)' protocol strictly. 
+    - MAIN LIFTS: Use these 1RM values to calculate the Training Max (TM = 90% of 1RM). 
+      - Squat: ${oneRMs?.squat || 100}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.squat) || 100) * 0.9)}${targetUnit}
+      - Bench: ${oneRMs?.bench || 80}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}
+      - Deadlift: ${oneRMs?.deadlift || 120}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.deadlift) || 120) * 0.9)}${targetUnit}
+      - OHP: ${oneRMs?.ohp || 50}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
+    - SETS (Week 1): 65%TM x 5, 75%TM x 5, 85%TM x 5+. (Use these calculated numbers in targetWeight).
+    - BBB SUPPLEMENTAL: 5 sets of 10 reps (5x10) of the main lift (or opposite) at 50% to 60% of the calculated TM.
+    - Include basic accessory work (Push, Pull, Core/Legs) for 3 sets of 10-15 reps.` : ""}
     `;
 
     const response = await fetch(
