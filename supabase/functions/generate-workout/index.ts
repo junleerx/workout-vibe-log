@@ -19,7 +19,7 @@ serve(async (req) => {
   const userId = await verifyAuth(req);
   if (!userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
