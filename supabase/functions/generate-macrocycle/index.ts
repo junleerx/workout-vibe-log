@@ -83,6 +83,7 @@ serve(async (req: Request) => {
     - Choose effective, proven exercises matching the goal (${goal}).
     - For targetWeight, provide a realistic recommended starting weight in kg or lbs assuming an average male/female at this level. If it's pure bodyweight, use 0.
     - All descriptions must be in Korean. Exercise names can be in English/Korean.
+    ${goal.includes("5/3/1 BBB") ? "- CRITICAL: Follow the '5/3/1 Boring But Big (BBB)' protocol strictly. Main lifts should be Squat, Bench Press, Deadlift, Overhead Press (1 per day). Main lifts should use standard 5/3/1 progression logic. The BBB supplemental work MUST be 5 sets of 10 reps (5x10) of the main lift or its opposite, at roughly 50-60% of TM. Include basic accessory work (Push, Pull, Core/Legs) for high reps." : ""}
     `;
 
     const response = await fetch(

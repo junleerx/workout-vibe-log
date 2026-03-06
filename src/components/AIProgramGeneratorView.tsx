@@ -20,7 +20,7 @@ interface AIProgramGeneratorProps {
 
 const WEEKS_OPTIONS = [4, 8, 12];
 const DAYS_PER_WEEK_OPTIONS = [3, 4, 5, 6];
-const GOALS = ['근력 강화 (Strength)', '근비대 (Muscle Building)', '체지방 감량 (Fat Loss)', '기능성/크로스핏 (Functional/CrossFit)'];
+const GOALS = ['근력 강화 (Strength)', '근비대 (Muscle Building)', '체지방 감량 (Fat Loss)', '기능성/크로스핏 (Functional/CrossFit)', '5/3/1 BBB (파워빌딩)'];
 const LEVELS = ['초급', '중급', '고급'];
 
 export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGeneratorProps) {
