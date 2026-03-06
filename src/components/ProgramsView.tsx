@@ -95,6 +95,7 @@ export function ProgramsView({
     try { return JSON.parse(localStorage.getItem('hidden_templates') || '[]'); } catch { return []; }
   });
   const [managetab, setManagetab] = useState<'custom' | 'builtin'>('custom');
+  const [programCategory, setProgramCategory] = useState<'all' | 'general' | '531'>('all');
 
   // 폴더 관리 상태
   const [folders, setFolders] = useState<string[]>(() => {
@@ -191,6 +192,12 @@ export function ProgramsView({
   };
 
   const filteredPrograms = programs.filter(p => {
+    // Category filter
+    const is531 = p.note?.startsWith('531|');
+    if (programCategory === '531' && !is531) return false;
+    if (programCategory === 'general' && is531) return false;
+
+    // Folder filter
     const pFolder = p.folder || programFolders[p.id];
     if (activeFolder === '전체') return true;
     if (activeFolder === '미분류') return !pFolder;
@@ -553,360 +560,384 @@ export function ProgramsView({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold">운동 프로그램</h2>
-          <p className="text-sm text-muted-foreground mt-0.5 break-keep">루틴을 만들고 요일별로 관리하세요</p>
-        </div>
-        <div className="flex gap-2">
-          {/* Manage Exercise List */}
-          <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs h-9">
-                <Trash2 className="w-3.5 h-3.5" />
-                운동 관리
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-base">운동 목록 관리</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-1.5 py-1">
-                {/* Active exercises — built-in (not hidden) */}
-                {exerciseTemplates.filter(ex => !hiddenTemplates.includes(ex.name)).map((ex) => (
-                  <div key={`t-${ex.name}`} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
-                    <div>
-                      <span className="text-sm font-medium">{ex.name}</span>
-                      <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10" onClick={() => toggleHideTemplate(ex.name)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                ))}
-                {/* Active exercises — custom */}
-                {customExercises.map((ex) => (
-                  <div key={ex.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
-                    <div>
-                      <span className="text-sm font-medium">{ex.name}</span>
-                      <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10" onClick={() => { if (confirm(`"${ex.name}" 운동을 삭제하시겠습니까?`)) onDeleteCustomExercise(ex.id); }}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                ))}
-                {/* Deleted / hidden — restore section */}
-                {hiddenTemplates.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
-                    <p className="text-xs text-muted-foreground mb-2">삭제된 운동 ({hiddenTemplates.length}개) — 복원 가능</p>
-                    {exerciseTemplates.filter(ex => hiddenTemplates.includes(ex.name)).map((ex) => (
-                      <div key={`d-${ex.name}`} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/20 border border-border/20 opacity-50">
-                        <span className="text-sm line-through">{ex.name}</span>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg text-primary" onClick={() => toggleHideTemplate(ex.name)}>복원</Button>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold">운동 프로그램</h2>
+            <p className="text-sm text-muted-foreground mt-0.5 break-keep">루틴을 만들고 요일별로 관리하세요</p>
+          </div>
+          <div className="flex gap-2">
+            {/* Manage Exercise List */}
+            <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs h-9">
+                  <Trash2 className="w-3.5 h-3.5" />
+                  운동 관리
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-base">운동 목록 관리</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-1.5 py-1">
+                  {/* Active exercises — built-in (not hidden) */}
+                  {exerciseTemplates.filter(ex => !hiddenTemplates.includes(ex.name)).map((ex) => (
+                    <div key={`t-${ex.name}`} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
+                      <div>
+                        <span className="text-sm font-medium">{ex.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isDialogOpen} onOpenChange={(open) => { if (open) { setIsDialogOpen(true); } else { closeDialog(); } }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2 rounded-xl" onClick={() => setEditingId(null)}>
-                <Plus className="w-4 h-4" />
-                새 프로그램
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="text-lg">{editingId ? '프로그램 수정' : '새 프로그램 만들기'}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-5 py-2">
-                {/* Name */}
-                <div className="space-y-4">
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="프로그램 이름 (예: 데스캠프 1주차)" className="h-10 text-base" />
-                  <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="간단한 설명 (선택사항)" className="h-20 resize-none text-sm" />
-                  <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="이 프로그램에 대한 개인적인 메모나 팁을 적어주세요 (선택사항, 팝업/화면에 표시됨)" className="h-20 resize-none text-sm bg-secondary/30" />
-                </div>
-
-                {/* Days */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">요일</label>
-                  <div className="flex gap-1.5">
-                    {DAYS_OF_WEEK.map((day) => (
-                      <button
-                        key={day.id}
-                        type="button"
-                        onClick={() => handleDayToggle(day.id)}
-                        className={`w-10 h-10 rounded-full text-sm font-semibold transition-all duration-200 ${selectedDays.includes(day.id)
-                          ? 'bg-primary text-primary-foreground shadow-md'
-                          : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
-                          }`}
-                      >
-                        {day.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Add Exercise */}
-                <div className={`space-y-3 p-3 rounded-xl border ${activeGroupId ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      {activeGroupId ? '진행 중인 서킷 블록에 운동 추가' : '운동 추가 (목록 또는 직접 입력)'}
-                    </label>
-                    {!activeGroupId ? (
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setIsGroupingMode(!isGroupingMode)} className={`h-7 text-xs rounded-lg transition-colors ${isGroupingMode ? 'bg-primary border-primary text-primary-foreground' : 'border-border'}`}>
-                          {isGroupingMode ? '선택 취소' : '기존 운동 묶기'}
-                        </Button>
-                        <Button variant="secondary" size="sm" onClick={handleCreateGroup} className="h-7 text-xs rounded-lg border-primary/30 text-primary">
-                          + 신규 서킷 블록
-                        </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10" onClick={() => toggleHideTemplate(ex.name)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  {/* Active exercises — custom */}
+                  {customExercises.map((ex) => (
+                    <div key={ex.id} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/50 border border-border/40">
+                      <div>
+                        <span className="text-sm font-medium">{ex.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{ex.category}</span>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                          <span>라운드:</span>
-                          <Input
-                            type="number"
-                            value={activeGroupRounds}
-                            onChange={(e) => setActiveGroupRounds(Number(e.target.value) || 1)}
-                            className="w-12 h-6 px-1 text-center rounded bg-background/50 border-primary/20"
-                          />
+                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:bg-destructive/10" onClick={() => { if (confirm(`"${ex.name}" 운동을 삭제하시겠습니까?`)) onDeleteCustomExercise(ex.id); }}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  {/* Deleted / hidden — restore section */}
+                  {hiddenTemplates.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-border/30 space-y-1">
+                      <p className="text-xs text-muted-foreground mb-2">삭제된 운동 ({hiddenTemplates.length}개) — 복원 가능</p>
+                      {exerciseTemplates.filter(ex => hiddenTemplates.includes(ex.name)).map((ex) => (
+                        <div key={`d-${ex.name}`} className="flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/20 border border-border/20 opacity-50">
+                          <span className="text-sm line-through">{ex.name}</span>
+                          <Button variant="ghost" size="sm" className="h-7 text-xs rounded-lg text-primary" onClick={() => toggleHideTemplate(ex.name)}>복원</Button>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-accent">
-                          <span>쉬는시간:</span>
-                          <Input
-                            type="number"
-                            value={activeGroupRestTime}
-                            onChange={(e) => setActiveGroupRestTime(Number(e.target.value) || 0)}
-                            className="w-14 h-6 px-1 text-center rounded bg-background/50 border-accent/20"
-                          />
-                          <span>초</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isDialogOpen} onOpenChange={(open) => { if (open) { setIsDialogOpen(true); } else { closeDialog(); } }}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 rounded-xl" onClick={() => setEditingId(null)}>
+                  <Plus className="w-4 h-4" />
+                  새 프로그램
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-lg">{editingId ? '프로그램 수정' : '새 프로그램 만들기'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-5 py-2">
+                  {/* Name */}
+                  <div className="space-y-4">
+                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="프로그램 이름 (예: 데스캠프 1주차)" className="h-10 text-base" />
+                    <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="간단한 설명 (선택사항)" className="h-20 resize-none text-sm" />
+                    <Textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="이 프로그램에 대한 개인적인 메모나 팁을 적어주세요 (선택사항, 팝업/화면에 표시됨)" className="h-20 resize-none text-sm bg-secondary/30" />
+                  </div>
+
+                  {/* Days */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">요일</label>
+                    <div className="flex gap-1.5">
+                      {DAYS_OF_WEEK.map((day) => (
+                        <button
+                          key={day.id}
+                          type="button"
+                          onClick={() => handleDayToggle(day.id)}
+                          className={`w-10 h-10 rounded-full text-sm font-semibold transition-all duration-200 ${selectedDays.includes(day.id)
+                            ? 'bg-primary text-primary-foreground shadow-md'
+                            : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                            }`}
+                        >
+                          {day.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Add Exercise */}
+                  <div className={`space-y-3 p-3 rounded-xl border ${activeGroupId ? 'border-primary/50 bg-primary/5' : 'border-border bg-secondary/20'}`}>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-muted-foreground">
+                        {activeGroupId ? '진행 중인 서킷 블록에 운동 추가' : '운동 추가 (목록 또는 직접 입력)'}
+                      </label>
+                      {!activeGroupId ? (
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={() => setIsGroupingMode(!isGroupingMode)} className={`h-7 text-xs rounded-lg transition-colors ${isGroupingMode ? 'bg-primary border-primary text-primary-foreground' : 'border-border'}`}>
+                            {isGroupingMode ? '선택 취소' : '기존 운동 묶기'}
+                          </Button>
+                          <Button variant="secondary" size="sm" onClick={handleCreateGroup} className="h-7 text-xs rounded-lg border-primary/30 text-primary">
+                            + 신규 서킷 블록
+                          </Button>
                         </div>
-                        <Button variant="secondary" size="sm" onClick={handleFinishGroup} className="h-7 text-xs rounded-lg">
-                          블록 완료
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                            <span>라운드:</span>
+                            <Input
+                              type="number"
+                              value={activeGroupRounds}
+                              onChange={(e) => setActiveGroupRounds(Number(e.target.value) || 1)}
+                              className="w-12 h-6 px-1 text-center rounded bg-background/50 border-primary/20"
+                            />
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs font-semibold text-accent">
+                            <span>쉬는시간:</span>
+                            <Input
+                              type="number"
+                              value={activeGroupRestTime}
+                              onChange={(e) => setActiveGroupRestTime(Number(e.target.value) || 0)}
+                              className="w-14 h-6 px-1 text-center rounded bg-background/50 border-accent/20"
+                            />
+                            <span>초</span>
+                          </div>
+                          <Button variant="secondary" size="sm" onClick={handleFinishGroup} className="h-7 text-xs rounded-lg">
+                            블록 완료
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {isGroupingMode && (
+                      <div className="flex items-center justify-between p-2 bg-primary/10 rounded-lg mb-2">
+                        <span className="text-xs text-primary font-medium">{selectedIndicesForGroup.length}개 운동 선택됨</span>
+                        <Button size="sm" onClick={handleCreateGroupFromSelection} disabled={selectedIndicesForGroup.length < 2} className="h-7 text-xs rounded-lg">
+                          선택 항목 서킷으로 묶기
                         </Button>
                       </div>
                     )}
+
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex gap-2">
+                        <select
+                          className="flex-1 rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          value={selectedExercise}
+                          onChange={(e) => {
+                            setSelectedExercise(e.target.value);
+                            setCustomExerciseName(''); // 목록 선택 시 수동입력 초기화
+                          }}
+                        >
+                          <option value="">운동 목록에서 선택...</option>
+                          {allExercises.map((ex) => (
+                            <option key={ex.id} value={ex.name}>{ex.name} ({ex.category})</option>
+                          ))}
+                        </select>
+                        {selectedExercise && allExercises.find(e => e.name === selectedExercise)?.isCustom && (
+                          <Button type="button" variant="ghost" size="icon" onClick={handleDeleteSelectedCustomExercise} className="text-destructive shrink-0">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 flex gap-2">
+                        <Input
+                          placeholder="목록에 없는 운동 직접 입력"
+                          value={customExerciseName}
+                          onChange={(e) => {
+                            setCustomExerciseName(e.target.value);
+                            setSelectedExercise(''); // 수동입력 시 목록 선택 초기화
+                          }}
+                          className="rounded-xl h-10"
+                        />
+                        {customExerciseName.trim() && (
+                          <select
+                            className="w-24 rounded-xl border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            value={customExerciseCategory}
+                            onChange={(e) => setCustomExerciseCategory(e.target.value)}
+                          >
+                            <option value="가슴">가슴</option>
+                            <option value="등">등</option>
+                            <option value="어깨">어깨</option>
+                            <option value="하체">하체</option>
+                            <option value="팔">팔</option>
+                            <option value="복근">복근</option>
+                            <option value="전신">전신</option>
+                            <option value="유산소">유산소</option>
+                          </select>
+                        )}
+                      </div>
+                      <Button type="button" onClick={handleAddExercise} disabled={!selectedExercise && !customExerciseName.trim()} className="rounded-xl px-4 h-10">
+                        추가
+                      </Button>
+                    </div>
                   </div>
 
-                  {isGroupingMode && (
-                    <div className="flex items-center justify-between p-2 bg-primary/10 rounded-lg mb-2">
-                      <span className="text-xs text-primary font-medium">{selectedIndicesForGroup.length}개 운동 선택됨</span>
-                      <Button size="sm" onClick={handleCreateGroupFromSelection} disabled={selectedIndicesForGroup.length < 2} className="h-7 text-xs rounded-lg">
-                        선택 항목 서킷으로 묶기
-                      </Button>
+                  {/* Exercise List */}
+                  {programExercises.length > 0 && (
+                    <div className="space-y-2">
+                      {programExercises.map((ex, index) => {
+                        // 서킷 블록 시각적 처리
+                        const isGrouped = !!ex.groupId;
+                        const isFirstInGroup = isGrouped && (index === 0 || programExercises[index - 1].groupId !== ex.groupId);
+                        const isLastInGroup = isGrouped && (index === programExercises.length - 1 || programExercises[index + 1].groupId !== ex.groupId);
+
+                        return (
+                          <div key={index} className={`relative flex flex-col ${isGrouped ? 'mx-1' : ''}`}>
+                            {isFirstInGroup && (
+                              <div className="flex items-center justify-between gap-2 mb-1 pl-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
+                                    🔥
+                                  </Badge>
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    value={ex.groupRounds || 3}
+                                    onChange={(e) => {
+                                      const newRounds = Number(e.target.value) || 1;
+                                      const gid = ex.groupId;
+                                      setProgramExercises((prev) =>
+                                        prev.map((item) =>
+                                          item.groupId === gid ? { ...item, groupRounds: newRounds } : item
+                                        )
+                                      );
+                                    }}
+                                    className="w-12 h-6 text-center text-xs font-bold rounded-lg border border-primary/30 bg-primary/10 text-primary focus:outline-none"
+                                  />
+                                  <span className="text-xs text-muted-foreground font-medium">R</span>
+                                  <span className="text-xs text-muted-foreground">·</span>
+                                  <span className="text-xs text-accent font-medium">⏸</span>
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    value={ex.groupRestTime || 0}
+                                    onChange={(e) => {
+                                      const newRestTime = Number(e.target.value) || 0;
+                                      const gid = ex.groupId;
+                                      setProgramExercises((prev) =>
+                                        prev.map((item) =>
+                                          item.groupId === gid ? { ...item, groupRestTime: newRestTime } : item
+                                        )
+                                      );
+                                    }}
+                                    className="w-14 h-6 text-center text-xs font-bold rounded-lg border border-accent/30 bg-accent/10 text-accent focus:outline-none"
+                                  />
+                                  <span className="text-xs text-muted-foreground font-medium">초 휴식</span>
+                                </div>
+                                <Button variant="ghost" size="sm" onClick={() => handleUngroup(ex.groupId!)} className="h-6 text-[10px] rounded hover:bg-destructive/10 hover:text-destructive">
+                                  블록 해제
+                                </Button>
+                              </div>
+                            )}
+                            <div className={`p-3 bg-secondary/50 border-border/50 space-y-3 ${isGrouped
+                              ? `border-x ${isFirstInGroup ? 'rounded-t-xl border-t' : ''} ${isLastInGroup ? 'rounded-b-xl border-b mb-2' : ''} ${!isFirstInGroup && !isLastInGroup ? 'border-y-0' : ''} ml-2 border-l-primary/30`
+                              : 'rounded-xl border'
+                              } ${isGroupingMode && !isGrouped ? 'opacity-80' : ''}`}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  {isGroupingMode && !isGrouped && (
+                                    <input
+                                      type="checkbox"
+                                      className="w-4 h-4 mr-1 accent-primary rounded bg-background border-border/50"
+                                      checked={selectedIndicesForGroup.includes(index)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) setSelectedIndicesForGroup(prev => [...prev, index]);
+                                        else setSelectedIndicesForGroup(prev => prev.filter(i => i !== index));
+                                      }}
+                                    />
+                                  )}
+                                  {!isGroupingMode && (
+                                    <div className="flex flex-col">
+                                      <button type="button" onClick={() => handleMoveExercise(index, 'up')} disabled={index === 0} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
+                                        <ChevronUp className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button type="button" onClick={() => handleMoveExercise(index, 'down')} disabled={index === programExercises.length - 1} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
+                                        <ChevronDown className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  )}
+                                  <span className="font-medium text-sm">{ex.exerciseName}</span>
+                                  <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => handleRemoveExercise(index)}>
+                                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                                </Button>
+                              </div>
+
+                              {/* Desktop: 5 cols, Mobile: flex-wrap with proportional sizing */}
+                              <div className="flex flex-wrap sm:flex-nowrap gap-1.5 mt-3">
+                                <div className="space-y-1 flex-[1.5] min-w-[90px]">
+                                  <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
+                                  <NumberInput min={0} value={ex.targetSets || 0} onChange={(val) => handleUpdateExercise(index, { targetSets: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetSets ? 'opacity-70' : ''}`} />
+                                </div>
+                                <div className="space-y-1 flex-[1.5] min-w-[90px]">
+                                  <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
+                                  <NumberInput min={0} value={ex.targetReps || 0} onChange={(val) => handleUpdateExercise(index, { targetReps: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetReps ? 'opacity-70' : ''}`} />
+                                </div>
+                                <div className="space-y-1 flex-[1.5] min-w-[90px]">
+                                  <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게({unit})</span>
+                                  <NumberInput step={2.5} min={0} value={ex.targetWeight ? toDisplay(ex.targetWeight) : 0} onChange={(val) => handleUpdateExercise(index, { targetWeight: toKg(val) || 0 })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetWeight ? 'opacity-70' : ''}`} />
+                                </div>
+                                <div className="space-y-1 flex-1 min-w-[60px] sm:min-w-0">
+                                  <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
+                                  <Input type="number" placeholder="로잉" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 px-1 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                </div>
+                                <div className="space-y-1 flex-1 min-w-[60px] sm:min-w-0">
+                                  <span className={`text-[10px] font-medium transition-colors ${ex.targetTime ? 'text-primary' : 'text-muted-foreground/60'}`}>시간(초)</span>
+                                  <Input type="number" placeholder="초" value={ex.targetTime || ''} onChange={(e) => handleUpdateExercise(index, { targetTime: Number(e.target.value) || undefined })} className={`h-8 px-1 rounded-lg text-center text-sm transition-all ${!ex.targetTime ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
+                                </div>
+                              </div>
+                            </div>
+                            {isLastInGroup && activeGroupId !== ex.groupId && (
+                              <div className="flex justify-center -mt-1 mb-3 relative z-10 w-full">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-[11px] rounded-full border-primary/30 text-primary bg-background/90 shadow-sm hover:bg-primary/10 px-4 whitespace-nowrap"
+                                  onClick={() => {
+                                    setActiveGroupId(ex.groupId!);
+                                    setActiveGroupRounds(ex.groupRounds!);
+                                    setActiveGroupRestTime(ex.groupRestTime || 60);
+                                    const modal = document.querySelector('[role="dialog"]') || document.querySelector('.max-h-\\[90vh\\]');
+                                    modal?.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }}
+                                >
+                                  + 이 서킷 블록에 추가
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 
-                  <div className="flex gap-2">
-                    <div className="flex-1 flex gap-2">
-                      <select
-                        className="flex-1 rounded-xl border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                        value={selectedExercise}
-                        onChange={(e) => {
-                          setSelectedExercise(e.target.value);
-                          setCustomExerciseName(''); // 목록 선택 시 수동입력 초기화
-                        }}
-                      >
-                        <option value="">운동 목록에서 선택...</option>
-                        {allExercises.map((ex) => (
-                          <option key={ex.id} value={ex.name}>{ex.name} ({ex.category})</option>
-                        ))}
-                      </select>
-                      {selectedExercise && allExercises.find(e => e.name === selectedExercise)?.isCustom && (
-                        <Button type="button" variant="ghost" size="icon" onClick={handleDeleteSelectedCustomExercise} className="text-destructive shrink-0">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 flex gap-2">
-                      <Input
-                        placeholder="목록에 없는 운동 직접 입력"
-                        value={customExerciseName}
-                        onChange={(e) => {
-                          setCustomExerciseName(e.target.value);
-                          setSelectedExercise(''); // 수동입력 시 목록 선택 초기화
-                        }}
-                        className="rounded-xl h-10"
-                      />
-                      {customExerciseName.trim() && (
-                        <select
-                          className="w-24 rounded-xl border border-input bg-background px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                          value={customExerciseCategory}
-                          onChange={(e) => setCustomExerciseCategory(e.target.value)}
-                        >
-                          <option value="가슴">가슴</option>
-                          <option value="등">등</option>
-                          <option value="어깨">어깨</option>
-                          <option value="하체">하체</option>
-                          <option value="팔">팔</option>
-                          <option value="복근">복근</option>
-                          <option value="전신">전신</option>
-                          <option value="유산소">유산소</option>
-                        </select>
-                      )}
-                    </div>
-                    <Button type="button" onClick={handleAddExercise} disabled={!selectedExercise && !customExerciseName.trim()} className="rounded-xl px-4 h-10">
-                      추가
-                    </Button>
-                  </div>
+                  <Button onClick={handleSave} className="w-full rounded-xl h-11 font-semibold" disabled={!name.trim()}>
+                    {editingId ? '수정 완료' : '프로그램 생성'}
+                  </Button>
                 </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
 
-                {/* Exercise List */}
-                {programExercises.length > 0 && (
-                  <div className="space-y-2">
-                    {programExercises.map((ex, index) => {
-                      // 서킷 블록 시각적 처리
-                      const isGrouped = !!ex.groupId;
-                      const isFirstInGroup = isGrouped && (index === 0 || programExercises[index - 1].groupId !== ex.groupId);
-                      const isLastInGroup = isGrouped && (index === programExercises.length - 1 || programExercises[index + 1].groupId !== ex.groupId);
-
-                      return (
-                        <div key={index} className={`relative flex flex-col ${isGrouped ? 'mx-1' : ''}`}>
-                          {isFirstInGroup && (
-                            <div className="flex items-center justify-between gap-2 mb-1 pl-1">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <Badge variant="secondary" className="bg-primary/20 text-primary border-none">
-                                  🔥
-                                </Badge>
-                                <input
-                                  type="number"
-                                  min={1}
-                                  value={ex.groupRounds || 3}
-                                  onChange={(e) => {
-                                    const newRounds = Number(e.target.value) || 1;
-                                    const gid = ex.groupId;
-                                    setProgramExercises((prev) =>
-                                      prev.map((item) =>
-                                        item.groupId === gid ? { ...item, groupRounds: newRounds } : item
-                                      )
-                                    );
-                                  }}
-                                  className="w-12 h-6 text-center text-xs font-bold rounded-lg border border-primary/30 bg-primary/10 text-primary focus:outline-none"
-                                />
-                                <span className="text-xs text-muted-foreground font-medium">R</span>
-                                <span className="text-xs text-muted-foreground">·</span>
-                                <span className="text-xs text-accent font-medium">⏸</span>
-                                <input
-                                  type="number"
-                                  min={0}
-                                  value={ex.groupRestTime || 0}
-                                  onChange={(e) => {
-                                    const newRestTime = Number(e.target.value) || 0;
-                                    const gid = ex.groupId;
-                                    setProgramExercises((prev) =>
-                                      prev.map((item) =>
-                                        item.groupId === gid ? { ...item, groupRestTime: newRestTime } : item
-                                      )
-                                    );
-                                  }}
-                                  className="w-14 h-6 text-center text-xs font-bold rounded-lg border border-accent/30 bg-accent/10 text-accent focus:outline-none"
-                                />
-                                <span className="text-xs text-muted-foreground font-medium">초 휴식</span>
-                              </div>
-                              <Button variant="ghost" size="sm" onClick={() => handleUngroup(ex.groupId!)} className="h-6 text-[10px] rounded hover:bg-destructive/10 hover:text-destructive">
-                                블록 해제
-                              </Button>
-                            </div>
-                          )}
-                          <div className={`p-3 bg-secondary/50 border-border/50 space-y-3 ${isGrouped
-                            ? `border-x ${isFirstInGroup ? 'rounded-t-xl border-t' : ''} ${isLastInGroup ? 'rounded-b-xl border-b mb-2' : ''} ${!isFirstInGroup && !isLastInGroup ? 'border-y-0' : ''} ml-2 border-l-primary/30`
-                            : 'rounded-xl border'
-                            } ${isGroupingMode && !isGrouped ? 'opacity-80' : ''}`}>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {isGroupingMode && !isGrouped && (
-                                  <input
-                                    type="checkbox"
-                                    className="w-4 h-4 mr-1 accent-primary rounded bg-background border-border/50"
-                                    checked={selectedIndicesForGroup.includes(index)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) setSelectedIndicesForGroup(prev => [...prev, index]);
-                                      else setSelectedIndicesForGroup(prev => prev.filter(i => i !== index));
-                                    }}
-                                  />
-                                )}
-                                {!isGroupingMode && (
-                                  <div className="flex flex-col">
-                                    <button type="button" onClick={() => handleMoveExercise(index, 'up')} disabled={index === 0} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
-                                      <ChevronUp className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button type="button" onClick={() => handleMoveExercise(index, 'down')} disabled={index === programExercises.length - 1} className="text-muted-foreground/50 hover:text-foreground disabled:opacity-20 leading-none">
-                                      <ChevronDown className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                )}
-                                <span className="font-medium text-sm">{ex.exerciseName}</span>
-                                <Badge variant="outline" className="text-[10px] px-1.5">{ex.muscleGroup}</Badge>
-                              </div>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => handleRemoveExercise(index)}>
-                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                              </Button>
-                            </div>
-
-                            {/* Desktop: 5 cols, Mobile: flex-wrap with proportional sizing */}
-                            <div className="flex flex-wrap sm:flex-nowrap gap-1.5 mt-3">
-                              <div className="space-y-1 flex-[1.5] min-w-[90px]">
-                                <span className={`text-[10px] font-medium transition-colors ${ex.targetSets ? 'text-primary' : 'text-muted-foreground/60'}`}>세트</span>
-                                <NumberInput min={0} value={ex.targetSets || 0} onChange={(val) => handleUpdateExercise(index, { targetSets: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetSets ? 'opacity-70' : ''}`} />
-                              </div>
-                              <div className="space-y-1 flex-[1.5] min-w-[90px]">
-                                <span className={`text-[10px] font-medium transition-colors ${ex.targetReps ? 'text-primary' : 'text-muted-foreground/60'}`}>횟수</span>
-                                <NumberInput min={0} value={ex.targetReps || 0} onChange={(val) => handleUpdateExercise(index, { targetReps: val })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetReps ? 'opacity-70' : ''}`} />
-                              </div>
-                              <div className="space-y-1 flex-[1.5] min-w-[90px]">
-                                <span className={`text-[10px] font-medium transition-colors ${ex.targetWeight ? 'text-primary' : 'text-muted-foreground/60'}`}>무게({unit})</span>
-                                <NumberInput step={2.5} min={0} value={ex.targetWeight ? toDisplay(ex.targetWeight) : 0} onChange={(val) => handleUpdateExercise(index, { targetWeight: toKg(val) || 0 })} className={`h-8 rounded-lg text-sm transition-all ${!ex.targetWeight ? 'opacity-70' : ''}`} />
-                              </div>
-                              <div className="space-y-1 flex-1 min-w-[60px] sm:min-w-0">
-                                <span className={`text-[10px] font-medium transition-colors ${ex.targetDistance ? 'text-primary' : 'text-muted-foreground/60'}`}>거리(m)</span>
-                                <Input type="number" placeholder="로잉" value={ex.targetDistance || ''} onChange={(e) => handleUpdateExercise(index, { targetDistance: Number(e.target.value) || undefined })} className={`h-8 px-1 rounded-lg text-center text-sm transition-all ${!ex.targetDistance ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
-                              </div>
-                              <div className="space-y-1 flex-1 min-w-[60px] sm:min-w-0">
-                                <span className={`text-[10px] font-medium transition-colors ${ex.targetTime ? 'text-primary' : 'text-muted-foreground/60'}`}>시간(초)</span>
-                                <Input type="number" placeholder="초" value={ex.targetTime || ''} onChange={(e) => handleUpdateExercise(index, { targetTime: Number(e.target.value) || undefined })} className={`h-8 px-1 rounded-lg text-center text-sm transition-all ${!ex.targetTime ? 'bg-secondary/30 border-transparent text-muted-foreground placeholder:text-muted-foreground/40' : 'bg-background'}`} />
-                              </div>
-                            </div>
-                          </div>
-                          {isLastInGroup && activeGroupId !== ex.groupId && (
-                            <div className="flex justify-center -mt-1 mb-3 relative z-10 w-full">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="h-7 text-[11px] rounded-full border-primary/30 text-primary bg-background/90 shadow-sm hover:bg-primary/10 px-4 whitespace-nowrap"
-                                onClick={() => {
-                                  setActiveGroupId(ex.groupId!);
-                                  setActiveGroupRounds(ex.groupRounds!);
-                                  setActiveGroupRestTime(ex.groupRestTime || 60);
-                                  const modal = document.querySelector('[role="dialog"]') || document.querySelector('.max-h-\\[90vh\\]');
-                                  modal?.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                              >
-                                + 이 서킷 블록에 추가
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <Button onClick={handleSave} className="w-full rounded-xl h-11 font-semibold" disabled={!name.trim()}>
-                  {editingId ? '수정 완료' : '프로그램 생성'}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+        {/* Category Tabs */}
+        <div className="flex p-1 bg-secondary/50 rounded-2xl w-full">
+          <button
+            onClick={() => setProgramCategory('all')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${programCategory === 'all' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            전체 ({programs.length})
+          </button>
+          <button
+            onClick={() => setProgramCategory('general')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${programCategory === 'general' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            일반 ({programs.filter(p => !p.note?.startsWith('531|')).length})
+          </button>
+          <button
+            onClick={() => setProgramCategory('531')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${programCategory === '531' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            5/3/1 ({programs.filter(p => p.note?.startsWith('531|')).length})
+          </button>
         </div>
       </div>
 
@@ -1189,6 +1220,6 @@ export function ProgramsView({
           </Card>
         ))}
       </div>
-    </div >
+    </div>
   );
 }
