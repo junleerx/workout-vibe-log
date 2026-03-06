@@ -20,7 +20,7 @@ serve(async (req: Request) => {
   const userId = await verifyAuth(req);
   if (!userId) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
@@ -107,7 +107,9 @@ serve(async (req: Request) => {
 
     generatedText = generatedText.replace(/```json\n?|\n?```/g, "").trim();
 
-    return new Response(generatedText, {
+    const plan = JSON.parse(generatedText);
+
+    return new Response(JSON.stringify(plan), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
