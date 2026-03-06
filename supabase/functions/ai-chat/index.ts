@@ -16,10 +16,10 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
 
   // JWT Verification
-  const userId = await verifyAuth(req);
+  const { userId, errorData } = await verifyAuth(req);
   if (!userId) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
+    return new Response(JSON.stringify({ error: `Unauthorized: ${errorData}` }), {
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }

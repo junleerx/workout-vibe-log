@@ -25,6 +25,7 @@ interface AIProgramGeneratorProps {
             description: string;
             daysOfWeek: string[];
             exercises: Omit<ProgramExercise, 'id'>[];
+            note?: string;
         }[]
     ) => void;
     onCancel: () => void;
@@ -110,6 +111,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                     description: `${plan.planDescription}\n\n[이번 주 목표]\n${day.description}\n\n[점진적 과부하 가이드]\n${plan.progressionGuide}`,
                     daysOfWeek: day.daysOfWeek,
                     exercises,
+                    note: goal.includes('5/3/1') ? `531|S${oneRMs.squat}|B${oneRMs.bench}|D${oneRMs.deadlift}|O${oneRMs.ohp}` : undefined,
                 };
             });
 
