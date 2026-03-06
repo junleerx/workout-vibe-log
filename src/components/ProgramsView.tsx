@@ -404,41 +404,50 @@ export function ProgramsView({
                 <TableHeader className="bg-muted/50">
                   <TableRow className="hover:bg-transparent border-b-border/10">
                     <TableHead className="h-10 text-[11px] py-1 font-bold">종목</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary">Week 1</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">Week 2</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">Week 3</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary px-1">Week 1</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold px-1">Week 2</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold px-1">Week 3</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-accent px-1">BBB (5x10)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {lifts.map((lift) => {
                     const tm = Math.round(lift.val * 0.9);
-                    const round = (v: number) => Math.round(v * 2) / 2; // Round to 0.5 step
+                    const round = (v: number) => unit === 'kg' ? Math.round(v * 2) / 2 : Math.round(v / 2.5) * 2.5;
                     return (
                       <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10 h-14">
                         <TableCell className="py-2 text-[11px] font-bold">
                           {lift.label}
                         </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center bg-primary/5">
+                        <TableCell className="py-2 text-[11px] text-center bg-primary/5 px-1 whitespace-nowrap">
                           {tm > 0 ? (
                             <div className="space-y-1">
-                              <div className="text-primary font-bold">{round(tm * 0.85)}</div>
+                              <div className="text-primary font-bold leading-none">{round(tm * 0.85)}</div>
                               <div className="text-[9px] opacity-40 leading-none">Sets of 5</div>
                             </div>
                           ) : '-'}
                         </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center whitespace-nowrap">
+                        <TableCell className="py-2 text-[11px] text-center px-1 whitespace-nowrap">
                           {tm > 0 ? (
                             <div className="space-y-1">
-                              <div className="font-bold text-foreground/80">{round(tm * 0.9)}</div>
+                              <div className="font-bold text-foreground/80 leading-none">{round(tm * 0.9)}</div>
                               <div className="text-[9px] opacity-40 leading-none">Sets of 3</div>
                             </div>
                           ) : '-'}
                         </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center whitespace-nowrap">
+                        <TableCell className="py-2 text-[11px] text-center px-1 whitespace-nowrap">
                           {tm > 0 ? (
                             <div className="space-y-1">
-                              <div className="font-bold text-foreground/80">{round(tm * 0.95)}</div>
+                              <div className="font-bold text-foreground/80 leading-none">{round(tm * 0.95)}</div>
                               <div className="text-[9px] opacity-40 leading-none">AMRAP</div>
+                            </div>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell className="py-2 text-[11px] text-center bg-accent/5 px-1 whitespace-nowrap">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="text-accent font-bold leading-none">{round(tm * 0.5)}~{round(tm * 0.6)}</div>
+                              <div className="text-[9px] opacity-50 leading-none">5x10 Supplemental</div>
                             </div>
                           ) : '-'}
                         </TableCell>

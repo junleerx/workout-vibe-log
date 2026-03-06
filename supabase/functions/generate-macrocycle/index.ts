@@ -96,8 +96,13 @@ serve(async (req: Request) => {
       - OHP: ${oneRMs?.ohp || 50}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
     - Week 1: 65%TM x 5, 75%TM x 5, 85%TM x 5+. Week 2: 70%x3, 80%x3, 90%x3+. Week 3: 75%x5, 85%x3, 95%x1+.
     - BBB SUPPLEMENTAL: 5 sets of 10 reps (5x10) of the main lift at 50% to 60% of the calculated TM.
-    - Provide a clean, strategic overview in 'planDescription' (e.g. '이 프로그램은 ~를 목표로 하며, 4주간 ~의 흐름으로 진행됩니다.') without including the Markdown table again, as the UI handles it.
-    - Include basic accessory work (Push, Pull, Core/Legs) for 3 sets of 10-15 reps.` : ""}
+    - EACH WORKOUT DAY MUST START WITH: 
+      1. One Main Lift (5/3/1 Sets)
+      2. One Supplemental Lift (BBB 5x10 Sets) - either the same as main or opposite (e.g., Squat day can have Deadlift 5x10).
+      3. 2-3 Accessory exercises (3x10-15).
+    - Use the calculated TM weights for the main and supplemental lifts in the 'targetWeight' fields of the Week 1 template.
+    - Provide a clean, strategic overview in 'planDescription' without including the Markdown table again, as the UI handles it.
+    - All descriptions must be in Korean.` : ""}
     `;
 
     const response = await fetch(
