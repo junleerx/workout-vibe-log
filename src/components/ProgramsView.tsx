@@ -454,6 +454,11 @@ export function ProgramsView({
                               <div>{round(tm * 0.8)}</div>
                               <div className="opacity-50 text-[9px]">90%</div>
                               <div className="font-bold">{round(tm * 0.9)}</div>
+                        <TableCell className="py-2 text-[11px] text-center px-1 whitespace-nowrap">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="font-bold text-foreground/80 leading-none">{round(tm * 0.9)}</div>
+                              <div className="text-[9px] opacity-40 leading-none">Sets of 3</div>
                             </div>
                           ) : '–'}
                         </TableCell>
@@ -480,6 +485,14 @@ export function ProgramsView({
                               <div>{round(tm * 0.6)}</div>
                             </div>
                           ) : '–'}
+                        </TableCell>
+                        <TableCell className="py-2 text-[11px] text-center bg-accent/5 px-1 whitespace-nowrap">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="text-accent font-bold leading-none">{round(tm * 0.5)}~{round(tm * 0.6)}</div>
+                              <div className="text-[9px] opacity-50 leading-none">5x10 Supplemental</div>
+                            </div>
+                          ) : '-'}
                         </TableCell>
                       </TableRow>
                     );
