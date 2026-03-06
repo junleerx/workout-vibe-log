@@ -72,9 +72,10 @@ serve(async (req: Request) => {
               "muscleGroup": "string",
               "targetSets": number,
               "targetReps": number,
-              "targetWeight": number (0 for bodyweight, otherwise an estimated starting weight based on level),
-              "targetDistance": number (optional, for distance based exercises in meters),
-              "targetTime": number (optional, for time based exercises in seconds)
+              "targetWeight": number,
+              "sets": [
+                { "setNumber": number, "targetReps": number, "targetWeight": number }
+              ] (Optional: use for 5/3/1 main sets to show different weights/reps per set)
             }
           ]
         }
@@ -87,21 +88,25 @@ serve(async (req: Request) => {
     - Choose effective, proven exercises matching the goal (${goal}).
     - For targetWeight, provide a realistic recommended starting weight in NUMERIC VALUE of ${targetUnit} assuming an average male/female at this level. If it's pure bodyweight, use 0.
     - All descriptions must be in Korean. Exercise names can be in English/Korean.
-    ${(goal || "").includes("5/3/1 BBB") ? `
-    - CRITICAL: Follow the '5/3/1 Boring But Big (BBB)' protocol strictly. 
-    - MAIN LIFTS: Use these 1RM values to calculate the Training Max (TM = 90% of 1RM). 
-      - Squat: ${oneRMs?.squat || 100}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.squat) || 100) * 0.9)}${targetUnit}
-      - Bench: ${oneRMs?.bench || 80}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}
-      - Deadlift: ${oneRMs?.deadlift || 120}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.deadlift) || 120) * 0.9)}${targetUnit}
-      - OHP: ${oneRMs?.ohp || 50}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
-    - Week 1: 65%TM x 5, 75%TM x 5, 85%TM x 5+. Week 2: 70%x3, 80%x3, 90%x3+. Week 3: 75%x5, 85%x3, 95%x1+.
-    - BBB SUPPLEMENTAL: 5 sets of 10 reps (5x10) of the main lift at 50% to 60% of the calculated TM.
-    - EACH WORKOUT DAY MUST START WITH: 
-      1. One Main Lift (5/3/1 Sets)
-      2. One Supplemental Lift (BBB 5x10 Sets) - either the same as main or opposite (e.g., Squat day can have Deadlift 5x10).
-      3. 2-3 Accessory exercises (3x10-15).
-    - Use the calculated TM weights for the main and supplemental lifts in the 'targetWeight' fields of the Week 1 template.
-    - Provide a clean, strategic overview in 'planDescription' without including the Markdown table again, as the UI handles it.
+    ${(goal || "").includes("5/3/1") ? `
+    - CRITICAL: Generate a pure '5/3/1 Strength' program for exactly 4 WEEKS.
+    - NO ACCESSORIES, NO BBB. Only the 4 main lifts (Squat, Bench Press, Deadlift, OHP).
+    - OUTPUT STRUCTURE: The 'workouts' array MUST contain EXACTLY 4 items, one for EACH week:
+      1. "Week 1: 5-5-5+ (65%, 75%, 85% TM)"
+      2. "Week 2: 3-3-3+ (70%, 80%, 90% TM)"
+      3. "Week 3: 5/3/1+ (75%, 85%, 95% TM)"
+      4. "Week 4: Deload (40%, 50%, 60% TM)"
+    - FOR EACH WEEK: Every exercise MUST have exactly 3 sets defined in the 'sets' array with the correct calculated weights based on the TM:
+      - Week 1: Set 1 (65%TMx5), Set 2 (75%TMx5), Set 3 (85%TMx5+)
+      - Week 2: Set 1 (70%TMx3), Set 2 (80%TMx3), Set 3 (90%TMx3+)
+      - Week 3: Set 1 (75%TMx5), Set 2 (85%TMx3), Set 3 (95%TMx1+)
+      - Week 4: Set 1 (40%TMx5), Set 2 (50%TMx5), Set 3 (60%TMx5)
+    - MAIN LIFTS (1RM -> TM):
+      - Squat: ${oneRMs?.squat || 100}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.squat) || 100) * 0.9)}${targetUnit}
+      - Bench: ${oneRMs?.bench || 80}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}
+      - Deadlift: ${oneRMs?.deadlift || 120}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.deadlift) || 120) * 0.9)}${targetUnit}
+      - OHP: ${oneRMs?.ohp || 50}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
+    - ROUND weights to 0.5kg or 2.5lbs steps.
     - All descriptions must be in Korean.` : ""}
     `;
 
