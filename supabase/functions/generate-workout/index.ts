@@ -29,7 +29,7 @@ serve(async (req) => {
   const clientIdentifier = `${clientIp}-${userId}`;
   if (!rateLimiter.check(clientIdentifier)) {
     return new Response(JSON.stringify({ error: "Too many requests. Please wait a few minutes before trying again. 😅" }), {
-      status: 429,
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
@@ -115,7 +115,7 @@ serve(async (req) => {
     console.error("generate-workout error:", e);
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
