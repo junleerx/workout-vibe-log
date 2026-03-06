@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CalendarDays, Save, Sparkles, Loader2, ArrowRight } from 'lucide-react';
+import { CalendarDays, Save, Sparkles, Loader2, CheckSquare, Square } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ProgramExercise } from '@/types/program';
@@ -32,16 +32,32 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
     const [level, setLevel] = useState<string>('중급');
     const [loading, setLoading] = useState(false);
     const [generatedPrograms, setGeneratedPrograms] = useState<any[] | null>(null);
+    const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
     const { toast } = useToast();
 
     const handleSave = () => {
-        if (!generatedPrograms) return;
-        onSavePrograms(generatedPrograms);
+        if (!generatedPrograms || selectedIndices.length === 0) {
+            toast({
+                title: '선택된 프로그램이 없습니다.',
+                description: '저장할 프로그램을 하나 이상 선택해주세요.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        const programsToSave = generatedPrograms.filter((_, idx) => selectedIndices.includes(idx));
+        onSavePrograms(programsToSave);
         toast({
             title: '프로그램 저장 완료!',
-            description: `${weeks}주 분량의 프로그램이 내 루틴에 추가되었습니다.`,
+            description: `선택하신 ${programsToSave.length}개의 프로그램이 내 루틴에 추가되었습니다.`,
         });
         onCancel();
+    };
+
+    const toggleSelection = (index: number) => {
+        setSelectedIndices(prev =>
+            prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+        );
     };
 
     const handleGenerate = async () => {
@@ -71,6 +87,7 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
             });
 
             setGeneratedPrograms(programsToSave);
+            setSelectedIndices(programsToSave.map((_, i: number) => i));
         } catch (e: any) {
             console.error('Generate error:', e);
             toast({
@@ -188,43 +205,61 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                 {/* Generated Preview */}
                 {generatedPrograms && (
                     <div className="space-y-4 pt-4 slide-down mt-4 border-t border-border/50">
-                        <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-primary" />
-                            생성된 프로그램 미리보기
-                        </h3>
-                        {generatedPrograms.map((prog, idx) => (
-                            <Card key={idx} className="overflow-hidden border-primary/30 bg-card/80 backdrop-blur-sm">
-                                <CardContent className="p-0">
-                                    <div className="p-3 bg-primary/5 border-b border-border/30">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="font-bold text-sm">{prog.name}</h4>
-                                        </div>
-                                    </div>
-                                    <div className="p-3 space-y-2">
-                                        {prog.exercises.map((ex: any, i: number) => (
-                                            <div key={i} className="flex items-center justify-between text-xs py-1.5 px-2 rounded-lg bg-secondary/40">
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="w-4 h-4 rounded-full bg-primary/20 text-primary text-[9px] font-bold flex items-center justify-center">{i + 1}</span>
-                                                    <span className="font-medium truncate max-w-[120px] sm:max-w-[160px]">{ex.exerciseName}</span>
-                                                </div>
-                                                <span className="text-muted-foreground tabular-nums text-right whitespace-nowrap">
-                                                    {(ex.targetSets || 0) > 0 && (ex.targetReps || 0) > 0 && `${ex.targetSets}×${ex.targetReps}`}
-                                                    {ex.targetWeight > 0 && ` @ ${ex.targetWeight}`}
-                                                    {ex.targetWeight === 0 && ' @ BW'}
-                                                </span>
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+                                <Sparkles className="w-5 h-5 text-primary" />
+                                생성된 프로그램 미리보기
+                            </h3>
+                            <span className="text-xs text-muted-foreground font-medium bg-secondary/80 px-2 py-1 rounded-md">
+                                {selectedIndices.length} / {generatedPrograms.length} 선택됨
+                            </span>
+                        </div>
+                        {generatedPrograms.map((prog, idx) => {
+                            const isSelected = selectedIndices.includes(idx);
+                            return (
+                                <Card
+                                    key={idx}
+                                    className={`overflow-hidden border transition-all cursor-pointer ${isSelected ? 'border-primary ring-1 ring-primary/50 bg-primary/5' : 'border-border/50 bg-card/50 opacity-70'} backdrop-blur-sm`}
+                                    onClick={() => toggleSelection(idx)}
+                                >
+                                    <CardContent className="p-0">
+                                        <div className={`p-3 border-b flex items-center gap-3 ${isSelected ? 'bg-primary/10 border-primary/20' : 'bg-secondary/30 border-border/30'}`}>
+                                            <button type="button" className={`w-5 h-5 flex items-center justify-center rounded-md border ${isSelected ? 'bg-primary border-primary text-primary-foreground' : 'border-muted-foreground bg-background text-transparent'}`}>
+                                                {isSelected && <CheckSquare className="w-4 h-4" />}
+                                                {!isSelected && <Square className="w-4 h-4 opacity-0" />}
+                                            </button>
+                                            <div className="flex items-center gap-2 flex-1">
+                                                <h4 className={`font-bold text-sm ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>{prog.name}</h4>
                                             </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                        </div>
+                                        <div className="p-3 space-y-2">
+                                            {prog.exercises.map((ex: any, i: number) => (
+                                                <div key={i} className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-lg ${isSelected ? 'bg-background/80 shadow-sm' : 'bg-secondary/20'}`}>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className={`w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center ${isSelected ? 'bg-primary/20 text-primary' : 'bg-border text-muted-foreground'}`}>{i + 1}</span>
+                                                        <span className={`font-medium truncate max-w-[120px] sm:max-w-[160px] ${!isSelected && 'text-muted-foreground'}`}>{ex.exerciseName}</span>
+                                                    </div>
+                                                    <span className={`tabular-nums text-right whitespace-nowrap ${isSelected ? 'text-muted-foreground' : 'text-muted-foreground/50'}`}>
+                                                        {(ex.targetSets || 0) > 0 && (ex.targetReps || 0) > 0 && `${ex.targetSets}×${ex.targetReps}`}
+                                                        {ex.targetWeight > 0 && ` @ ${ex.targetWeight}`}
+                                                        {ex.targetWeight === 0 && ' @ BW'}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
 
                         <Button
-                            className="w-full h-12 rounded-xl mt-4 gap-2 text-base shadow-md"
+                            className="w-full h-12 rounded-xl mt-4 gap-2 text-base shadow-md transition-all"
                             onClick={handleSave}
+                            disabled={selectedIndices.length === 0}
+                            variant={selectedIndices.length === 0 ? "secondary" : "default"}
                         >
                             <Save className="w-5 h-5" />
-                            위 프로그램 전체 저장하기
+                            {selectedIndices.length > 0 ? `선택한 ${selectedIndices.length}개 프로그램 저장` : '프로그램을 선택해주세요'}
                         </Button>
                     </div>
                 )}
