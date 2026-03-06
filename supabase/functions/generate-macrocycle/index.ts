@@ -94,9 +94,9 @@ serve(async (req: Request) => {
       - Bench: ${oneRMs?.bench || 80}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}
       - Deadlift: ${oneRMs?.deadlift || 120}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.deadlift) || 120) * 0.9)}${targetUnit}
       - OHP: ${oneRMs?.ohp || 50}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
-    - SETS (Week 1): 65%TM x 5, 75%TM x 5, 85%TM x 5+.
+    - Week 1: 65%TM x 5, 75%TM x 5, 85%TM x 5+. Week 2: 70%x3, 80%x3, 90%x3+. Week 3: 75%x5, 85%x3, 95%x1+.
     - BBB SUPPLEMENTAL: 5 sets of 10 reps (5x10) of the main lift at 50% to 60% of the calculated TM.
-    - CRITICAL: Include a detailed Markdown Table in 'planDescription' showing the calculated weights for all 4 weeks for the 4 main lifts.
+    - Provide a clean, strategic overview in 'planDescription' (e.g. '이 프로그램은 ~를 목표로 하며, 4주간 ~의 흐름으로 진행됩니다.') without including the Markdown table again, as the UI handles it.
     - Include basic accessory work (Push, Pull, Core/Legs) for 3 sets of 10-15 reps.` : ""}
     `;
 

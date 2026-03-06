@@ -6,8 +6,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { NumberInput } from '@/components/ui/number-input';
-import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy, Folder, FolderPlus, FolderOpen, MoreVertical, Check, X } from 'lucide-react';
+import { Plus, Trash2, Play, Edit2, GripVertical, Target, ChevronUp, ChevronDown, Copy, Folder, FolderPlus, FolderOpen, MoreVertical, Check, X, LineChart, Info } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 import { WorkoutProgram, ProgramExercise, DAYS_OF_WEEK } from '@/types/program';
 import { exerciseTemplates } from '@/data/exercises';
@@ -332,6 +348,121 @@ export function ProgramsView({
   const handleUngroup = (groupId: string) => {
     setProgramExercises((prev) =>
       prev.map(ex => ex.groupId === groupId ? { ...ex, groupId: undefined, groupRounds: undefined } : ex)
+    );
+  };
+
+  const render531Roadmap = (program: WorkoutProgram) => {
+    if (!program.note?.startsWith('531|')) return null;
+
+    const parts = program.note.split('|');
+    const squat = parseFloat(parts[1].substring(1)) || 0;
+    const bench = parseFloat(parts[2].substring(1)) || 0;
+    const deadlift = parseFloat(parts[3].substring(1)) || 0;
+    const ohp = parseFloat(parts[4].substring(1)) || 0;
+
+    const lifts = [
+      { label: 'Squat', val: squat },
+      { label: 'Bench', val: bench },
+      { label: 'Deadlift', val: deadlift },
+      { label: 'OHP', val: ohp },
+    ];
+
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-[11px] font-bold border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 rounded-lg">
+            <LineChart className="w-3.5 h-3.5 text-primary" />
+            4주 로드맵 확인
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="h-[75vh] p-0 rounded-t-[32px] overflow-hidden border-t-primary/20 bg-background/95 backdrop-blur-xl">
+          <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mt-3 mb-1" />
+          <SheetHeader className="px-5 pt-4 pb-6 border-b border-border/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <LineChart className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <SheetTitle className="text-lg font-bold">5/3/1 점진적 과부하 루틴</SheetTitle>
+                <SheetDescription className="text-xs text-muted-foreground/80">1RM을 기준으로 산출된 4주 사이클 가이드입니다.</SheetDescription>
+              </div>
+            </div>
+          </SheetHeader>
+          <div className="px-5 py-6 space-y-6 overflow-y-auto max-h-[calc(75vh-150px)]">
+            <div className="grid grid-cols-2 gap-3">
+              {lifts.map(l => (
+                <div key={l.label} className="p-3 rounded-2xl bg-secondary/30 border border-border/30">
+                  <div className="text-[10px] text-muted-foreground font-medium">{l.label} 1RM</div>
+                  <div className="text-lg font-bold">{l.val}{unit}</div>
+                  <div className="text-[10px] text-primary font-bold opacity-70">TM: {Math.round(l.val * 0.9)}{unit}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border rounded-2xl overflow-hidden bg-card/50">
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow className="hover:bg-transparent border-b-border/10">
+                    <TableHead className="h-10 text-[11px] py-1 font-bold">종목</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary">Week 1</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">Week 2</TableHead>
+                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">Week 3</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {lifts.map((lift) => {
+                    const tm = Math.round(lift.val * 0.9);
+                    const round = (v: number) => Math.round(v * 2) / 2; // Round to 0.5 step
+                    return (
+                      <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10 h-14">
+                        <TableCell className="py-2 text-[11px] font-bold">
+                          {lift.label}
+                        </TableCell>
+                        <TableCell className="py-2 text-[11px] text-center bg-primary/5">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="text-primary font-bold">{round(tm * 0.85)}</div>
+                              <div className="text-[9px] opacity-40 leading-none">Sets of 5</div>
+                            </div>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell className="py-2 text-[11px] text-center whitespace-nowrap">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="font-bold text-foreground/80">{round(tm * 0.9)}</div>
+                              <div className="text-[9px] opacity-40 leading-none">Sets of 3</div>
+                            </div>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell className="py-2 text-[11px] text-center whitespace-nowrap">
+                          {tm > 0 ? (
+                            <div className="space-y-1">
+                              <div className="font-bold text-foreground/80">{round(tm * 0.95)}</div>
+                              <div className="text-[9px] opacity-40 leading-none">AMRAP</div>
+                            </div>
+                          ) : '-'}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-secondary/20 space-y-3">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-muted-foreground" />
+                <h4 className="text-xs font-bold text-muted-foreground">운영 팁</h4>
+              </div>
+              <ul className="text-[11px] text-muted-foreground/80 space-y-2 leading-relaxed list-disc ml-4">
+                <li>표시된 숫자는 해당 주차의 가장 무거운 마지막 세트 목표 무게입니다.</li>
+                <li><strong>BBB 보조 세트</strong>: 메인 종목 후 {unit === 'kg' ? 'TM의 50~60%' : '50-60% of TM'} 무게로 10회씩 5세트를 수행하세요.</li>
+                <li><strong>디로딩 (4주차)</strong>: 피로 관리를 위해 모든 세트를 TM의 40~60% 선에서 가볍게 진행하세요.</li>
+              </ul>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     );
   };
 
@@ -874,8 +1005,11 @@ export function ProgramsView({
                       {program.workoutStyle === 'rft' && <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 border-none font-bold">🏆 {program.targetRounds} Rounds</Badge>}
                     </div>
                     {program.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{program.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1 whitespace-pre-line leading-relaxed">{program.description.split('---')[0]}</p>
                     )}
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {render531Roadmap(program)}
+                    </div>
                   </div>
                   <div className="flex gap-0.5 -mr-1">
                     <DropdownMenu>
