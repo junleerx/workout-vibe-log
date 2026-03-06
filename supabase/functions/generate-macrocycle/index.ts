@@ -89,22 +89,22 @@ serve(async (req: Request) => {
     - For targetWeight, provide a realistic recommended starting weight in NUMERIC VALUE of ${targetUnit} assuming an average male/female at this level. If it's pure bodyweight, use 0.
     - All descriptions must be in Korean. Exercise names can be in English/Korean.
     ${(goal || "").includes("5/3/1") ? `
-    - CRITICAL: Generate a '5/3/1 BBB' program split by BODY PART for a 4-day training week.
-    - OUTPUT STRUCTURE: The 'workouts' array MUST contain EXACTLY 4 items, one for EACH main lift day:
-      1. "Day 1: Squat & Lower Body (스쿼트 & 하체)"
-      2. "Day 2: Bench Press & Upper Body (벤치프레스 & 가슴)"
-      3. "Day 3: Deadlift & Back (데드리프트 & 등)"
-      4. "Day 4: OHP & Shoulders (OHP & 어깨)"
-    - FOR EACH DAY: 
-      1. MAIN LIFT (5/3/1): Use the 'sets' array to define exactly 3 sets using Week 1 percentages (65%TMx5, 75%TMx5, 85%TMx5+).
-      2. SUPPLEMENTAL LIFT (BBB): Add a second exercise (the same lift as main) with 5 sets of 10 reps (5x10) at 50%~60% of the Training Max.
+    - CRITICAL: Generate a strict '5/3/1 BBB' 4-DAY SPLIT.
+    - NO ACCESSORIES. Each routine must contain ONLY the Main lift and its BBB supplemental sets.
+    - OUTPUT STRUCTURE: The 'workouts' array MUST contain EXACTLY 4 items:
+      1. "Day 1: Squat (스쿼트)" - Exercises: 1. Squat (5/3/1 Sets), 2. Squat (BBB 5x10 Sets)
+      2. "Day 2: Bench Press (벤치프레스)" - Exercises: 1. Bench Press (5/3/1 Sets), 2. Bench Press (BBB 5x10 Sets)
+      3. "Day 3: Deadlift (데드리프트)" - Exercises: 1. Deadlift (5/3/1 Sets), 2. Deadlift (BBB 5x10 Sets)
+      4. "Day 4: OHP (오버헤드 프레스)" - Exercises: 1. OHP (5/3/1 Sets), 2. OHP (BBB 5x10 Sets)
+    - FOR EACH EXERCISE:
+      - MAIN LIFT: Use 'sets' array for 3 sets (Week 1: 65%TMx5, 75%TMx5, 85%TMx5+).
+      - BBB LIFT: Use 5 sets of 10 reps at 50%~60% of TM.
     - MAIN LIFTS (1RM -> TM):
       - Squat: ${oneRMs?.squat || 100}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.squat) || 100) * 0.9)}${targetUnit}
       - Bench: ${oneRMs?.bench || 80}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}
       - Deadlift: ${oneRMs?.deadlift || 120}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.deadlift) || 120) * 0.9)}${targetUnit}
       - OHP: ${oneRMs?.ohp || 50}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
     - ROUND weights to 0.5kg or 2.5lbs steps.
-    - Use the 'planDescription' to explain that these saved programs use 'Week 1' weights, and the user should consult the [4-Week Roadmap] in the app for Week 2-4 targets.
     - All descriptions must be in Korean.` : ""}
     `;
 
