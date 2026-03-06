@@ -401,104 +401,87 @@ export function ProgramsView({
 
             <div className="border rounded-2xl overflow-hidden bg-card/50">
               <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow className="hover:bg-transparent border-b-border/10">
-                    <TableHead className="h-10 text-[11px] py-1 font-bold">종목 / TM</TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary">
-                      <div>Week 1</div>
-                      <div className="text-[9px] font-normal opacity-60">5s</div>
-                    </TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">
-                      <div>Week 2</div>
-                      <div className="text-[9px] font-normal opacity-60">3s</div>
-                    </TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold">
-                      <div>Week 3</div>
-                      <div className="text-[9px] font-normal opacity-60">5/3/1+</div>
-                    </TableHead>
-                    <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-muted-foreground/60">
-                      <div>Week 4</div>
-                      <div className="text-[9px] font-normal opacity-60">Deload</div>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {lifts.map((lift) => {
-                    const tm = Math.round(lift.val * 0.9);
-                    const round = (v: number) => Math.round(v / 2.5) * 2.5;
-                    return (
-                      <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10">
-                        <TableCell className="py-2 text-[11px]">
-                          <div className="font-bold">{lift.label}</div>
-                          <div className="text-[9px] opacity-60">TM: {tm > 0 ? tm : '–'}</div>
-                        </TableCell>
-                        <TableCell className="py-2 text-[10px] text-center bg-primary/5 align-top">
-                          {tm > 0 ? (
-                            <div className="space-y-1">
-                              <div className="opacity-50 text-[9px]">65%</div>
-                              <div>{round(tm * 0.65)}</div>
-                              <div className="opacity-50 text-[9px]">75%</div>
-                              <div>{round(tm * 0.75)}</div>
-                              <div className="opacity-50 text-[9px]">85%</div>
-                              <div className="text-primary font-bold">{round(tm * 0.85)}</div>
-                            </div>
-                          ) : '–'}
-                        </TableCell>
-                        <TableCell className="py-2 text-[10px] text-center align-top">
-                          {tm > 0 ? (
-                            <div className="space-y-1">
-                              <div className="opacity-50 text-[9px]">70%</div>
-                              <div>{round(tm * 0.7)}</div>
-                              <div className="opacity-50 text-[9px]">80%</div>
-                              <div>{round(tm * 0.8)}</div>
-                              <div className="opacity-50 text-[9px]">90%</div>
-                              <div className="font-bold">{round(tm * 0.9)}</div>
-                        <TableCell className="py-2 text-[11px] text-center px-1 whitespace-nowrap">
-                          {tm > 0 ? (
-                            <div className="space-y-1">
-                              <div className="font-bold text-foreground/80 leading-none">{round(tm * 0.9)}</div>
-                              <div className="text-[9px] opacity-40 leading-none">Sets of 3</div>
-                            </div>
-                          ) : '–'}
-                        </TableCell>
-                        <TableCell className="py-2 text-[10px] text-center align-top">
-                          {tm > 0 ? (
-                            <div className="space-y-1">
-                              <div className="opacity-50 text-[9px]">75%</div>
-                              <div>{round(tm * 0.75)}</div>
-                              <div className="opacity-50 text-[9px]">85%</div>
-                              <div>{round(tm * 0.85)}</div>
-                              <div className="opacity-50 text-[9px]">95%+</div>
-                              <div className="font-bold">{round(tm * 0.95)}</div>
-                            </div>
-                          ) : '–'}
-                        </TableCell>
-                        <TableCell className="py-2 text-[10px] text-center opacity-50 align-top">
-                          {tm > 0 ? (
-                            <div className="space-y-1">
-                              <div className="opacity-50 text-[9px]">40%</div>
-                              <div>{round(tm * 0.4)}</div>
-                              <div className="opacity-50 text-[9px]">50%</div>
-                              <div>{round(tm * 0.5)}</div>
-                              <div className="opacity-50 text-[9px]">60%</div>
-                              <div>{round(tm * 0.6)}</div>
-                            </div>
-                          ) : '–'}
-                        </TableCell>
-                        <TableCell className="py-2 text-[11px] text-center bg-accent/5 px-1 whitespace-nowrap">
-                          {tm > 0 ? (
-                            <div className="space-y-1">
-                              <div className="text-accent font-bold leading-none">{round(tm * 0.5)}~{round(tm * 0.6)}</div>
-                              <div className="text-[9px] opacity-50 leading-none">5x10 Supplemental</div>
-                            </div>
-                          ) : '-'}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                <Table>
+                  <TableHeader className="bg-muted/50">
+                    <TableRow className="hover:bg-transparent border-b-border/10">
+                      <TableHead className="h-10 text-[11px] py-1 font-bold">종목 / TM</TableHead>
+                      <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-primary">
+                        <div>Week 1</div>
+                        <div className="text-[9px] font-normal opacity-60">5s</div>
+                      </TableHead>
+                      <TableHead className="h-10 text-[11px] py-1 text-center font-bold">
+                        <div>Week 2</div>
+                        <div className="text-[9px] font-normal opacity-60">3s</div>
+                      </TableHead>
+                      <TableHead className="h-10 text-[11px] py-1 text-center font-bold">
+                        <div>Week 3</div>
+                        <div className="text-[9px] font-normal opacity-60">5/3/1+</div>
+                      </TableHead>
+                      <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-muted-foreground/60">
+                        <div>Week 4</div>
+                        <div className="text-[9px] font-normal opacity-60">Deload</div>
+                      </TableHead>
+                      <TableHead className="h-10 text-[11px] py-1 text-center font-bold text-accent px-1">
+                        <div>BBB</div>
+                        <div className="text-[9px] font-normal opacity-60">5x10</div>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {lifts.map((lift) => {
+                      const tm = Math.round(lift.val * 0.9);
+                      const round = (v: number) => unit === 'kg' ? Math.round(v * 2) / 2 : Math.round(v / 2.5) * 2.5;
+                      return (
+                        <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10">
+                          <TableCell className="py-2 text-[11px]">
+                            <div className="font-bold">{lift.label}</div>
+                            <div className="text-[9px] opacity-60">TM: {tm > 0 ? tm : '–'}</div>
+                          </TableCell>
+                          <TableCell className="py-2 text-[10px] text-center bg-primary/5 align-top">
+                            {tm > 0 ? (
+                              <div className="space-y-1">
+                                <div className="opacity-50 text-[9px]">65/75/85%</div>
+                                <div className="text-primary font-bold">{round(tm * 0.85)}</div>
+                              </div>
+                            ) : '–'}
+                          </TableCell>
+                          <TableCell className="py-2 text-[10px] text-center align-top">
+                            {tm > 0 ? (
+                              <div className="space-y-1">
+                                <div className="opacity-50 text-[9px]">70/80/90%</div>
+                                <div className="font-bold text-foreground/80">{round(tm * 0.9)}</div>
+                              </div>
+                            ) : '–'}
+                          </TableCell>
+                          <TableCell className="py-2 text-[10px] text-center align-top">
+                            {tm > 0 ? (
+                              <div className="space-y-1">
+                                <div className="opacity-50 text-[9px]">75/85/95%</div>
+                                <div className="font-bold text-foreground/80">{round(tm * 0.95)}</div>
+                              </div>
+                            ) : '–'}
+                          </TableCell>
+                          <TableCell className="py-2 text-[10px] text-center opacity-50 align-top">
+                            {tm > 0 ? (
+                              <div className="space-y-1 text-muted-foreground">
+                                <div className="opacity-50 text-[9px]">40/50/60%</div>
+                                <div className="font-bold">{round(tm * 0.6)}</div>
+                              </div>
+                            ) : '–'}
+                          </TableCell>
+                          <TableCell className="py-2 text-[11px] text-center bg-accent/5 px-1 whitespace-nowrap">
+                            {tm > 0 ? (
+                              <div className="space-y-1">
+                                <div className="text-accent font-bold leading-none">{round(tm * 0.5)}~{round(tm * 0.6)}</div>
+                                <div className="text-[9px] opacity-50 leading-none">5x10 Supplemental</div>
+                              </div>
+                            ) : '-'}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
               </div>
             </div>
 
