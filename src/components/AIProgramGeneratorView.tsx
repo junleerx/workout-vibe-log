@@ -9,6 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
+} from "@/components/ui/table";
 
 interface AIProgramGeneratorProps {
     onSavePrograms: (
@@ -252,6 +260,64 @@ export function AIProgramGeneratorView({ onSavePrograms, onCancel }: AIProgramGe
                         <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
                             * 입력하신 1RM의 90%를 훈련 최대중량(Training Max)으로 설정하여 점진적 보조 운동과 본 운동 무게가 자동 계산됩니다.
                         </p>
+
+                        {/* 4-Week Preview Table */}
+                        {(oneRMs.squat || oneRMs.bench || oneRMs.deadlift || oneRMs.ohp) && (
+                            <div className="mt-4 border rounded-xl overflow-hidden bg-background/40">
+                                <div className="p-2.5 bg-secondary/30 border-b">
+                                    <h4 className="text-[11px] font-bold text-foreground">4주간의 5/3/1 본운동 설계 가이드 ({unit})</h4>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader className="bg-muted/50">
+                                            <TableRow className="hover:bg-transparent border-b-muted-foreground/10">
+                                                <TableHead className="h-8 text-[10px] py-1">종목 / TM</TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center font-bold text-primary">Week 1</TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center">Week 2</TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center">Week 3</TableHead>
+                                                <TableHead className="h-8 text-[10px] py-1 text-center text-muted-foreground/60">Week 4 (D)</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {[
+                                                { label: 'Squat', val: Number(oneRMs.squat) || 0 },
+                                                { label: 'Bench', val: Number(oneRMs.bench) || 0 },
+                                                { label: 'Deadlift', val: Number(oneRMs.deadlift) || 0 },
+                                                { label: 'OHP', val: Number(oneRMs.ohp) || 0 },
+                                            ].map((lift) => {
+                                                const tm = Math.round(lift.val * 0.9);
+                                                const round = (v: number) => Math.round(v / 2.5) * 2.5;
+                                                return (
+                                                    <TableRow key={lift.label} className="hover:bg-transparent border-b-muted-foreground/10 h-10">
+                                                        <TableCell className="py-2 text-[10px]">
+                                                            <span className="font-bold">{lift.label}</span>
+                                                            <div className="text-[9px] opacity-60">TM: {tm}</div>
+                                                        </TableCell>
+                                                        <TableCell className="py-2 text-[10px] text-center font-bold bg-primary/5 text-primary">
+                                                            {tm > 0 ? `${round(tm * 0.65)} / ${round(tm * 0.75)} / ${round(tm * 0.85)}` : '-'}
+                                                        </TableCell>
+                                                        <TableCell className="py-2 text-[10px] text-center whitespace-nowrap">
+                                                            {tm > 0 ? `${round(tm * 0.7)} / ${round(tm * 0.8)} / ${round(tm * 0.9)}` : '-'}
+                                                        </TableCell>
+                                                        <TableCell className="py-2 text-[10px] text-center whitespace-nowrap">
+                                                            {tm > 0 ? `${round(tm * 0.75)} / ${round(tm * 0.85)} / ${round(tm * 0.95)}` : '-'}
+                                                        </TableCell>
+                                                        <TableCell className="py-2 text-[10px] text-center opacity-40 whitespace-nowrap">
+                                                            {tm > 0 ? `${round(tm * 0.4)} / ${round(tm * 0.5)} / ${round(tm * 0.6)}` : '-'}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <div className="p-2 bg-muted/20">
+                                    <p className="text-[9px] text-muted-foreground/70 leading-tight">
+                                        * Week 1~3은 메인 세트의 가이드 중량이며, BBB 보조세트는 {unit === 'kg' ? 'TM의 50~60% 선' : 'TM의 50-60%'}에서 고정 수행합니다. Week 4는 디로딩주간입니다.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

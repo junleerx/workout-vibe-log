@@ -94,8 +94,9 @@ serve(async (req: Request) => {
       - Bench: ${oneRMs?.bench || 80}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}
       - Deadlift: ${oneRMs?.deadlift || 120}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.deadlift) || 120) * 0.9)}${targetUnit}
       - OHP: ${oneRMs?.ohp || 50}${targetUnit} (1RM) -> TM: ${Math.round((Number(oneRMs?.ohp) || 50) * 0.9)}${targetUnit}
-    - SETS (Week 1): 65%TM x 5, 75%TM x 5, 85%TM x 5+. (Use these calculated numbers in targetWeight).
-    - BBB SUPPLEMENTAL: 5 sets of 10 reps (5x10) of the main lift (or opposite) at 50% to 60% of the calculated TM.
+    - SETS (Week 1): 65%TM x 5, 75%TM x 5, 85%TM x 5+.
+    - BBB SUPPLEMENTAL: 5 sets of 10 reps (5x10) of the main lift at 50% to 60% of the calculated TM.
+    - CRITICAL: Include a detailed Markdown Table in 'planDescription' showing the calculated weights for all 4 weeks for the 4 main lifts.
     - Include basic accessory work (Push, Pull, Core/Legs) for 3 sets of 10-15 reps.` : ""}
     `;
 
