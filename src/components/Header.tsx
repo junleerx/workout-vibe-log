@@ -37,9 +37,9 @@ export function Header({ activeTab, onTabChange, userEmail, onSignOut }: HeaderP
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 z-50 pt-[var(--sa-top)] pb-3 px-4 sm:px-6"
+      className="fixed top-0 inset-x-0 z-50 pt-[calc(var(--sa-top)+0.5rem)] pb-3 px-4 sm:px-6 pointer-events-none"
     >
-      <div className="mx-auto max-w-5xl rounded-2xl glass card-shadow px-4 py-3 flex items-center justify-between transition-all duration-300">
+      <div className="mx-auto max-w-5xl rounded-2xl glass card-shadow px-4 py-3 flex items-center justify-between transition-all duration-300 pointer-events-auto">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl overflow-hidden glow-effect flex-shrink-0">
             <img src="/logo-patch.jpg" alt="Juni's Gym" className="w-full h-full object-cover" />

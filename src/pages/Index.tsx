@@ -169,7 +169,7 @@ const Index = () => {
         <img src="/logo-patch.jpg" alt="" className="w-[500px] h-[500px] object-contain opacity-[0.25]" />
       </div>
       <Header activeTab={activeTab} onTabChange={setActiveTab} userEmail={user.email} onSignOut={signOut} />
-      <main className="container max-w-2xl mx-auto px-4 pt-4 relative z-10">
+      <main className="container max-w-2xl mx-auto px-4 pt-[calc(var(--sa-top)+104px)] relative z-10">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabType)} className="space-y-6 pb-6">
 
           <TabsContent value="dashboard" className="mt-0 outline-none">
