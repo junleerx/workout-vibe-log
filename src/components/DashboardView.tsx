@@ -36,8 +36,11 @@ export function DashboardView({ workouts, selectedMember, isLoading, onNavigateT
 
     // ─── user-configurable weekly goal ───
     const [weeklyGoal, setWeeklyGoal] = useState(() => {
-        const saved = localStorage.getItem('weeklyGoal');
-        return saved ? parseInt(saved) : 5;
+        try {
+            const saved = localStorage.getItem('weeklyGoal');
+            const parsed = saved ? parseInt(saved) : 5;
+            return isNaN(parsed) || parsed < 1 ? 5 : parsed;
+        } catch { return 5; }
     });
     const [tempGoal, setTempGoal] = useState(weeklyGoal);
 

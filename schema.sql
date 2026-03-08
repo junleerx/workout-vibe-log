@@ -57,6 +57,9 @@ CREATE TABLE public.exercise_sets (
   weight NUMERIC NOT NULL DEFAULT 0,
   reps INTEGER NOT NULL DEFAULT 0,
   completed BOOLEAN NOT NULL DEFAULT false,
+  rir INTEGER,                -- Reps in Reserve (0-4)
+  is_painful BOOLEAN,         -- 통증 여부
+  notes TEXT,                 -- 세트별 메모
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
@@ -162,3 +165,9 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ─── Migration: exercise_sets에 rir, is_painful, notes 컬럼 추가 ───
+-- 기존 DB에서 실행하세요 (새 설치 시에는 위 CREATE TABLE에 이미 포함됨)
+-- ALTER TABLE public.exercise_sets ADD COLUMN IF NOT EXISTS rir INTEGER;
+-- ALTER TABLE public.exercise_sets ADD COLUMN IF NOT EXISTS is_painful BOOLEAN;
+-- ALTER TABLE public.exercise_sets ADD COLUMN IF NOT EXISTS notes TEXT;
