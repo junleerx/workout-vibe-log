@@ -103,9 +103,10 @@ export function ExerciseCard({
                 <div className="flex-1 min-w-0">
                   <NumberInput
                     value={set.weight ? toDisplay(set.weight) : 0}
-                    onChange={(val) =>
-                      onUpdateSet(set.id, { weight: toKg(val) || 0 })
-                    }
+                    onChange={(val) => {
+                      const clamped = Math.max(0, Math.min(val || 0, 9999));
+                      onUpdateSet(set.id, { weight: toKg(clamped) });
+                    }}
                     className="w-full text-xs h-9 px-0"
                     step={2.5}
                     min={0}
@@ -114,9 +115,10 @@ export function ExerciseCard({
                 <div className="flex-1 min-w-0">
                   <NumberInput
                     value={set.reps || 0}
-                    onChange={(val) =>
-                      onUpdateSet(set.id, { reps: val || 0 })
-                    }
+                    onChange={(val) => {
+                      const clamped = Math.max(0, Math.min(Math.round(val || 0), 999));
+                      onUpdateSet(set.id, { reps: clamped });
+                    }}
                     className="w-full text-xs h-9 px-0"
                     step={1}
                     min={0}

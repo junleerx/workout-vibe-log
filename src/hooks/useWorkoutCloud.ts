@@ -39,53 +39,49 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     setLoading(true);
 
     try {
-      let query = supabase
+      // 단일 JOIN 쿼리로 workouts → exercises → sets 한 번에 가져오기
+      const { data: workoutsData, error: workoutsError } = await supabase
         .from('workouts')
-        .select('*')
+        .select(`
+          *,
+          workout_exercises (
+            *,
+            exercise_sets (*)
+          )
+        `)
         .eq('member_id', memberId)
         .order('date', { ascending: false });
 
-      const { data: workoutsData, error: workoutsError } = await query;
-
       if (workoutsError) throw workoutsError;
 
-      const fullWorkouts: Workout[] = await Promise.all(
-        (workoutsData || []).map(async (workout) => {
-          const { data: exercisesData } = await supabase
-            .from('workout_exercises')
-            .select('*')
-            .eq('workout_id', workout.id);
-
-          const exercises: Exercise[] = await Promise.all(
-            (exercisesData || []).map(async (ex) => {
-              const { data: setsData } = await supabase
-                .from('exercise_sets')
-                .select('*')
-                .eq('workout_exercise_id', ex.id)
-                .order('set_number', { ascending: true });
-
-              return {
-                id: ex.id,
-                name: ex.exercise_name,
-                category: ex.muscle_group as Exercise['category'],
-                sets: (setsData || []).map((s) => ({
-                  id: s.id,
-                  reps: s.reps,
-                  weight: Number(s.weight),
-                  completed: s.completed,
-                })),
-              };
-            })
+      const fullWorkouts: Workout[] = (workoutsData || []).map((workout: any) => {
+        const exercises: Exercise[] = (workout.workout_exercises || []).map((ex: any) => {
+          const sortedSets = (ex.exercise_sets || []).sort(
+            (a: any, b: any) => a.set_number - b.set_number
           );
-
           return {
-            id: workout.id,
-            date: workout.date,
-            duration: workout.duration,
-            exercises,
+            id: ex.id,
+            name: ex.exercise_name,
+            category: ex.muscle_group as Exercise['category'],
+            sets: sortedSets.map((s: any) => ({
+              id: s.id,
+              reps: s.reps,
+              weight: Number(s.weight),
+              completed: s.completed,
+              rir: s.rir ?? undefined,
+              isPainful: s.is_painful ?? undefined,
+              notes: s.notes ?? undefined,
+            })),
           };
-        })
-      );
+        });
+
+        return {
+          id: workout.id,
+          date: workout.date,
+          duration: workout.duration,
+          exercises,
+        };
+      });
 
       setWorkouts(fullWorkouts);
     } catch (error) {
@@ -434,13 +430,16 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
 
         if (exerciseError) throw exerciseError;
 
-        // Insert sets
+        // Insert sets (rir, is_painful, notes 포함)
         const setsToInsert = exercise.sets.map((set, index) => ({
           workout_exercise_id: exerciseData.id,
           set_number: index + 1,
           weight: set.weight,
           reps: set.reps,
           completed: set.completed,
+          ...(set.rir != null ? { rir: set.rir } : {}),
+          ...(set.isPainful != null ? { is_painful: set.isPainful } : {}),
+          ...(set.notes ? { notes: set.notes } : {}),
         }));
 
         const { error: setsError } = await supabase

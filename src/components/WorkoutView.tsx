@@ -46,8 +46,11 @@ export function WorkoutView({
   const [elapsed, setElapsed] = useState(0);
   const [showRestSettings, setShowRestSettings] = useState(false);
   const [defaultRestTime, setDefaultRestTime] = useState(() => {
-    const saved = localStorage.getItem('defaultRestTime');
-    return saved ? parseInt(saved) : 90;
+    try {
+      const saved = localStorage.getItem('defaultRestTime');
+      const parsed = saved ? parseInt(saved) : 90;
+      return isNaN(parsed) || parsed < 0 ? 90 : parsed;
+    } catch { return 90; }
   });
   const [tempRestTime, setTempRestTime] = useState(defaultRestTime);
   const { unit, toDisplay } = useWeightUnit();
