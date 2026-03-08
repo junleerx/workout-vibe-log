@@ -471,6 +471,83 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     }
   };
 
+  const addManualWorkout = async (workout: Workout): Promise<boolean> => {
+    if (!user) return false;
+
+    let totalVolume = 0;
+    let totalSets = 0;
+    workout.exercises.forEach((ex) => {
+      ex.sets.forEach((set) => {
+        if (set.completed) {
+          totalVolume += set.weight * set.reps;
+          totalSets++;
+        }
+      });
+    });
+
+    try {
+      const { data: workoutData, error: workoutError } = await supabase
+        .from('workouts')
+        .insert({
+          user_id: user.id,
+          date: workout.date.split('T')[0],
+          duration: workout.duration || 3600,
+          total_volume: totalVolume,
+          total_sets: totalSets,
+          member_id: workout.memberId || null,
+        })
+        .select()
+        .single();
+
+      if (workoutError) throw workoutError;
+
+      for (const exercise of workout.exercises) {
+        const { data: exerciseData, error: exerciseError } = await supabase
+          .from('workout_exercises')
+          .insert({
+            workout_id: workoutData.id,
+            exercise_id: exercise.id,
+            exercise_name: exercise.name,
+            muscle_group: exercise.category,
+          })
+          .select()
+          .single();
+
+        if (exerciseError) throw exerciseError;
+
+        const setsToInsert = exercise.sets.map((set, index) => ({
+          workout_exercise_id: exerciseData.id,
+          set_number: index + 1,
+          weight: set.weight,
+          reps: set.reps,
+          completed: set.completed,
+        }));
+
+        const { error: setsError } = await supabase
+          .from('exercise_sets')
+          .insert(setsToInsert);
+
+        if (setsError) throw setsError;
+      }
+
+      toast({
+        title: '완료!',
+        description: '수기 기록이 추가되었습니다.',
+      });
+
+      fetchWorkouts();
+      return true;
+    } catch (error) {
+      console.error('Error adding manual workout:', error);
+      toast({
+        title: '오류',
+        description: '기록 추가에 실패했습니다.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   const cancelWorkout = () => {
     setCurrentWorkout(null);
   };
@@ -543,6 +620,7 @@ export function useWorkoutCloud({ memberId }: UseWorkoutCloudOptions = {}) {
     removeSet,
     updateSet,
     finishWorkout,
+    addManualWorkout,
     cancelWorkout,
     deleteWorkout,
     updateSavedSet,

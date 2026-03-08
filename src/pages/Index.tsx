@@ -41,12 +41,13 @@ const TabTransition = ({ children, value, activeTab }: { children: React.ReactNo
 
 import { Member } from '@/types/member';
 
-function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram }: {
+function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram, onAddManualWorkout }: {
   workouts: Workout[];
   selectedMember: Member | null | undefined;
   onDeleteWorkout: (id: string) => void;
   onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
   onSaveAsProgram?: (workout: Workout, name: string) => Promise<void>;
+  onAddManualWorkout?: (workout: Workout) => Promise<boolean>;
 }) {
   const [inner, setInner] = useState<'history' | 'progress'>('history');
   return (
@@ -69,7 +70,7 @@ function RecordsTab({ workouts, selectedMember, onDeleteWorkout, onUpdateSavedSe
         <DataExport workouts={workouts} />
       </div>
       {inner === 'history'
-        ? <HistoryView workouts={workouts} onDeleteWorkout={onDeleteWorkout} onUpdateSavedSet={onUpdateSavedSet} onSaveAsProgram={onSaveAsProgram} />
+        ? <HistoryView workouts={workouts} onDeleteWorkout={onDeleteWorkout} onUpdateSavedSet={onUpdateSavedSet} onSaveAsProgram={onSaveAsProgram} onAddManualWorkout={onAddManualWorkout} />
         : <ProgressView workouts={workouts} selectedMember={selectedMember} />
       }
     </div>
@@ -80,7 +81,7 @@ const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { members, selectedMember, setSelectedMember, addMember, updateMember, deleteMember, loading: membersLoading } = useMembers();
-  const { workouts, loading: workoutsLoading, isAIGenerating, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
+  const { workouts, loading: workoutsLoading, isAIGenerating, currentWorkout, startWorkout, startWorkoutFromProgram, addExercise, removeExercise, addSet, updateSet, removeSet, finishWorkout, addManualWorkout, cancelWorkout, deleteWorkout, updateSavedSet } = useWorkoutCloud({ memberId: selectedMember?.id });
   const { programs, createProgram, updateProgram, deleteProgram } = useWorkoutPrograms({ memberId: selectedMember?.id });
   const { customExercises, addCustomExercise, deleteCustomExercise } = useCustomExercises();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -241,6 +242,7 @@ const Index = () => {
                 onDeleteWorkout={deleteWorkout}
                 onUpdateSavedSet={updateSavedSet}
                 onSaveAsProgram={handleSaveAsProgram}
+                onAddManualWorkout={addManualWorkout}
               />
             </TabTransition>
           </TabsContent>

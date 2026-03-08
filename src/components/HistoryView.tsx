@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Workout, WorkoutSet } from '@/types/workout';
 import { categoryColors } from '@/data/exercises';
-import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X } from 'lucide-react';
+import { Calendar, Trash2, Dumbbell, Timer, ChevronDown, ChevronUp, Search, MapPin, Clock, Pencil, Check, X, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
@@ -16,6 +17,7 @@ interface HistoryViewProps {
   onDeleteWorkout: (workoutId: string) => void;
   onUpdateSavedSet?: (setId: string, updates: { weight?: number; reps?: number }) => Promise<void>;
   onSaveAsProgram?: (workout: Workout, name: string) => Promise<void>;
+  onAddManualWorkout?: (workout: Workout) => Promise<boolean>;
 }
 
 // UTC 날짜 문자열을 안전하게 로컬 날짜로 변환하는 함수
@@ -31,9 +33,12 @@ function formatDuration(seconds: number): string {
   return `${minutes}분`;
 }
 
-export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram }: HistoryViewProps) {
+export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSaveAsProgram, onAddManualWorkout }: HistoryViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
+  const [manualDate, setManualDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [manualExercises, setManualExercises] = useState<{ name: string, sets: { weight: number, reps: number }[] }[]>([]);
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
   const { unit, toDisplay, toKg } = useWeightUnit();
 
@@ -97,31 +102,128 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
     }
   };
 
-  if (workouts.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
-        <div className="text-center">
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-primary/20 flex items-center justify-center">
-            <Calendar className="w-12 h-12 text-primary" />
-          </div>
-          <h2 className="text-2xl font-bold mb-2">운동 기록이 없습니다</h2>
-          <p className="text-muted-foreground break-keep">첫 운동을 시작해보세요!</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4 pb-6">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="운동 이름으로 검색..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 rounded-xl glass border-border/30 focus:ring-2 focus:ring-primary/30 transition-shadow"
-        />
+      {/* Search & Manual Add */}
+      <div className="flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="운동 이름으로 검색..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 rounded-xl glass border-border/30 focus:ring-2 focus:ring-primary/30 transition-shadow"
+          />
+        </div>
+        <Dialog open={isManualModalOpen} onOpenChange={setIsManualModalOpen}>
+          <DialogTrigger asChild>
+            <Button variant="secondary" className="gap-2 shrink-0 h-10 px-3 rounded-xl">
+              <Plus className="w-4 h-4" />
+              수기 추가
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto w-[95vw] rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>수기 기록 추가</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">운동한 날짜를 선택해주세요</label>
+                <Input type="date" value={manualDate} onChange={e => setManualDate(e.target.value)} className="rounded-xl h-11" />
+              </div>
+              <div className="space-y-3">
+                <label className="text-sm font-medium">운동 종목 및 세트</label>
+                {manualExercises.map((ex, exIdx) => (
+                  <div key={exIdx} className="p-3 border border-border/40 rounded-xl space-y-3 bg-secondary/10">
+                    <div className="flex items-center justify-between gap-2">
+                      <Input placeholder="운동 이름 (예: 벤치프레스)" value={ex.name} onChange={e => {
+                        const newEx = [...manualExercises];
+                        newEx[exIdx].name = e.target.value;
+                        setManualExercises(newEx);
+                      }} className="h-9 flex-1" />
+                      <Button variant="ghost" size="sm" onClick={() => setManualExercises(manualExercises.filter((_, i) => i !== exIdx))} className="h-9 text-destructive whitespace-nowrap">삭제</Button>
+                    </div>
+                    <div className="space-y-2">
+                      {ex.sets.map((set, setIdx) => (
+                        <div key={setIdx} className="flex items-center gap-2 justify-between px-1">
+                          <span className="text-[11px] text-muted-foreground w-6 font-medium bg-foreground/5 rounded px-1 min-w-[34px] text-center">{setIdx + 1}세트</span>
+                          <div className="flex items-center gap-1">
+                            <NumberInput value={set.weight} onChange={val => {
+                              const newEx = [...manualExercises];
+                              newEx[exIdx].sets[setIdx].weight = val;
+                              setManualExercises(newEx);
+                            }} min={0} className="w-[60px] h-8 text-xs text-center border-border/50 bg-background/50" />
+                            <span className="text-[11px] font-medium text-muted-foreground">kg</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <NumberInput value={set.reps} onChange={val => {
+                              const newEx = [...manualExercises];
+                              newEx[exIdx].sets[setIdx].reps = val;
+                              setManualExercises(newEx);
+                            }} min={0} className="w-[50px] h-8 text-xs text-center border-border/50 bg-background/50" />
+                            <span className="text-[11px] font-medium text-muted-foreground">회</span>
+                          </div>
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            const newEx = [...manualExercises];
+                            newEx[exIdx].sets = newEx[exIdx].sets.filter((_, i) => i !== setIdx);
+                            setManualExercises(newEx);
+                          }} className="text-muted-foreground w-8 h-8 p-0 shrink-0 hover:bg-destructive/10 hover:text-destructive"><Trash2 className="w-3.5 h-3.5" /></Button>
+                        </div>
+                      ))}
+                      <Button variant="outline" size="sm" onClick={() => {
+                        const newEx = [...manualExercises];
+                        const lastSet = ex.sets.length > 0 ? ex.sets[ex.sets.length - 1] : { weight: 0, reps: 0 };
+                        newEx[exIdx].sets.push({ weight: lastSet.weight, reps: lastSet.reps });
+                        setManualExercises(newEx);
+                      }} className="w-full h-8 text-xs border-dashed gap-1 mt-2 text-primary border-primary/20 bg-primary/5 hover:bg-primary/10">
+                        <Plus className="w-3 h-3" /> 세트 연달아 추가
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+                <Button variant="outline" onClick={() => {
+                  setManualExercises([...manualExercises, { name: '', sets: [{ weight: 0, reps: 0 }] }]);
+                }} className="w-full h-11 gap-1 border-dashed rounded-xl">
+                  <Plus className="w-4 h-4" /> 운동 추가하기
+                </Button>
+              </div>
+
+              <div className="pt-2">
+                <Button className="w-full h-12 rounded-xl text-base font-bold" onClick={async () => {
+                  if (!onAddManualWorkout) return;
+                  const d = parseISO(manualDate);
+                  const validExercises = manualExercises.filter(ex => ex.name.trim() !== '');
+                  if (validExercises.length === 0) return alert('운동을 한 개 이상 입력해주세요.');
+
+                  const workout: Workout = {
+                    id: crypto.randomUUID(),
+                    date: format(d, "yyyy-MM-dd'T'12:00:00"),
+                    exercises: validExercises.map((ex, i) => ({
+                      id: crypto.randomUUID(),
+                      name: ex.name,
+                      category: '하체' as any, // fallback category
+                      sets: ex.sets.map((s) => ({
+                        id: crypto.randomUUID(),
+                        weight: s.weight,
+                        reps: s.reps,
+                        completed: true
+                      }))
+                    }))
+                  };
+                  const success = await onAddManualWorkout(workout);
+                  if (success) {
+                    setIsManualModalOpen(false);
+                    setManualExercises([]);
+                    alert('수기 기록이 잘 저장되었습니다!');
+                  }
+                }}>
+                  수기 기록 저장하기
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* 날짜 필터 */}
@@ -137,7 +239,17 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
         ))}
       </div>
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && workouts.length === 0 && (
+        <div className="flex flex-col items-center justify-center min-h-[40vh] p-6 mt-4 opacity-70">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+            <Calendar className="w-10 h-10 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold mb-2">운동 기록이 없습니다</h2>
+          <p className="text-sm text-muted-foreground break-keep text-center">첫 운동을 시작하거나,<br />우측 상단 <b>+ 수기 추가</b> 버튼으로 잊은 기록을 남겨보세요!</p>
+        </div>
+      )}
+
+      {filtered.length === 0 && workouts.length > 0 && (
         <p className="text-center text-muted-foreground py-10">해당 기간의 기록이 없습니다.</p>
       )}
 
