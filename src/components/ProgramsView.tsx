@@ -500,7 +500,7 @@ export function ProgramsView({
                           <TableCell className="py-2 text-[11px] text-center bg-accent/5 px-1 whitespace-nowrap">
                             {tm > 0 ? (
                               <div className="space-y-1">
-                                <div className="text-accent font-bold leading-none">{round(tm * 0.5)}~{round(tm * 0.6)}</div>
+                                <div className="text-accent font-bold leading-none">{round(tm * 0.6)}</div>
                                 <div className="text-[9px] opacity-50 leading-none">5x10 Supplemental</div>
                               </div>
                             ) : '-'}
@@ -520,7 +520,7 @@ export function ProgramsView({
               </div>
               <ul className="text-[11px] text-muted-foreground/80 space-y-2 leading-relaxed list-disc ml-4">
                 <li>표시된 숫자는 해당 주차의 가장 무거운 마지막 세트 목표 무게입니다.</li>
-                <li><strong>BBB 보조 세트</strong>: 메인 종목 후 {unit === 'kg' ? 'TM의 50~60%' : '50-60% of TM'} 무게로 10회씩 5세트를 수행하세요.</li>
+                <li><strong>BBB 보조 세트</strong>: 메인 종목 후 {unit === 'kg' ? 'TM의 60%' : '60% of TM'} 무게로 10회씩 5세트를 수행하세요.</li>
                 <li><strong>디로딩 (4주차)</strong>: 피로 관리를 위해 모든 세트를 TM의 40~60% 선에서 가볍게 진행하세요.</li>
               </ul>
             </div>
