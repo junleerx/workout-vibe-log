@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { FiveThreeOneView } from '@/components/FiveThreeOneView';
+import { Workout } from '@/types/workout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +58,7 @@ interface ProgramsViewProps {
   ) => void;
   onDeleteProgram: (programId: string) => void;
   onStartFromProgram: (exercises: ProgramExercise[]) => void;
+  workouts?: Workout[];
   customExercises: { id: string; name: string; category: string }[];
   onAddCustomExercise: (name: string, category: string) => void;
   onDeleteCustomExercise: (exerciseId: string) => void;
@@ -67,10 +70,12 @@ export function ProgramsView({
   onUpdateProgram,
   onDeleteProgram,
   onStartFromProgram,
+  workouts = [],
   customExercises,
   onAddCustomExercise,
   onDeleteCustomExercise,
 }: ProgramsViewProps) {
+  const [activeSection, setActiveSection] = useState<'programs' | '531'>('programs');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isManageOpen, setIsManageOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -569,6 +574,30 @@ export function ProgramsView({
 
   return (
     <div className="space-y-6">
+      {/* 내부 탭 */}
+      <div className="flex bg-secondary/50 p-1 rounded-2xl">
+        <button
+          onClick={() => setActiveSection('programs')}
+          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${activeSection === 'programs' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          프로그램
+        </button>
+        <button
+          onClick={() => setActiveSection('531')}
+          className={`flex-1 py-2 text-sm font-bold rounded-xl transition-all ${activeSection === '531' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          5/3/1
+        </button>
+      </div>
+
+      {/* 5/3/1 섹션 */}
+      {activeSection === '531' && (
+        <FiveThreeOneView workouts={workouts} onStartFromProgram={onStartFromProgram} />
+      )}
+
+      {/* 프로그램 섹션 */}
+      {activeSection === 'programs' && <>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -1206,6 +1235,7 @@ export function ProgramsView({
           </Card>
         ))}
       </div>
+      </>}
     </div >
   );
 }
