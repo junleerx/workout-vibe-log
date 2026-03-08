@@ -98,7 +98,7 @@ serve(async (req: Request) => {
       4. "Day 4: OHP (오버헤드 프레스)" - Exercises: 1. OHP (5/3/1 Sets), 2. OHP (BBB 5x10 Sets)
     - FOR EACH EXERCISE:
       - MAIN LIFT: Use 'sets' array for 3 sets (Week 1: 65%TMx5, 75%TMx5, 85%TMx5+).
-      - BBB LIFT: Use 5 sets of 10 reps at exactly 60% of TM.
+      - BBB LIFT: Use 5 sets of 10 reps at exactly 50% of TM.
     - MAIN LIFTS (1RM -> TM):
       - Squat: ${oneRMs?.squat || 100}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.squat) || 100) * 0.9)}${targetUnit}
       - Bench: ${oneRMs?.bench || 80}${targetUnit} -> TM: ${Math.round((Number(oneRMs?.bench) || 80) * 0.9)}${targetUnit}

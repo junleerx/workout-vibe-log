@@ -105,11 +105,11 @@ export function FiveThreeOneView({ workouts, onStartFromProgram }: Props) {
       }],
     }));
 
-    // BBB: 5 × 10 @ 60% TM
-    const bbbWeight = round(liftTm * 0.6);
+    // BBB: 5 × 10 @ 50% TM
+    const bbbWeight = round(liftTm * 0.5);
     const bbbExercise: ProgramExercise = {
       id: '531-bbb',
-      exerciseName: `${meta.label} BBB (60%)`,
+      exerciseName: `${meta.label} BBB (50%)`,
       muscleGroup: meta.category,
       orderIndex: mainExercises.length,
       targetSets: 5,
@@ -275,8 +275,8 @@ export function FiveThreeOneView({ workouts, onStartFromProgram }: Props) {
                     <div className="text-[10px] font-bold text-muted-foreground mb-2">BBB (Boring But Big)</div>
                     <div className="flex items-center">
                       <div className="flex-1">
-                        <span className="text-sm font-bold">{round(liftTm * 0.6)}{unit}</span>
-                        <span className="text-xs text-muted-foreground ml-2">60% TM</span>
+                        <span className="text-sm font-bold">{round(liftTm * 0.5)}{unit}</span>
+                        <span className="text-xs text-muted-foreground ml-2">50% TM</span>
                       </div>
                       <Badge variant="outline" className="text-[10px]">5 × 10회</Badge>
                     </div>
