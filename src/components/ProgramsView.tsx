@@ -452,7 +452,11 @@ export function ProgramsView({
                           <TableCell className="py-2 text-[10px] text-center bg-primary/5 align-top">
                             {tm > 0 ? (
                               <div className="space-y-1">
-                                <div className="opacity-50 text-[9px]">65/75/85%</div>
+                                <div className="opacity-50 text-[9px]">65%</div>
+                                <div>{round(tm * 0.65)}</div>
+                                <div className="opacity-50 text-[9px]">75%</div>
+                                <div>{round(tm * 0.75)}</div>
+                                <div className="opacity-50 text-[9px]">85%</div>
                                 <div className="text-primary font-bold">{round(tm * 0.85)}</div>
                               </div>
                             ) : '–'}
@@ -460,24 +464,36 @@ export function ProgramsView({
                           <TableCell className="py-2 text-[10px] text-center align-top">
                             {tm > 0 ? (
                               <div className="space-y-1">
-                                <div className="opacity-50 text-[9px]">70/80/90%</div>
-                                <div className="font-bold text-foreground/80">{round(tm * 0.9)}</div>
+                                <div className="opacity-50 text-[9px]">70%</div>
+                                <div>{round(tm * 0.7)}</div>
+                                <div className="opacity-50 text-[9px]">80%</div>
+                                <div>{round(tm * 0.8)}</div>
+                                <div className="opacity-50 text-[9px]">90%</div>
+                                <div className="font-bold">{round(tm * 0.9)}</div>
                               </div>
                             ) : '–'}
                           </TableCell>
                           <TableCell className="py-2 text-[10px] text-center align-top">
                             {tm > 0 ? (
                               <div className="space-y-1">
-                                <div className="opacity-50 text-[9px]">75/85/95%</div>
-                                <div className="font-bold text-foreground/80">{round(tm * 0.95)}</div>
+                                <div className="opacity-50 text-[9px]">75%</div>
+                                <div>{round(tm * 0.75)}</div>
+                                <div className="opacity-50 text-[9px]">85%</div>
+                                <div>{round(tm * 0.85)}</div>
+                                <div className="opacity-50 text-[9px]">95%+</div>
+                                <div className="font-bold">{round(tm * 0.95)}</div>
                               </div>
                             ) : '–'}
                           </TableCell>
                           <TableCell className="py-2 text-[10px] text-center opacity-50 align-top">
                             {tm > 0 ? (
-                              <div className="space-y-1 text-muted-foreground">
-                                <div className="opacity-50 text-[9px]">40/50/60%</div>
-                                <div className="font-bold">{round(tm * 0.6)}</div>
+                              <div className="space-y-1">
+                                <div className="opacity-50 text-[9px]">40%</div>
+                                <div>{round(tm * 0.4)}</div>
+                                <div className="opacity-50 text-[9px]">50%</div>
+                                <div>{round(tm * 0.5)}</div>
+                                <div className="opacity-50 text-[9px]">60%</div>
+                                <div>{round(tm * 0.6)}</div>
                               </div>
                             ) : '–'}
                           </TableCell>

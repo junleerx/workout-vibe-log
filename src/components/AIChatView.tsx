@@ -3,6 +3,7 @@ import { Sparkles, Send, Loader2, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Workout } from '@/types/workout';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface Message {
   role: 'user' | 'ai';
@@ -25,6 +26,7 @@ export function AIChatView({ recentWorkouts = [] }: AIChatViewProps) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { unit } = useWeightUnit();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,7 +64,7 @@ export function AIChatView({ recentWorkouts = [] }: AIChatViewProps) {
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { messages: historyForApi, workoutContext },
+        body: { messages: historyForApi, workoutContext, weightUnit: unit },
       });
 
       if (error) throw error;

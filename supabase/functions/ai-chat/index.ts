@@ -35,19 +35,24 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, workoutContext } = await req.json();
+    const { messages, workoutContext, weightUnit } = await req.json();
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const workoutCount = workoutContext?.length ?? 0;
+    const unitLabel = weightUnit === 'lbs' ? 'lbs (파운드)' : 'kg (킬로그램)';
     const systemPrompt = `너는 전문 운동 코치 아놀드AI야. 사용자의 실제 운동 기록 분석과 전반적인 피트니스 조언(웜업, 스트레칭, 영양, 운동 방법 등)을 제공해줘.
+
+[사용자 무게 단위]
+${unitLabel} — 기록의 모든 무게 수치는 이 단위 기준이야. 답변할 때도 반드시 이 단위(${weightUnit ?? 'kg'})를 사용해줘.
 
 [사용자 운동 기록 (최근 ${workoutCount}회)]
 ${workoutCount > 0 ? JSON.stringify(workoutContext, null, 2) : "최근 기록 없음 (일반적인 피트니스 질문에 답변 가능)"}
 
 답변 규칙:
 - 기록이 있다면 실제 수치(무게, 횟수, 날짜 등)를 분석에 적극 활용해줘.
+- 무게를 언급할 때는 항상 ${weightUnit ?? 'kg'} 단위를 붙여줘 (예: 100${weightUnit ?? 'kg'}).
 - 기록이 없거나 일반적인 질문(예: "웜업 어떻게 해?", "단백질 얼마나 먹어?")에도 전문적인 지식을 바탕으로 친절하게 답해줘.
 - 불필요한 서두 없이 바로 핵심만 답해줘.
 - 한국어로 답변.
