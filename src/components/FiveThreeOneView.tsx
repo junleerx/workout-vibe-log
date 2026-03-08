@@ -19,17 +19,17 @@ const LIFTS = ['Squat', 'Bench', 'Deadlift', 'OHP'] as const;
 type Lift = typeof LIFTS[number];
 
 const LIFT_META: Record<Lift, { label: string; category: ProgramExercise['muscleGroup'] }> = {
-  Squat:    { label: '스쿼트',        category: '하체' },
-  Bench:    { label: '벤치프레스',    category: '가슴' },
-  Deadlift: { label: '데드리프트',    category: '하체' },
-  OHP:      { label: '오버헤드프레스', category: '어깨' },
+  Squat: { label: '스쿼트', category: '하체' },
+  Bench: { label: '벤치프레스', category: '가슴' },
+  Deadlift: { label: '데드리프트', category: '하체' },
+  OHP: { label: '오버헤드프레스', category: '어깨' },
 };
 
 const WEEK_CONFIG = {
-  1: { label: 'Week 1', sub: '5s',      color: 'bg-blue-500/10 text-blue-600 border-blue-500/20',      sets: [{ pct: 0.65, reps: '5', amrap: false }, { pct: 0.75, reps: '5', amrap: false }, { pct: 0.85, reps: '5+', amrap: true }] },
-  2: { label: 'Week 2', sub: '3s',      color: 'bg-purple-500/10 text-purple-600 border-purple-500/20', sets: [{ pct: 0.70, reps: '3', amrap: false }, { pct: 0.80, reps: '3', amrap: false }, { pct: 0.90, reps: '3+', amrap: true }] },
-  3: { label: 'Week 3', sub: '5/3/1+',  color: 'bg-primary/10 text-primary border-primary/20',          sets: [{ pct: 0.75, reps: '5', amrap: false }, { pct: 0.85, reps: '3', amrap: false }, { pct: 0.95, reps: '1+', amrap: true }] },
-  4: { label: 'Week 4', sub: 'Deload',  color: 'bg-muted text-muted-foreground border-border',           sets: [{ pct: 0.40, reps: '5', amrap: false }, { pct: 0.50, reps: '5', amrap: false }, { pct: 0.60, reps: '5', amrap: false }] },
+  1: { label: 'Week 1', sub: '5s', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20', sets: [{ pct: 0.65, reps: '5', amrap: false }, { pct: 0.75, reps: '5', amrap: false }, { pct: 0.85, reps: '5+', amrap: true }] },
+  2: { label: 'Week 2', sub: '3s', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20', sets: [{ pct: 0.70, reps: '3', amrap: false }, { pct: 0.80, reps: '3', amrap: false }, { pct: 0.90, reps: '3+', amrap: true }] },
+  3: { label: 'Week 3', sub: '5/3/1+', color: 'bg-primary/10 text-primary border-primary/20', sets: [{ pct: 0.75, reps: '5', amrap: false }, { pct: 0.85, reps: '3', amrap: false }, { pct: 0.95, reps: '1+', amrap: true }] },
+  4: { label: 'Week 4', sub: 'Deload', color: 'bg-muted text-muted-foreground border-border', sets: [{ pct: 0.40, reps: '5', amrap: false }, { pct: 0.50, reps: '5', amrap: false }, { pct: 0.60, reps: '5', amrap: false }] },
 } as const;
 
 interface Props {
@@ -105,11 +105,11 @@ export function FiveThreeOneView({ workouts, onStartFromProgram }: Props) {
       }],
     }));
 
-    // BBB: 5 × 10 @ 50% TM
-    const bbbWeight = round(liftTm * 0.5);
+    // BBB: 5 × 10 @ 60% TM
+    const bbbWeight = round(liftTm * 0.6);
     const bbbExercise: ProgramExercise = {
       id: '531-bbb',
-      exerciseName: `${meta.label} BBB (50%)`,
+      exerciseName: `${meta.label} BBB (60%)`,
       muscleGroup: meta.category,
       orderIndex: mainExercises.length,
       targetSets: 5,
@@ -275,8 +275,8 @@ export function FiveThreeOneView({ workouts, onStartFromProgram }: Props) {
                     <div className="text-[10px] font-bold text-muted-foreground mb-2">BBB (Boring But Big)</div>
                     <div className="flex items-center">
                       <div className="flex-1">
-                        <span className="text-sm font-bold">{round(liftTm * 0.5)}{unit}</span>
-                        <span className="text-xs text-muted-foreground ml-2">50% TM</span>
+                        <span className="text-sm font-bold">{round(liftTm * 0.6)}{unit}</span>
+                        <span className="text-xs text-muted-foreground ml-2">60% TM</span>
                       </div>
                       <Badge variant="outline" className="text-[10px]">5 × 10회</Badge>
                     </div>
