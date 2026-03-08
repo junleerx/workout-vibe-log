@@ -431,7 +431,7 @@ export function ProgramsView({
                 <TableBody>
                   {lifts.map((lift) => {
                     const tm = Math.round(lift.val * 0.9);
-                    const round = (v: number) => Math.round(v / 2.5) * 2.5;
+                    const round = (v: number) => unit === 'kg' ? Math.round(v * 2) / 2 : Math.round(v / 2.5) * 2.5;
                     return (
                       <TableRow key={lift.label} className="hover:bg-transparent border-b-border/10">
                         <TableCell className="py-2 text-[11px]">

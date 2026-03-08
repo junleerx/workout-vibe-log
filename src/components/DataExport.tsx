@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Workout } from '@/types/workout';
 import { format, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
 
 interface DataExportProps {
   workouts: Workout[];
@@ -11,6 +12,7 @@ interface DataExportProps {
 
 export function DataExport({ workouts }: DataExportProps) {
   const [isExporting, setIsExporting] = useState(false);
+  const { unit } = useWeightUnit();
 
   // UTC -> Local for consistent export behavior
   const getLocalDate = (isoString: string) => {
@@ -26,7 +28,7 @@ export function DataExport({ workouts }: DataExportProps) {
         return;
       }
 
-      const headers = ['날짜', '운동 이름', '부위', '세트 수', '총 볼륨(kg)', '운동 시간(초)', '컨디션(isPainful)'];
+      const headers = ['날짜', '운동 이름', '부위', '세트 수', `총 볼륨(${unit})`, '운동 시간(초)', '컨디션(isPainful)'];
       
       const rows = workouts.flatMap(workout => {
         const dateDesc = format(getLocalDate(workout.date), 'yyyy-MM-dd', { locale: ko });
