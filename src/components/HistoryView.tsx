@@ -117,14 +117,14 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
         </div>
         <Dialog open={isManualModalOpen} onOpenChange={setIsManualModalOpen}>
           <DialogTrigger asChild>
-            <Button variant="secondary" className="gap-2 shrink-0 h-10 px-3 rounded-xl">
+            <Button variant="secondary" className="gap-2 shrink-0 h-10 px-3 rounded-xl font-semibold">
               <Plus className="w-4 h-4" />
-              수기 추가
+              기록 직접 추가
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto w-[95vw] rounded-2xl">
             <DialogHeader>
-              <DialogTitle>수기 기록 추가</DialogTitle>
+              <DialogTitle>운동 기록 직접 추가</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-2">
               <div className="space-y-2">
@@ -215,10 +215,10 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
                   if (success) {
                     setIsManualModalOpen(false);
                     setManualExercises([]);
-                    alert('수기 기록이 잘 저장되었습니다!');
+                    alert('운동 기록이 성공적으로 저장되었습니다!');
                   }
                 }}>
-                  수기 기록 저장하기
+                  새로운 기록 저장하기
                 </Button>
               </div>
             </div>
@@ -245,7 +245,7 @@ export function HistoryView({ workouts, onDeleteWorkout, onUpdateSavedSet, onSav
             <Calendar className="w-10 h-10 text-primary" />
           </div>
           <h2 className="text-xl font-bold mb-2">운동 기록이 없습니다</h2>
-          <p className="text-sm text-muted-foreground break-keep text-center">첫 운동을 시작하거나,<br />우측 상단 <b>+ 수기 추가</b> 버튼으로 잊은 기록을 남겨보세요!</p>
+          <p className="text-sm text-muted-foreground break-keep text-center">첫 운동을 시작하거나,<br />우측 상단 <b>+ 기록 직접 추가</b> 버튼으로 지난 운동을 기록해보세요!</p>
         </div>
       )}
 
