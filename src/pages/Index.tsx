@@ -212,6 +212,7 @@ const Index = () => {
                 onUpdateProgram={updateProgram}
                 onDeleteProgram={deleteProgram}
                 onStartFromProgram={(exs) => { startWorkoutFromProgram(selectedMember?.id || '', exs); setActiveTab('workout'); }}
+                workouts={workouts}
                 customExercises={customExercises}
                 onAddCustomExercise={addCustomExercise}
                 onDeleteCustomExercise={deleteCustomExercise}
