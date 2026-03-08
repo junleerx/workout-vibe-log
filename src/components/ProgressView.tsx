@@ -13,9 +13,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  BarChart,
-  Bar,
-  ResponsiveContainer,
 } from 'recharts';
 import {
   Select,
@@ -40,6 +37,7 @@ interface ExerciseProgressData {
   maxWeight: number;
   totalReps: number;
   totalVolume: number;
+  e1rm: number; // 추정 1RM (Epley: weight × (1 + reps / 30))
 }
 
 const chartConfig: ChartConfig = {
@@ -47,8 +45,8 @@ const chartConfig: ChartConfig = {
     label: '최대 무게',
     color: 'hsl(var(--primary))',
   },
-  totalReps: {
-    label: '총 반복 횟수',
+  e1rm: {
+    label: '추정 1RM',
     color: 'hsl(var(--accent))',
   },
 };
@@ -137,6 +135,13 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
           const maxWeight = Math.max(...exercise.sets.map(s => s.weight), 0);
           const totalReps = exercise.sets.reduce((acc, s) => acc + s.reps, 0);
           const totalVolume = exercise.sets.reduce((acc, s) => acc + s.weight * s.reps, 0);
+          // 추정 1RM: 각 세트의 Epley 공식 중 최댓값
+          const e1rm = Math.max(
+            ...exercise.sets
+              .filter(s => s.weight > 0 && s.reps > 0)
+              .map(s => s.weight * (1 + s.reps / 30)),
+            0
+          );
 
           data.push({
             date: workout.date,
@@ -144,6 +149,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
             maxWeight,
             totalReps,
             totalVolume,
+            e1rm,
           });
         }
       });
@@ -153,28 +159,26 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
 
   // Calculate statistics
   const stats = useMemo(() => {
+    const last = progressData[progressData.length - 1];
+    const first = progressData[0];
+
     if (progressData.length < 2) {
       return {
-        latestWeight: progressData[progressData.length - 1]?.maxWeight || 0,
-        latestReps: progressData[progressData.length - 1]?.totalReps || 0,
-        weightChange: 0,
-        weightChangePercent: 0,
+        latestWeight: last?.maxWeight || 0,
+        latestE1rm: last?.e1rm || 0,
+        e1rmChange: 0,
+        e1rmChangePercent: 0,
       };
     }
 
-    const first = progressData[0];
-    const last = progressData[progressData.length - 1];
-
-    const weightChange = last.maxWeight - first.maxWeight;
-    const weightChangePercent = first.maxWeight > 0
-      ? ((weightChange / first.maxWeight) * 100)
-      : 0;
+    const e1rmChange = last.e1rm - first.e1rm;
+    const e1rmChangePercent = first.e1rm > 0 ? (e1rmChange / first.e1rm) * 100 : 0;
 
     return {
       latestWeight: last.maxWeight,
-      latestReps: last.totalReps,
-      weightChange,
-      weightChangePercent,
+      latestE1rm: last.e1rm,
+      e1rmChange,
+      e1rmChangePercent,
     };
   }, [progressData]);
 
@@ -283,18 +287,21 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
                 <p className="text-2xl font-bold text-primary">{toDisplay(stats.latestWeight)} {unit}</p>
               </div>
               <div className="bg-accent/10 border border-accent/20 rounded-xl p-4">
-                <p className="text-xs text-accent/80 mb-1 font-semibold">최근 반복 횟수</p>
-                <p className="text-2xl font-bold text-accent">{stats.latestReps} 회</p>
+                <p className="text-xs text-accent/80 mb-1 font-semibold">추정 1RM</p>
+                <p className="text-2xl font-bold text-accent">
+                  {toDisplay(stats.latestE1rm).toFixed(1)} {unit}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Epley 공식</p>
               </div>
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 col-span-2">
-                <p className="text-xs text-amber-500/80 mb-1 font-semibold">무게 변화</p>
+                <p className="text-xs text-amber-500/80 mb-1 font-semibold">1RM 변화</p>
                 <div className="flex items-center gap-2">
-                  {getTrendIcon(stats.weightChange)}
+                  {getTrendIcon(stats.e1rmChange)}
                   <span className="text-2xl font-bold">
-                    {stats.weightChange > 0 ? '+' : ''}{toDisplay(stats.weightChange)} {unit}
+                    {stats.e1rmChange > 0 ? '+' : ''}{toDisplay(stats.e1rmChange).toFixed(1)} {unit}
                   </span>
-                  <span className={`text-sm ${stats.weightChangePercent >= 0 ? 'text-primary' : 'text-destructive'}`}>
-                    ({stats.weightChangePercent >= 0 ? '+' : ''}{stats.weightChangePercent.toFixed(1)}%)
+                  <span className={`text-sm ${stats.e1rmChangePercent >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                    ({stats.e1rmChangePercent >= 0 ? '+' : ''}{stats.e1rmChangePercent.toFixed(1)}%)
                   </span>
                 </div>
               </div>
@@ -340,11 +347,12 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
               </ChartContainer>
             </div>
 
-            {/* Reps Progress Chart */}
+            {/* e1RM Progress Chart */}
             <div>
-              <h4 className="text-sm font-medium text-muted-foreground mb-3">반복 횟수 진행 그래프</h4>
+              <h4 className="text-sm font-medium text-muted-foreground mb-1">추정 1RM 추이</h4>
+              <p className="text-[11px] text-muted-foreground/60 mb-3">무게 × (1 + 횟수 ÷ 30) — 세트 중 최고값</p>
               <ChartContainer config={chartConfig} className="h-[200px]">
-                <BarChart data={progressData}>
+                <LineChart data={progressData}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
                   <XAxis
                     dataKey="dateLabel"
@@ -354,7 +362,7 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
                   <YAxis
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `${value}회`}
+                    tickFormatter={(value) => `${toDisplay(value).toFixed(0)}${unit}`}
                   />
                   <ChartTooltip
                     content={
@@ -365,15 +373,19 @@ export function ProgressView({ workouts, selectedMember }: ProgressViewProps) {
                           }
                           return '';
                         }}
+                        formatter={(value: number) => [`${toDisplay(value).toFixed(1)} ${unit}`, '추정 1RM']}
                       />
                     }
                   />
-                  <Bar
-                    dataKey="totalReps"
-                    fill="var(--color-totalReps)"
-                    radius={[4, 4, 0, 0]}
+                  <Line
+                    type="monotone"
+                    dataKey="e1rm"
+                    stroke="var(--color-e1rm)"
+                    strokeWidth={2}
+                    dot={{ fill: 'var(--color-e1rm)', r: 4 }}
+                    activeDot={{ r: 6 }}
                   />
-                </BarChart>
+                </LineChart>
               </ChartContainer>
             </div>
           </>
